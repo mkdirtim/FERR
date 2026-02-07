@@ -1,0 +1,48 @@
+# Kali-based container for OpenCode development + pentesting tools
+FROM kalilinux/kali-rolling:latest
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    kali-linux-headless \
+    nuclei \
+    python3 \
+    python3-venv \
+    build-essential \
+    jq \
+    curl \
+    ca-certificates \
+    git \
+    libcap2-bin \
+    unzip \
+    make \
+    ripgrep \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN setcap cap_net_raw,cap_net_admin,cap_net_bind_service+eip "$(which nmap)"
+
+ENV BUN_INSTALL=/opt/bun
+RUN set -eux; \
+    mkdir -p /opt/bun; \
+    curl -fsSL https://bun.sh/install | bash; \
+    test -x /opt/bun/bin/bun; \
+    ln -s /opt/bun/bin/bun /usr/local/bin/bun
+
+WORKDIR /app
+
+RUN mkdir -p /usr/share/wordlists/seclists
+
+RUN useradd -m -s /bin/bash opencode && \
+    chown -R opencode:opencode /app /opt/bun
+
+USER opencode
+
+ENV PYTHONUNBUFFERED=1
+ENV PATH="/opt/bun/bin:/home/opencode/.local/bin:${PATH}"
+
+RUN printf '\n# opencodestack shell helper\nif [ -n "$PS1" ] && [ "$$" -ne 1 ]; then\n  echo \"opencodestack: repo mounted at /app\";\n  echo \"opencodestack: from host run: make -C docker help\";\nfi\n' >> /home/opencode/.bashrc
+
+EXPOSE 4096 3000
+
+CMD ["/bin/bash"]

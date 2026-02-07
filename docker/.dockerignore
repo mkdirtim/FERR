@@ -1,0 +1,26 @@
+# Docker ignore file for opencodestack
+
+# Workspace deps/build
+node_modules/
+dist/
+build/
+coverage/
+*.log
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# IDE/OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+

@@ -1,0 +1,83 @@
+# Ubuntu-based "bench" container for running third-party OSS hacking agents locally.
+#
+# Goal:
+# - Python 3.12+ toolchains (uv/poetry friendly)
+# - Browser automation deps (Playwright/Chromium)
+# - Baseline CLI/pentest utilities
+#
+# This is intentionally not a full Kali image; use Dockerfile.kali for that.
+
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    git \
+    jq \
+    ripgrep \
+    unzip \
+    make \
+    build-essential \
+    python3.12 \
+    python3.12-venv \
+    python3-pip \
+    pipx \
+    # baseline network/pentest utilities
+    nmap \
+    netcat-openbsd \
+    dnsutils \
+    whois \
+    iputils-ping \
+    iproute2 \
+    tcpdump \
+    # browser deps (Playwright-compatible) + system chromium
+    chromium \
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libdrm2 \
+    libgbm1 \
+    libglib2.0-0 \
+    libnss3 \
+    libnspr4 \
+    libx11-6 \
+    libx11-xcb1 \
+    libxcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxext6 \
+    libxfixes3 \
+    libxrandr2 \
+    libxshmfence1 \
+    xdg-utils \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# uv is used by multiple repos here (and is fast). Keep it global.
+RUN set -eux; \
+    curl -fsSL https://astral.sh/uv/install.sh | sh; \
+    ln -s /root/.local/bin/uv /usr/local/bin/uv
+
+# Poetry is still common (e.g. Strix). pipx avoids polluting system Python.
+RUN set -eux; \
+    pipx ensurepath; \
+    pipx install poetry
+
+RUN setcap cap_net_raw,cap_net_admin,cap_net_bind_service+eip "$(which nmap)"
+
+RUN useradd -m -s /bin/bash bench && \
+    mkdir -p /work /playground && \
+    chown -R bench:bench /work /playground
+
+USER bench
+WORKDIR /work
+
+ENV PYTHONUNBUFFERED=1
+ENV PATH="/home/bench/.local/bin:${PATH}"
+
+CMD ["/bin/bash"]
+

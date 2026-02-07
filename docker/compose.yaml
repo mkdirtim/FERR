@@ -38,11 +38,20 @@ services:
     volumes:
       - ..:/app
       - ./data/seclists:/usr/share/wordlists/seclists:ro
+      # Persist npx/npm downloads across container recreations (MCP servers use npx).
+      - openhack-npm:/home/opencode/.npm
+      # Persist Playwright browser downloads/cache (Linux default location).
+      - openhack-playwright:/home/opencode/.cache/ms-playwright
     networks:
       - opencodestack-network
+    extra_hosts:
+      # Enable host Chrome debugging from inside the container (Linux engine + Desktop).
+      - "host.docker.internal:host-gateway"
     ports:
       - "4096:4096" # opencode serve/web
-      - "3000:3000" # packages/app (vite)
+      # packages/app (vite). Default to an ephemeral host port to avoid collisions.
+      # Override with OPENCODE_APP_PORT=3000 (or any other port) if you want a fixed mapping.
+      - "${OPENCODE_APP_PORT:-0}:3000"
     healthcheck:
       test: ["CMD-SHELL", "test -f /app/package.json && test -f /app/packages/opencode/package.json && which bun >/dev/null && which nmap >/dev/null"]
       interval: 30s
@@ -180,3 +189,7 @@ networks:
     driver_opts:
       com.docker.network.bridge.name: "opencodestack0"
       com.docker.network.bridge.enable_ip_masquerade: "true"
+
+volumes:
+  openhack-npm:
+  openhack-playwright:

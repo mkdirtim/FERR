@@ -17,6 +17,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     make \
     ripgrep \
+    # MCP servers in .opencode/opencode.jsonc run inside this container.
+    # We install Node/npm so `npx -y ...` works for local MCP commands.
+    nodejs \
+    npm \
+    # Playwright MCP typically needs a working Chromium + runtime helpers.
+    # (Kali rolling occasionally renames some shared library packages; relying on
+    # Chromium deps keeps this image building reliably.)
+    chromium \
+    fonts-liberation \
+    xdg-utils \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

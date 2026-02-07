@@ -8,7 +8,24 @@
       "options": {},
     },
   },
-  "mcp": {},
+  "mcp": {
+    // Chrome DevTools MCP (https://github.com/ChromeDevTools/chrome-devtools-mcp)
+    // Enable when you want DevTools-grade automation/debugging (network, console, traces).
+    //
+    // Typical local setup if you want to connect to an existing Chrome instance:
+    // Start Chrome with: --remote-debugging-port=9222
+    // Then add: "--browser-url=http://127.0.0.1:9222"
+    //
+    // Privacy knobs:
+    // - Add: "--no-usage-statistics" to opt out of Chrome DevTools MCP usage metrics
+    // - Add: "--no-performance-crux" to stop sending trace URLs to the CrUX API
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
+      "enabled": true,
+      "timeout": 60000,
+    },
+  },
   "tools": {
     "github-triage": false,
     "github-pr-search": false,

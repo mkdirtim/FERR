@@ -8,7 +8,43 @@
       "options": {},
     },
   },
-  "mcp": {},
+  "mcp": {
+    // Chrome DevTools MCP (https://github.com/ChromeDevTools/chrome-devtools-mcp)
+    //
+    // Enable when you want DevTools-grade automation/debugging (network, console, traces).
+    //
+    // Typical local setup if you want to connect to an existing Chrome instance:
+    // Start Chrome with: --remote-debugging-port=9222
+    // Then add: "--browser-url=http://127.0.0.1:9222" to the command args below
+    //
+    // Privacy knobs:
+    // - Add: "--no-usage-statistics" to opt out of Chrome DevTools MCP usage metrics
+    // - Add: "--no-performance-crux" to stop sending trace URLs to the CrUX API
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
+      "enabled": true,
+      "timeout": 60000,
+    },
+
+    // Playwright MCP (https://github.com/microsoft/playwright-mcp)
+    // Fast, LLM-friendly browser automation using accessibility tree (no screenshots needed).
+    //
+    // Common options to add to command args:
+    // - "--headless" - run in headless mode
+    // - "--isolated" - use temporary profile (clears state on close)
+    // - "--browser=firefox" - use firefox instead of chrome
+    // - "--device=iPhone 15" - emulate mobile device
+    // - "--storage-state=path/to/state.json" - start with saved cookies/localStorage
+    //
+    // Profile location: ~/Library/Caches/ms-playwright/mcp-chrome-profile
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "-y", "@playwright/mcp@latest"],
+      "enabled": true,
+      "timeout": 60000,
+    },
+  },
   "tools": {
     "github-triage": false,
     "github-pr-search": false,

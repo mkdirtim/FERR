@@ -69,7 +69,9 @@ Bench containers (third-party OSS agents): see `./BENCH.md`
 ## Ports
 
 - OpenCode server/web: `http://localhost:4096`
-- Web app dev (Vite): `http://localhost:3000`
+- Web app dev (Vite): host port is ephemeral by default (avoids `3000` conflicts)
+  - Find it with: `docker compose port openhack 3000`
+  - Use a fixed port with: `OPENCODE_APP_PORT=3000 docker compose up -d`
 
 Targets (only when started with `make up-with-targets`):
 - Juice Shop: `http://localhost:3333`
@@ -96,6 +98,13 @@ bun run dev
 bun run dev:web
 bun --cwd packages/opencode test
 ```
+
+## Caches
+
+The dev container persists:
+
+- npm/npx cache at `/home/opencode/.npm` (used by MCP `npx -y ...`)
+- Playwright browser cache at `/home/opencode/.cache/ms-playwright`
 
 ## Optional: SecLists Wordlists
 

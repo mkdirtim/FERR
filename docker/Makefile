@@ -47,7 +47,7 @@ install: ## Install workspace dependencies with bun (from repo root)
 dev: ## Run root dev script (typically TUI/CLI)
 	docker compose exec openhack bun run dev
 
-app: ## Run web app dev server (packages/app, port 3000)
+app: ## Run web app dev server (packages/app, container port 3000; host port may be ephemeral)
 	docker compose exec openhack bun run dev:web
 
 serve: ## Run opencode HTTP server (port 4096)

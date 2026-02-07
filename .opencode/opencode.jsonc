@@ -16,13 +16,14 @@
     // Typical local setup if you want to connect to an existing Chrome instance:
     // Start Chrome with: --remote-debugging-port=9222
     // Then add: "--browser-url=http://127.0.0.1:9222" to the command args below
+    // (In Docker, use: "--browser-url=http://host.docker.internal:9222")
     //
     // Privacy knobs:
     // - Add: "--no-usage-statistics" to opt out of Chrome DevTools MCP usage metrics
     // - Add: "--no-performance-crux" to stop sending trace URLs to the CrUX API
     "chrome-devtools": {
       "type": "local",
-      "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
+      "command": ["npx", "-y", "chrome-devtools-mcp@0.16.0"],
       "enabled": true,
       "timeout": 60000,
     },
@@ -40,7 +41,7 @@
     // Profile location: ~/Library/Caches/ms-playwright/mcp-chrome-profile
     "playwright": {
       "type": "local",
-      "command": ["npx", "-y", "@playwright/mcp@latest"],
+      "command": ["npx", "-y", "@playwright/mcp@0.0.64", "--headless"],
       "enabled": true,
       "timeout": 60000,
     },

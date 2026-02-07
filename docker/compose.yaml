@@ -1,0 +1,137 @@
+# Docker Compose for opencodestack (OpenCode development + pentesting targets)
+#
+# Usage:
+#   Run only dev:               docker compose up -d
+#   Run with target apps:       docker compose --profile targets up -d
+#   Enter dev container:        docker compose exec openhack bash
+#   Stop services:              docker compose --profile targets down
+
+name: opencodestack
+
+services:
+  openhack:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openhack
+    hostname: openhack
+    stdin_open: true
+    tty: true
+    init: true
+    restart: unless-stopped
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    volumes:
+      - ..:/app
+      - ./data/seclists:/usr/share/wordlists/seclists:ro
+    networks:
+      - opencodestack-network
+    ports:
+      - "4096:4096" # opencode serve/web
+      - "3000:3000" # packages/app (vite)
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /app/package.json && test -f /app/packages/opencode/package.json && which bun >/dev/null && which nmap >/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    command: /bin/bash
+
+  juiceshop:
+    profiles: ["targets"]
+    image: bkimminich/juice-shop
+    hostname: juiceshop
+    restart: unless-stopped
+    ports:
+      - "3333:3000"
+    environment:
+      - NODE_ENV=unsafe
+    networks:
+      - opencodestack-network
+    healthcheck:
+      test: ["CMD", "/nodejs/bin/node", "-e", "require('http').get('http://localhost:3000/', (res) => { process.exit(res.statusCode < 400 ? 0 : 1); }).on('error', () => process.exit(1));"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  dvwa:
+    profiles: ["targets"]
+    image: vulnerables/web-dvwa
+    platform: linux/amd64
+    hostname: dvwa
+    restart: unless-stopped
+    ports:
+      - "3334:80"
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    networks:
+      - opencodestack-network
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost/login.php') !== false ? 0 : 1);"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  bwapp:
+    profiles: ["targets"]
+    image: raesene/bwapp
+    platform: linux/amd64
+    hostname: bwapp
+    restart: unless-stopped
+    ports:
+      - "3335:80"
+    networks:
+      - opencodestack-network
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost/login.php') !== false ? 0 : 1);"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  badstore:
+    profiles: ["targets"]
+    image: jvhoof/badstore-docker
+    hostname: badstore
+    restart: unless-stopped
+    ports:
+      - "3336:80"
+    networks:
+      - opencodestack-network
+    healthcheck:
+      test: ["CMD-SHELL", "test -s /var/run/apache2/apache2.pid"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  webgoat:
+    profiles: ["targets"]
+    image: webgoat/webgoat
+    hostname: webgoat
+    restart: unless-stopped
+    ports:
+      - "3337:8080"
+      - "3338:9090"
+    environment:
+      - TZ=UTC
+    networks:
+      - opencodestack-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/WebGoat/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  opencodestack-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.77.0/24
+          gateway: 192.168.77.1
+    driver_opts:
+      com.docker.network.bridge.name: "opencodestack0"
+      com.docker.network.bridge.enable_ip_masquerade: "true"

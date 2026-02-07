@@ -64,6 +64,8 @@ Dev container + all targets:
 docker compose --profile targets up -d
 ```
 
+Bench containers (third-party OSS agents): see `./BENCH.md`
+
 ## Ports
 
 - OpenCode server/web: `http://localhost:4096`

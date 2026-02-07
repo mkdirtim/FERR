@@ -1,7 +1,7 @@
 # opencodestack Makefile
 # Quick commands for managing the Docker environment
 
-.PHONY: help start validate build up up-with-targets down restart logs shell dev app web serve install test clean status rebuild targets scan docs
+.PHONY: help start validate build up up-with-targets down restart logs shell dev app web serve install test clean status rebuild targets scan docs bench-ubuntu bench-kali
 
 help: ## Show this help message
 	@echo "opencodestack - OpenCode Development Environment"
@@ -84,5 +84,11 @@ scan: ## Example: Run nmap scan on juiceshop
 docs: ## Print documentation locations
 	@echo "Docs:"
 	@echo "  - ./docs/README.md"
+
+bench-ubuntu: ## Start Ubuntu bench container (profile: bench-ubuntu)
+	docker compose --profile bench-ubuntu up -d benchubuntu
+
+bench-kali: ## Start Kali bench container (profile: bench-kali)
+	docker compose --profile bench-kali up -d benchkali
 
 .DEFAULT_GOAL := help

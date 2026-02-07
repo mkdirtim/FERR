@@ -1,0 +1,71 @@
+# Kali-based "bench" container for running third-party OSS hacking agents locally.
+#
+# Use this when you explicitly want Kali tooling (or when a project assumes Kali).
+
+FROM kalilinux/kali-rolling:latest
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    kali-linux-headless \
+    python3 \
+    python3-venv \
+    python3-pip \
+    pipx \
+    build-essential \
+    jq \
+    curl \
+    ca-certificates \
+    git \
+    unzip \
+    make \
+    ripgrep \
+    # baseline tools used by several agents
+    nmap \
+    nuclei \
+    # browser deps + system chromium (Playwright-compatible)
+    chromium \
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libdrm2 \
+    libgbm1 \
+    libglib2.0-0 \
+    libnss3 \
+    libnspr4 \
+    libx11-6 \
+    libx11-xcb1 \
+    libxcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxext6 \
+    libxfixes3 \
+    libxrandr2 \
+    libxshmfence1 \
+    xdg-utils \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN setcap cap_net_raw,cap_net_admin,cap_net_bind_service+eip "$(which nmap)"
+
+# uv + poetry for Python repos in ./bench/projects
+RUN set -eux; \
+    curl -fsSL https://astral.sh/uv/install.sh | sh; \
+    ln -s /root/.local/bin/uv /usr/local/bin/uv; \
+    pipx ensurepath; \
+    pipx install poetry
+
+RUN useradd -m -s /bin/bash bench && \
+    mkdir -p /work /playground && \
+    chown -R bench:bench /work /playground
+
+USER bench
+WORKDIR /work
+
+ENV PYTHONUNBUFFERED=1
+ENV PATH="/home/bench/.local/bin:${PATH}"
+
+CMD ["/bin/bash"]
+

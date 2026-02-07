@@ -8,6 +8,19 @@
 
 name: opencodestack
 
+x-bench-common: &bench-common
+  stdin_open: true
+  tty: true
+  init: true
+  restart: unless-stopped
+  cap_add:
+    - NET_RAW
+    - NET_ADMIN
+  volumes:
+    - ./bench/projects:/playground/projects
+  networks:
+    - opencodestack-network
+
 services:
   openhack:
     build:
@@ -32,6 +45,38 @@ services:
       - "3000:3000" # packages/app (vite)
     healthcheck:
       test: ["CMD-SHELL", "test -f /app/package.json && test -f /app/packages/opencode/package.json && which bun >/dev/null && which nmap >/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    command: /bin/bash
+
+  benchubuntu:
+    profiles: ["bench-ubuntu"]
+    <<: *bench-common
+    build:
+      context: .
+      dockerfile: bench/Dockerfile.ubuntu
+    container_name: openhack-bench-ubuntu
+    hostname: benchubuntu
+    healthcheck:
+      test: ["CMD-SHELL", "python3 --version >/dev/null && which uv >/dev/null && which nmap >/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    command: /bin/bash
+
+  benchkali:
+    profiles: ["bench-kali"]
+    <<: *bench-common
+    build:
+      context: .
+      dockerfile: bench/Dockerfile.kali
+    container_name: openhack-bench-kali
+    hostname: benchkali
+    healthcheck:
+      test: ["CMD-SHELL", "python3 --version >/dev/null && which uv >/dev/null && which nmap >/dev/null"]
       interval: 30s
       timeout: 10s
       retries: 3

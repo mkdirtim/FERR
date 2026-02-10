@@ -44,6 +44,12 @@ All ports are bound to `127.0.0.1` only (not exposed to the LAN). The Kali VM re
 From `docker/`:
 
 ```bash
+./setup/quickstart    # clone all repos, build, and start (first time)
+```
+
+Or selectively:
+
+```bash
 make up               # dev container only
 make up-with-targets  # dev + all vulnerable targets
 make shell            # enter the dev container

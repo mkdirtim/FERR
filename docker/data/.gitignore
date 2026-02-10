@@ -7,3 +7,7 @@ projects/*
 
 # XBOW validation benchmarks (use docker/setup/benchmarks)
 benchmarks/
+
+# Runtime data
+benchmark/
+scans/

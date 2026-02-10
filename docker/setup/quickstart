@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# Quickstart: clone all external repos and start the environment
+#
+# Runs all setup scripts (non-interactively) then builds and starts containers.
+# Safe to re-run — each step is idempotent.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$SCRIPT_DIR/.."
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+step=0
+step() {
+    step=$((step + 1))
+    echo ""
+    echo -e "${BOLD}[$step] $1${NC}"
+    echo ""
+}
+
+# ---------- prerequisites ----------
+
+if ! command -v docker &>/dev/null; then
+    echo -e "${RED}Docker is not installed.${NC}"
+    exit 1
+fi
+
+if ! docker compose version &>/dev/null; then
+    echo -e "${RED}Docker Compose v2 is required.${NC}"
+    exit 1
+fi
+
+echo -e "${BOLD}openhackstack quickstart${NC}"
+echo "This will clone external repos and start the Docker environment."
+
+# ---------- external repos ----------
+
+step "Cloning SecLists wordlists"
+
+SECLISTS_DIR="$ROOT_DIR/data/seclists"
+if [ -d "$SECLISTS_DIR/.git" ] || [ -d "$SECLISTS_DIR/Discovery" ]; then
+    echo -e "${GREEN}✓ SecLists already present${NC}"
+else
+    git clone --depth 1 https://github.com/danielmiessler/SecLists.git "$SECLISTS_DIR"
+    rm -rf "$SECLISTS_DIR/.git"
+    echo -e "${GREEN}✓ SecLists cloned${NC}"
+fi
+
+step "Cloning third-party agent projects"
+
+PROJECTS_DIR="$ROOT_DIR/data/projects"
+mkdir -p "$PROJECTS_DIR"
+
+declare -A REPOS=(
+    [PentestGPT]="https://github.com/GreyDGL/PentestGPT.git"
+    [cai]="https://github.com/aliasrobotics/cai.git"
+    [strix]="https://github.com/usestrix/strix.git"
+)
+
+for name in "${!REPOS[@]}"; do
+    dir="$PROJECTS_DIR/$name"
+    if [ -d "$dir/.git" ]; then
+        echo -e "${GREEN}✓${NC} $name already cloned"
+    else
+        echo -e "${YELLOW}Cloning $name...${NC}"
+        git clone --depth 1 "${REPOS[$name]}" "$dir"
+        echo -e "${GREEN}✓ $name cloned${NC}"
+    fi
+done
+
+step "Cloning XBOW validation benchmarks"
+
+BENCHMARKS_DIR="$ROOT_DIR/data/benchmarks"
+if [ -d "$BENCHMARKS_DIR/.git" ]; then
+    echo -e "${GREEN}✓ Benchmarks already cloned${NC}"
+else
+    mkdir -p "$ROOT_DIR/data"
+    git clone https://github.com/xbow-engineering/validation-benchmarks.git "$BENCHMARKS_DIR"
+    echo -e "${GREEN}✓ Benchmarks cloned${NC}"
+fi
+
+# ---------- build & start ----------
+
+step "Building and starting containers"
+
+cd "$ROOT_DIR"
+docker compose build
+docker compose up -d
+
+echo ""
+echo -e "${GREEN}${BOLD}✓ openhackstack is ready${NC}"
+echo ""
+echo "  Dev container:  docker compose exec openhack bash"
+echo "  Web UI:         http://localhost:4096"
+echo ""
+echo "Optional:"
+echo "  make up-with-targets   # start vulnerable web apps"
+echo "  make playground        # start playground container"
+echo "  bin/benchmark list     # list 104 CTF benchmarks"

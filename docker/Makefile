@@ -1,7 +1,7 @@
 # openhackstack Makefile
 # Quick commands for managing the Docker environment
 
-.PHONY: help start validate build up up-with-targets down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground benchmark-list benchmark-build benchmark-run benchmark-stop benchmark-flag
+.PHONY: help quickstart start validate build up up-with-targets down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground benchmark-list benchmark-build benchmark-run benchmark-stop benchmark-flag
 
 help: ## Show this help message
 	@echo "openhackstack - OpenCode Development Environment"
@@ -12,6 +12,9 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-18s %s\n", $$1, $$2}'
 	@echo ""
 	@echo "Docs: ./README.md"
+
+quickstart: ## Clone all repos, build, and start (first-time setup)
+	./setup/quickstart
 
 start: ## Run startup script (builds and starts services)
 	./bin/up

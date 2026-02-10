@@ -4,26 +4,29 @@ FROM kalilinux/kali-last-release@sha256:c77f241fcd12bb7835e09f8fc1073d7d9c7cf50b
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Kali pentesting tools (includes nmap, metasploit, hydra, etc.)
     kali-linux-headless \
+    # Not in kali-linux-headless
     nuclei \
+    # Scripting / native module builds
     python3 \
     python3-venv \
     build-essential \
-    jq \
-    curl \
-    ca-certificates \
-    git \
-    libcap2-bin \
-    unzip \
     make \
+    # CLI utilities
+    jq \
     ripgrep \
-    # MCP servers in .opencode/opencode.jsonc run inside this container.
-    # We install Node/npm so `npx -y ...` works for local MCP commands.
+    unzip \
+    # Skipped by --no-install-recommends (only a recommend of kali-system-core)
+    git \
+    # HTTPS for curl, bun install, etc.
+    ca-certificates \
+    # setcap for nmap raw sockets as non-root
+    libcap2-bin \
+    # MCP servers run via `npx -y ...` inside this container
     nodejs \
     npm \
-    # Playwright MCP typically needs a working Chromium + runtime helpers.
-    # (Kali rolling occasionally renames some shared library packages; relying on
-    # Chromium deps keeps this image building reliably.)
+    # Playwright MCP needs Chromium + rendering deps
     chromium \
     fonts-liberation \
     xdg-utils \
@@ -51,7 +54,7 @@ USER opencode
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/opt/bun/bin:/home/opencode/.local/bin:${PATH}"
 
-RUN printf '\n# opencodestack shell helper\nif [ -n "$PS1" ] && [ "$$" -ne 1 ]; then\n  echo \"opencodestack: repo mounted at /app\";\n  echo \"opencodestack: from host run: make -C docker help\";\nfi\n' >> /home/opencode/.bashrc
+RUN printf '\n# openhackstack shell helper\nif [ -n "$PS1" ] && [ "$$" -ne 1 ]; then\n  echo \"openhackstack: repo mounted at /app\";\n  echo \"openhackstack: from host run: make -C docker help\";\nfi\n' >> /home/opencode/.bashrc
 
 EXPOSE 4096 3000
 

@@ -1,4 +1,4 @@
-# Docker ignore file for opencodestack
+# Docker ignore file for openhackstack
 
 # Workspace deps/build
 node_modules/

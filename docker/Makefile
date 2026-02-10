@@ -1,23 +1,23 @@
-# opencodestack Makefile
+# openhackstack Makefile
 # Quick commands for managing the Docker environment
 
-.PHONY: help start validate build up up-with-targets down restart logs shell dev app web serve install test clean status rebuild targets scan docs bench-ubuntu bench-kali
+.PHONY: help start validate build up up-with-targets down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground
 
 help: ## Show this help message
-	@echo "opencodestack - OpenCode Development Environment"
+	@echo "openhackstack - OpenCode Development Environment"
 	@echo ""
 	@echo "Usage: make [target]"
 	@echo ""
 	@echo "Targets:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-18s %s\n", $$1, $$2}'
 	@echo ""
-	@echo "Docs: ./docs/"
+	@echo "Docs: ./README.md"
 
 start: ## Run startup script (builds and starts services)
 	./bin/up
 
 validate: ## Validate configuration and optionally run smoke tests
-	./tests/test-opencode-stack.sh
+	./bin/test
 
 build: ## Build container image
 	docker compose build
@@ -83,12 +83,9 @@ scan: ## Example: Run nmap scan on juiceshop
 
 docs: ## Print documentation locations
 	@echo "Docs:"
-	@echo "  - ./docs/README.md"
+	@echo "  - ./README.md"
 
-bench-ubuntu: ## Start Ubuntu bench container (profile: bench-ubuntu)
-	docker compose --profile bench-ubuntu up -d benchubuntu
-
-bench-kali: ## Start Kali bench container (profile: bench-kali)
-	docker compose --profile bench-kali up -d benchkali
+playground: ## Start playground container (Kali-based, profile: playground)
+	docker compose --profile playground up -d playground
 
 .DEFAULT_GOAL := help

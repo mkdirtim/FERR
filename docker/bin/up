@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# opencodestack startup script
+# openhackstack startup script
 #
 # Usage:
 #   ./bin/up               # Start with vulnerable targets (default)
@@ -27,9 +27,9 @@ if [ ! -f "$ROOT_DIR/packages/opencode/package.json" ]; then
 fi
 
 if [ "$WITH_TARGETS" = true ]; then
-    echo "🚀 Starting opencodestack with vulnerable targets..."
+    echo "🚀 Starting openhackstack with vulnerable targets..."
 else
-    echo "🚀 Starting opencodestack (dev only)..."
+    echo "🚀 Starting openhackstack (dev only)..."
 fi
 echo ""
 
@@ -54,7 +54,7 @@ sleep 5
 docker compose --profile targets ps
 
 echo ""
-echo "✅ opencodestack is running!"
+echo "✅ openhackstack is running!"
 echo ""
 echo "🎯 Quick commands:"
 echo "   Enter container:  cd $CONFIG_DIR && docker compose exec openhack bash"

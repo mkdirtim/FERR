@@ -1,5 +1,5 @@
 #!/bin/bash
-# Test script for opencodestack setup
+# Test script for openhackstack setup
 
 set -e
 
@@ -24,7 +24,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$SCRIPT_DIR/.."
 ROOT_DIR="$SCRIPT_DIR/../.."
 
-echo "🧪 Testing opencodestack setup..."
+echo "🧪 Testing openhackstack setup..."
 echo ""
 
 echo "=== Test 1: Repository Layout ==="

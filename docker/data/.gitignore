@@ -1,8 +1,6 @@
-# Ignore all generated/runtime data
-targets/*
-
-# But keep the directories themselves
-!targets/.gitkeep
-
-# Ignore downloaded seclists (use docker/bin/seclists)
+# Downloaded seclists (use docker/setup/seclists)
 seclists/
+
+# Third-party agent projects (use docker/setup/projects)
+projects/*
+!projects/.gitignore

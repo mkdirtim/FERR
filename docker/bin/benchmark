@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+# Manage XBOW validation benchmarks
+#
+# Each benchmark is an independent Docker Compose stack. This script builds,
+# runs, and connects benchmarks to the openhackstack network so the dev and
+# playground containers can reach them by hostname.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$SCRIPT_DIR/.."
+REPO_DIR="$ROOT_DIR/data/benchmarks"
+BENCHMARKS_DIR="$REPO_DIR/benchmarks"
+NETWORK="openhackstack_openhackstack-network"
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+usage() {
+    cat <<EOF
+Usage: bin/benchmark <command> [BENCHMARK_ID]
+
+Commands:
+  list                    List all available benchmarks
+  build BENCHMARK_ID      Build a benchmark with random flag
+  run   BENCHMARK_ID      Run a benchmark (connects to openhackstack network)
+  stop  BENCHMARK_ID      Stop a running benchmark
+  flag  BENCHMARK_ID      Show the flag for a built benchmark
+
+Examples:
+  bin/benchmark list
+  bin/benchmark build XBEN-001-24
+  bin/benchmark run XBEN-001-24
+  bin/benchmark flag XBEN-001-24
+  bin/benchmark stop XBEN-001-24
+EOF
+}
+
+check_repo() {
+    if [ ! -d "$BENCHMARKS_DIR" ]; then
+        echo -e "${RED}Benchmarks not found.${NC} Run: ./setup/benchmarks"
+        exit 1
+    fi
+}
+
+validate_id() {
+    local id="${1:-}"
+    if [ -z "$id" ]; then
+        echo -e "${RED}Benchmark ID required${NC}"
+        usage
+        exit 1
+    fi
+    if [ ! -d "$BENCHMARKS_DIR/$id" ]; then
+        echo -e "${RED}Benchmark not found: $id${NC}"
+        echo "Run: bin/benchmark list"
+        exit 1
+    fi
+}
+
+project_name() {
+    echo "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+list_benchmarks() {
+    check_repo
+    printf "%-16s %-8s %s\n" "ID" "Level" "Name"
+    printf "%-16s %-8s %s\n" "----" "-----" "----"
+
+    for dir in "$BENCHMARKS_DIR"/XBEN-*; do
+        [ -d "$dir" ] || continue
+        local id
+        id=$(basename "$dir")
+        local config="$dir/benchmark-config.json"
+        local name="" level=""
+        if [ -f "$config" ]; then
+            name=$(jq -r '.name // ""' "$config" 2>/dev/null)
+            level=$(jq -r '.level // ""' "$config" 2>/dev/null)
+        fi
+        printf "%-16s %-8s %s\n" "$id" "$level" "$name"
+    done
+}
+
+build_benchmark() {
+    local id="$1"
+    check_repo
+    validate_id "$id"
+
+    local benchmark_dir="$BENCHMARKS_DIR/$id"
+    local pname
+    pname=$(project_name "$id")
+
+    # Generate random flag
+    local flag="flag{$(openssl rand -hex 16)}"
+
+    echo -e "${YELLOW}Building $id...${NC}"
+    cd "$benchmark_dir"
+    docker compose -p "$pname" build --build-arg flag="$flag"
+
+    # Store flag
+    echo "$flag" > "$benchmark_dir/.flag"
+    chmod 600 "$benchmark_dir/.flag"
+
+    echo -e "${GREEN}✓ Built $id${NC}"
+    echo "  Flag: $flag"
+}
+
+run_benchmark() {
+    local id="$1"
+    check_repo
+    validate_id "$id"
+
+    local benchmark_dir="$BENCHMARKS_DIR/$id"
+    local pname
+    pname=$(project_name "$id")
+
+    # Build first if not built
+    if [ ! -f "$benchmark_dir/.flag" ]; then
+        build_benchmark "$id"
+    fi
+
+    echo -e "${YELLOW}Starting $id...${NC}"
+    cd "$benchmark_dir"
+    docker compose -p "$pname" up -d --wait
+
+    # Connect containers to openhackstack network
+    local containers
+    containers=$(docker compose -p "$pname" ps -q 2>/dev/null)
+    for container in $containers; do
+        if ! docker inspect "$container" 2>/dev/null | jq -e ".[0].NetworkSettings.Networks[\"$NETWORK\"]" >/dev/null 2>&1; then
+            docker network connect "$NETWORK" "$container" 2>/dev/null || true
+            local cname
+            cname=$(docker inspect -f '{{.Name}}' "$container" | sed 's/^\///')
+            echo "  Connected $cname to openhackstack network"
+        fi
+    done
+
+    echo -e "${GREEN}✓ $id is running${NC}"
+    echo ""
+    echo "Services:"
+    docker compose -p "$pname" ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
+}
+
+stop_benchmark() {
+    local id="$1"
+    check_repo
+    validate_id "$id"
+
+    local benchmark_dir="$BENCHMARKS_DIR/$id"
+    local pname
+    pname=$(project_name "$id")
+
+    echo -e "${YELLOW}Stopping $id...${NC}"
+    cd "$benchmark_dir"
+    docker compose -p "$pname" down
+
+    echo -e "${GREEN}✓ Stopped $id${NC}"
+}
+
+show_flag() {
+    local id="$1"
+    check_repo
+    validate_id "$id"
+
+    local flag_file="$BENCHMARKS_DIR/$id/.flag"
+    if [ ! -f "$flag_file" ]; then
+        echo -e "${RED}No flag found for $id${NC}"
+        echo "Run: bin/benchmark build $id"
+        exit 1
+    fi
+
+    cat "$flag_file"
+}
+
+case "${1:-}" in
+    list)  list_benchmarks ;;
+    build) validate_id "${2:-}"; build_benchmark "$2" ;;
+    run)   validate_id "${2:-}"; run_benchmark "$2" ;;
+    stop)  validate_id "${2:-}"; stop_benchmark "$2" ;;
+    flag)  validate_id "${2:-}"; show_flag "$2" ;;
+    *)     usage; exit 1 ;;
+esac

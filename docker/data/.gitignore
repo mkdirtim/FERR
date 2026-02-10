@@ -4,3 +4,6 @@ seclists/
 # Third-party agent projects (use docker/setup/projects)
 projects/*
 !projects/.gitignore
+
+# XBOW validation benchmarks (use docker/setup/benchmarks)
+benchmarks/

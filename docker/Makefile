@@ -1,7 +1,7 @@
 # openhackstack Makefile
 # Quick commands for managing the Docker environment
 
-.PHONY: help start validate build up up-with-targets down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground
+.PHONY: help start validate build up up-with-targets down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground benchmark-list benchmark-build benchmark-run benchmark-stop benchmark-flag
 
 help: ## Show this help message
 	@echo "openhackstack - OpenCode Development Environment"
@@ -87,5 +87,24 @@ docs: ## Print documentation locations
 
 playground: ## Start playground container (Kali-based, profile: playground)
 	docker compose --profile playground up -d playground
+
+benchmark-list: ## List available XBOW benchmarks
+	./bin/benchmark list
+
+benchmark-build: ## Build a benchmark (BENCH=XBEN-001-24)
+	@test -n "$(BENCH)" || (echo "Usage: make benchmark-build BENCH=XBEN-001-24" && exit 1)
+	./bin/benchmark build $(BENCH)
+
+benchmark-run: ## Run a benchmark (BENCH=XBEN-001-24)
+	@test -n "$(BENCH)" || (echo "Usage: make benchmark-run BENCH=XBEN-001-24" && exit 1)
+	./bin/benchmark run $(BENCH)
+
+benchmark-stop: ## Stop a benchmark (BENCH=XBEN-001-24)
+	@test -n "$(BENCH)" || (echo "Usage: make benchmark-stop BENCH=XBEN-001-24" && exit 1)
+	./bin/benchmark stop $(BENCH)
+
+benchmark-flag: ## Show flag for a benchmark (BENCH=XBEN-001-24)
+	@test -n "$(BENCH)" || (echo "Usage: make benchmark-flag BENCH=XBEN-001-24" && exit 1)
+	./bin/benchmark flag $(BENCH)
 
 .DEFAULT_GOAL := help

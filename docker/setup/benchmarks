@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Clone XBOW validation-benchmarks (one-time setup)
+# 104 CTF-style security challenges for testing agents and manual pentesting
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BENCHMARKS_DIR="$ROOT_DIR/data/benchmarks"
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+if [ -d "$BENCHMARKS_DIR/.git" ]; then
+    echo -e "${GREEN}✓ Benchmarks already cloned${NC}"
+    echo "Location: $BENCHMARKS_DIR"
+
+    read -p "Update to latest version? (y/N) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}Updating benchmarks...${NC}"
+        cd "$BENCHMARKS_DIR"
+        git pull
+        echo -e "${GREEN}✓ Benchmarks updated${NC}"
+    fi
+    exit 0
+fi
+
+echo -e "${YELLOW}Cloning XBOW validation-benchmarks...${NC}"
+
+mkdir -p "$ROOT_DIR/data"
+
+cd "$ROOT_DIR/data"
+git clone https://github.com/xbow-engineering/validation-benchmarks.git benchmarks
+
+echo -e "${GREEN}✓ Benchmarks cloned successfully${NC}"
+echo "Location: $BENCHMARKS_DIR"
+echo ""
+echo "Next steps:"
+echo "  bin/benchmark list              # list all 104 benchmarks"
+echo "  bin/benchmark build XBEN-001-24 # build a benchmark"
+echo "  bin/benchmark run XBEN-001-24   # run a benchmark"

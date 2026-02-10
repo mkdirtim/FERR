@@ -51,6 +51,19 @@ Projects should end up at:
 
 Inside the bench container, they appear at `/playground/projects/...`.
 
+## Auto-Initialization
+
+Both bench containers run an entrypoint script (`bench-init.sh`) that automatically installs project dependencies on first start:
+
+- **PentestGPT** and **CAI**: installed via `uv sync`
+- **Strix**: installed via `poetry install`
+
+The script is idempotent — it checks for each project's CLI binary in `.venv/bin/` and only runs the install if the binary is missing. Because the projects directory is bind-mounted from the host, virtualenvs persist across container restarts, making subsequent boots fast.
+
+After initialization, each project's `.venv/bin` is automatically added to `PATH` via `.bashrc`, so CLIs like `pentestgpt`, `cai`, and `strix` are available immediately.
+
+To force a full reinstall, delete the `.venv` directory inside the project on the host and restart the container.
+
 ## Notes
 
 - If a project needs heavier tooling (metasploit/sqlmap/hydra), use the Kali bench container.

@@ -1,5 +1,5 @@
 # Kali-based container for OpenCode development + pentesting tools
-FROM kalilinux/kali-rolling:latest
+FROM kalilinux/kali-last-release@sha256:c77f241fcd12bb7835e09f8fc1073d7d9c7cf50b531808d9afa95e9cb63a6113
 
 ENV DEBIAN_FRONTEND=noninteractive
 

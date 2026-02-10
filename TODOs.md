@@ -24,10 +24,38 @@
 | 16 | `packages/slack/` | 7 | 215 | Slack integration |
 | 17 | `packages/web/` | 101 | 21,679 | Marketing website (Astro/Starlight) |
 | 18 | `patches/` | 1 | 40 | Third-party patches |
-| 19 | `script/` | 8 | 996 | Upstream CI/release scripts |
+| 19 | `script/` | 8 | 996 | Upstream CI/release scripts (3 utility scripts remain: `format.ts`, `generate.ts`, `hooks`) |
 | 20 | `sdks/` | 16 | 1,068 | VS Code extension SDK |
 | 21 | `specs/` | 10 | 1,678 | Internal design specs |
 | | **Total** | **715** | **116,053** | |
+
+## Kept — Standalone Files (to avoid cherry-pick conflicts)
+
+These files were initially deleted but restored to keep the prune commit as whole-directory-only deletions. They remain tracked to avoid per-file cherry-pick conflicts during upgrades.
+
+| File | Why kept |
+|------|----------|
+| `CONTRIBUTING.md` | Root-level, changes with upstream |
+| `SECURITY.md` | Root-level, changes with upstream |
+| `STATS.md` | Root-level, changes with upstream |
+| `README.md` | Root-level, changes with upstream |
+| `flake.lock`, `flake.nix` | Nix build (root-level) |
+| `install` | Upstream installer (root-level) |
+| `sst-env.d.ts`, `sst.config.ts` | SST config (root-level) |
+| `themes/deltarune.json`, `themes/undertale.json` | Novelty themes |
+| `logs/` (2 files) | Stale logs |
+| `script/format.ts` | Runs prettier — useful for dev |
+| `script/generate.ts` | Regenerates SDK from OpenAPI — useful for dev |
+| `script/hooks` | Installs pre-push typecheck hook — actively used |
+| `packages/*/sst-env.d.ts` | SST auto-generated types per package |
+| `packages/*/script/publish.ts` | Upstream publish scripts per package |
+| `packages/opencode/Dockerfile` | Upstream production image |
+| `packages/desktop/src-tauri/icons/{dev,prod}/{android,ios}/` | Mobile icons |
+| `packages/desktop/src-tauri/release/appstream.metainfo.xml` | Upstream release metadata |
+| `packages/app/src/i18n/*.ts` (15 files) | Non-English translations — imported by `language.tsx` |
+| `packages/desktop/src/i18n/*.ts` (14 files) | Non-English translations — imported by `i18n/index.ts` |
+| `packages/ui/src/i18n/*.ts` (15 files) | Non-English translations — imported by UI components |
+| `.opencode/command/issues.md` | Hardcoded to `anomalyco/opencode` |
 
 ## Files to Delete (Round 2)
 

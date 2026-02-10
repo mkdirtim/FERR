@@ -44,6 +44,64 @@ Policy: only merge upstream release tags into `openhack` (never merge upstream b
   git tag -a "upstream-opencode-${NEW_TAG}" "${UPSTREAM_SHA}" -m "Upstream base: anomalyco/opencode ${NEW_TAG}"
   git push origin "upstream-opencode-${NEW_TAG}"
 
+## Reapplying fork customizations
+
+After merging an upstream tag, cherry-pick the single fork-pruning commit
+to remove upstream-only directories again:
+
+  git cherry-pick <PRUNE_COMMIT_SHA>
+  # resolve any conflicts, then test:
+  bun run typecheck
+  cd packages/opencode && bun run test
+
+### Current prune commit
+
+  SHA: 6fb8e38b0
+  Message: fork: prune upstream-only directories
+
+This commit deletes 715 files (116,053 lines) — whole-directory removals only,
+no individual file changes within kept packages. This minimizes conflicts.
+
+### Directories removed by the prune commit
+
+  README*.md, .github/, .opencode/agent/, .opencode/tool/, .vscode/,
+  github/, infra/, nix/, packages/console/, packages/containers/,
+  packages/docs/, packages/enterprise/, packages/extensions/,
+  packages/function/, packages/identity/, packages/slack/,
+  packages/web/, patches/, script/, sdks/, specs/
+
+### Resolving conflicts
+
+If upstream added new files in a pruned directory, the cherry-pick will
+conflict. Resolution is straightforward — accept the deletion:
+
+  git rm -r <conflicting-directory>
+  git cherry-pick --continue
+
+After resolving, update the prune commit SHA in this file and in TODOs.md.
+
+### Full upgrade + prune example
+
+  git fetch upstream --tags --prune-tags
+
+  NEW_TAG=vX.Y.Z
+  PRUNE_SHA=6fb8e38b0
+
+  git checkout openhack
+  git pull --ff-only origin openhack
+  git checkout -b upgrade/opencode-${NEW_TAG}
+
+  git merge --no-ff "${NEW_TAG}" -m "Upgrade upstream opencode to ${NEW_TAG}"
+  git cherry-pick ${PRUNE_SHA}
+  # resolve conflicts if any, run tests
+
+  bun run typecheck
+  cd packages/opencode && bun run test
+  cd ../..
+
+  git push -u origin HEAD
+  # open PR, merge, then tag (see step 5 below)
+
 ## Worked example
 Upgrade from `v1.1.52` to `v1.1.53`:
 

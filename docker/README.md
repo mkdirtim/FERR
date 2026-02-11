@@ -9,7 +9,7 @@ graph LR
     subgraph host["Host (macOS)"]
         subgraph docker["Docker / openhackstack-network (192.168.77.0/24)"]
             openhack["openhack<br/>Kali + Bun<br/>:4096 :3000"]
-            playground["playground-kali<br/>Kali + python/uv/poetry<br/>Third-party agents"]
+            playground["playground-kali<br/>Kali + python/uv/poetry<br/>claude-code · docker-cli"]
             subgraph targets["Targets (profile: targets)"]
                 juiceshop["juiceshop :3333"]
                 dvwa["dvwa :3334"]
@@ -21,6 +21,7 @@ graph LR
                 xbow["XBEN-XXX-24<br/>104 CTF challenges"]
             end
         end
+        dockerd["Docker daemon"]
         vm["Kali VM (UTM)<br/>192.168.64.x"]
     end
 
@@ -29,6 +30,7 @@ graph LR
     playground <--->|"by hostname"| targets
     playground <--->|"by hostname"| benchmarks
     openhack <--->|"by hostname"| playground
+    playground -.->|"docker.sock"| dockerd
     vm -->|"via host gateway<br/>127.0.0.1 ports"| openhack
     vm -->|"via host gateway<br/>127.0.0.1 ports"| targets
 ```

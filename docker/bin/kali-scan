@@ -2,21 +2,33 @@
 # Scan Docker-internal targets from the playground-kali container.
 # Uses Docker DNS hostnames and real service ports.
 # Runs nmap, whatweb, nikto, ZAP, ffuf, and sqlmap per target.
+# Optionally runs GVM/OpenVAS scans (--gvm flag, much slower).
 # Output: /playground/scans/<hostname>/
 #
 # Usage:
 #   kali-scan                      # scan all targets
 #   kali-scan juiceshop            # scan one target
 #   kali-scan dvwa webgoat         # scan specific targets
+#   kali-scan --gvm                # include GVM/OpenVAS scans
+#   kali-scan --gvm juiceshop      # GVM scan on one target
 #
 # Environment:
 #   SCAN_DIR   output directory (default: /playground/scans)
 #   WORDLIST   ffuf wordlist   (default: /usr/share/wordlists/dirb/common.txt)
+#   GVM_HOST   GVM hostname    (default: gvm)
+#   GVM_PORT   GVM GMP port    (default: 9390)
+#   GVM_USER   GVM username    (default: admin)
+#   GVM_PASS   GVM password    (default: admin)
 
 set -euo pipefail
 
 SCAN_DIR="${SCAN_DIR:-/playground/scans}"
 WORDLIST="${WORDLIST:-/usr/share/wordlists/dirb/common.txt}"
+GVM_HOST="${GVM_HOST:-gvm}"
+GVM_PORT="${GVM_PORT:-9390}"
+GVM_USER="${GVM_USER:-admin}"
+GVM_PASS="${GVM_PASS:-admin}"
+RUN_GVM=false
 
 # Target definitions: name=hostname:port
 declare -A TARGET_MAP=(
@@ -33,17 +45,147 @@ NMAP_SCRIPTS="default,vuln,http-title,http-headers,http-methods,http-robots.txt,
 # --- Parse args ---
 TARGETS=()
 for arg in "$@"; do
-    if [[ -v "TARGET_MAP[$arg]" ]]; then
+    if [ "$arg" = "--gvm" ]; then
+        RUN_GVM=true
+    elif [[ -v "TARGET_MAP[$arg]" ]]; then
         TARGETS+=("$arg")
     else
         echo "[-] Unknown target: ${arg}"
         echo "    Available: ${ALL_TARGETS[*]}"
+        echo "    Flags: --gvm"
         exit 1
     fi
 done
 if [ ${#TARGETS[@]} -eq 0 ]; then
     TARGETS=("${ALL_TARGETS[@]}")
 fi
+
+# ============================================================
+# GVM helpers (connects to playground-gvm container via GMP/TLS)
+# ============================================================
+
+gvm_cmd() {
+    gvm-cli --gmp-username "$GVM_USER" --gmp-password "$GVM_PASS" \
+        tls --hostname "$GVM_HOST" --port "$GVM_PORT" \
+        --xml "$1" 2>/dev/null
+}
+
+gvm_get_config_id() {
+    local xml
+    xml=$(gvm_cmd '<get_configs/>')
+    echo "$xml" | xmllint --xpath 'string(//config[name="Full and fast"]/@id)' - 2>/dev/null
+}
+
+gvm_get_scanner_id() {
+    local xml
+    xml=$(gvm_cmd '<get_scanners/>')
+    echo "$xml" | xmllint --xpath 'string(//scanner[name="OpenVAS Default"]/@id)' - 2>/dev/null
+}
+
+gvm_scan_target() {
+    local name=$1
+    local host=$2
+    local port=$3
+    local dir=$4
+    local ts
+    ts=$(date +%Y%m%d-%H%M%S)
+
+    echo "[+] GVM: getting scanner and config IDs..."
+    local config_id scanner_id
+    config_id=$(gvm_get_config_id)
+    scanner_id=$(gvm_get_scanner_id)
+
+    if [ -z "$config_id" ] || [ -z "$scanner_id" ]; then
+        echo "[-] GVM: could not find scan config or scanner. Skipping."
+        return 1
+    fi
+
+    # Create port list
+    echo "[+] GVM: creating port list (TCP ${port})..."
+    local pl_xml pl_id
+    pl_xml=$(gvm_cmd "<create_port_list><name>port-${name}-${ts}</name><port_range>T:${port}</port_range></create_port_list>")
+    pl_id=$(echo "$pl_xml" | xmllint --xpath 'string(/create_port_list_response/@id)' - 2>/dev/null)
+
+    if [ -z "$pl_id" ]; then
+        echo "[-] GVM: failed to create port list. Skipping."
+        return 1
+    fi
+
+    # Create target
+    echo "[+] GVM: creating target (${host}:${port})..."
+    local tgt_xml tgt_id
+    tgt_xml=$(gvm_cmd "<create_target><name>scan-${name}-${ts}</name><hosts>${host}</hosts><port_list id=\"${pl_id}\"/></create_target>")
+    tgt_id=$(echo "$tgt_xml" | xmllint --xpath 'string(/create_target_response/@id)' - 2>/dev/null)
+
+    if [ -z "$tgt_id" ]; then
+        echo "[-] GVM: failed to create target. Skipping."
+        return 1
+    fi
+
+    # Create task
+    echo "[+] GVM: creating task..."
+    local task_xml task_id
+    task_xml=$(gvm_cmd "<create_task><name>scan-${name}-${ts}</name><target id=\"${tgt_id}\"/><config id=\"${config_id}\"/><scanner id=\"${scanner_id}\"/></create_task>")
+    task_id=$(echo "$task_xml" | xmllint --xpath 'string(/create_task_response/@id)' - 2>/dev/null)
+
+    if [ -z "$task_id" ]; then
+        echo "[-] GVM: failed to create task. Skipping."
+        return 1
+    fi
+
+    # Start task
+    echo "[+] GVM: starting scan (task ${task_id})..."
+    local start_xml report_id
+    start_xml=$(gvm_cmd "<start_task task_id=\"${task_id}\"/>")
+    report_id=$(echo "$start_xml" | xmllint --xpath 'string(/start_task_response/report_id)' - 2>/dev/null)
+
+    # Poll until done
+    echo "[+] GVM: scanning ${name} (this may take 30-60 min)..."
+    local status=""
+    local elapsed=0
+    while true; do
+        local task_status_xml
+        task_status_xml=$(gvm_cmd "<get_tasks task_id=\"${task_id}\"/>")
+        status=$(echo "$task_status_xml" | xmllint --xpath 'string(//task/status)' - 2>/dev/null)
+        local progress
+        progress=$(echo "$task_status_xml" | xmllint --xpath 'string(//task/progress)' - 2>/dev/null)
+
+        if [ "$status" = "Done" ] || [ "$status" = "Stopped" ]; then
+            echo "[+] GVM: scan complete (status: ${status})."
+            break
+        fi
+
+        printf "\r    [%dm elapsed] status=%s progress=%s%%  " "$((elapsed / 60))" "$status" "$progress"
+        sleep 15
+        elapsed=$((elapsed + 15))
+
+        if [ $elapsed -ge 5400 ]; then
+            echo ""
+            echo "[-] GVM: timeout after 90 minutes. Stopping task."
+            gvm_cmd "<stop_task task_id=\"${task_id}\"/>" >/dev/null 2>&1
+            break
+        fi
+    done
+    echo ""
+
+    # Export report as TXT
+    if [ -n "$report_id" ]; then
+        echo "[+] GVM: exporting report..."
+        local raw_xml
+        raw_xml=$(gvm_cmd "<get_reports report_id=\"${report_id}\" format_id=\"a3810a62-1f62-11e1-9219-406186ea4fc5\" details=\"1\"/>")
+        echo "$raw_xml" \
+            | xmllint --xpath 'string(//report_format/following-sibling::text()[1])' - 2>/dev/null \
+            | base64 -d > "${dir}/gvm.txt" 2>/dev/null || true
+        echo "[+] GVM done: ${dir}/gvm.txt"
+    else
+        echo "[-] GVM: no report ID, cannot export."
+    fi
+
+    # Cleanup
+    gvm_cmd "<delete_port_list port_list_id=\"${pl_id}\" ultimate=\"1\"/>" >/dev/null 2>&1 || true
+    gvm_cmd "<delete_target target_id=\"${tgt_id}\" ultimate=\"1\"/>" >/dev/null 2>&1 || true
+    gvm_cmd "<delete_task task_id=\"${task_id}\" ultimate=\"1\"/>" >/dev/null 2>&1 || true
+}
 
 # ============================================================
 # Per-target scan
@@ -94,6 +236,12 @@ scan_target() {
         -quickout "${dir}/zap.md" -quickprogress || true
     echo "[+] ZAP done: ${dir}/zap.md"
 
+    # --- GVM (optional) ---
+    if [ "$RUN_GVM" = true ]; then
+        echo "[+] GVM (${name})..."
+        gvm_scan_target "$name" "$host" "$port" "$dir" || echo "[-] GVM scan failed for ${name}"
+    fi
+
     # --- ffuf (directory brute-force, run last to avoid overwhelming the target) ---
     if [ -f "$WORDLIST" ]; then
         echo "[+] ffuf..."
@@ -115,6 +263,7 @@ scan_target() {
 
 echo "Targets: ${TARGETS[*]}"
 echo "Output:  ${SCAN_DIR}"
+echo "GVM:     ${RUN_GVM}"
 echo ""
 
 for target in "${TARGETS[@]}"; do

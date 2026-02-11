@@ -95,6 +95,7 @@ make validate       # run smoke tests
 |---|---|---|---|---|
 | `openhack` | `openhack` | *(default)* | `openhack` | `http://localhost:4096` |
 | `playground-kali` | `playground` | `playground` | `kali` | — |
+| `playground-gvm` | `gvm` | `playground` | `gvm` | `https://localhost:9392` (via container) |
 | `targets-juiceshop` | `juiceshop` | `targets` | `juiceshop` | `http://localhost:3333` |
 | `targets-dvwa` | `dvwa` | `targets` | `dvwa` | `http://localhost:3334` |
 | `targets-bwapp` | `bwapp` | `targets` | `bwapp` | `http://localhost:3335` |
@@ -127,12 +128,13 @@ docker compose exec playground bash
 
 ### Scanning
 
-The `kali-scan` script runs automated scans against all Docker-internal targets using their real hostnames and ports. Tools: nmap, whatweb, nikto, ZAP, ffuf, sqlmap.
+The `kali-scan` script runs automated scans against all Docker-internal targets using their real hostnames and ports. Tools: nmap, whatweb, nikto, ZAP, ffuf, sqlmap, and optionally GVM/OpenVAS.
 
 ```bash
 make kali-scan                 # scan all targets
 docker compose exec playground kali-scan juiceshop   # scan one target
 docker compose exec playground kali-scan dvwa bwapp  # scan specific targets
+docker compose exec playground kali-scan --gvm       # include GVM/OpenVAS (slow)
 ```
 
 | Target | Hostname | Port |
@@ -144,6 +146,8 @@ docker compose exec playground kali-scan dvwa bwapp  # scan specific targets
 | WebGoat | `webgoat` | 8080 |
 
 Scan output is saved to `/playground/scans/<hostname>/` inside the container, which maps to `docker/data/scans/` on the host (gitignored). SecLists wordlists are available at `/usr/share/wordlists/seclists/`.
+
+GVM (Greenbone Vulnerability Management / OpenVAS) runs as a sidecar container (`playground-gvm`). First startup takes 5-10 minutes to sync vulnerability feeds. The `--gvm` flag connects to it via GMP on port 9390. GVM scans are significantly slower (30-60 min per target).
 
 ### Simple Setup
 

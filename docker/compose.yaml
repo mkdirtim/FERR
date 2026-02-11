@@ -101,6 +101,28 @@ services:
       start_period: 15s
     command: /bin/bash
 
+  gvm:
+    profiles: ["playground"]
+    image: immauss/openvas:latest
+    container_name: playground-gvm
+    hostname: gvm
+    restart: unless-stopped
+    environment:
+      - USERNAME=admin
+      - PASSWORD=admin
+      - RELAYHOST=localhost
+      - QUIET=true
+    volumes:
+      - gvm-data:/data
+    networks:
+      - openhackstack-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsSk https://localhost:9392/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 300s
+
   juiceshop:
     profiles: ["targets"]
     image: bkimminich/juice-shop
@@ -207,3 +229,4 @@ networks:
 volumes:
   openhack-npm:
   openhack-playwright:
+  gvm-data:

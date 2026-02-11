@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Not in kali-linux-headless
     nuclei \
     zaproxy \
+    gvm-tools \
+    libxml2-utils \
     # Node is required for Claude Code (PentestGPT default backend).
     nodejs \
     npm \

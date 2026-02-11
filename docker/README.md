@@ -116,6 +116,16 @@ make playground
 docker compose exec playground bash
 ```
 
+### Simple Setup
+
+If your agent needs environment variables (API keys, model selection), create a gitignored env file and let `make playground` load it:
+
+```bash
+make playground-env
+$EDITOR data/playground.env
+make playground
+```
+
 ### Projects
 
 One-time setup to clone third-party agent repos into `docker/data/projects/` (git-ignored):
@@ -132,6 +142,14 @@ Inside the container they appear at `/playground/projects/`. Supported:
 The entrypoint (`entrypoint/playground`) auto-installs dependencies on first boot. It checks for each CLI binary in `.venv/bin/` and skips if present. Virtualenvs persist on the host via bind mount.
 
 To force reinstall: delete the project's `.venv` on the host and restart the container.
+
+### Agent Setup (Keys / Docker)
+
+Most of these projects require API keys and/or an interactive first-run setup:
+
+- **PentestGPT**: uses Claude Code (`claude`). In the playground container, run `claude` and complete `/login` before running `pentestgpt`.
+- **CAI**: requires a TTY (run from `docker compose exec playground bash`). It expects `OPENAI_API_KEY` to be set (can be a placeholder like `sk-1234` for startup); for `CAI_MODEL=alias1` you'll also need `ALIAS_API_KEY`.
+- **Strix**: runs a sandbox via Docker and needs Docker daemon access. This Compose profile mounts `/var/run/docker.sock` into the playground container. It also requires `STRIX_LLM` and typically `LLM_API_KEY`.
 
 ## Benchmarks
 

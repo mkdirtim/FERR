@@ -1,7 +1,7 @@
 # openhackstack Makefile
 # Quick commands for managing the Docker environment
 
-.PHONY: help quickstart start validate build up up-with-targets down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground benchmark-list benchmark-build benchmark-run benchmark-stop benchmark-flag
+.PHONY: help quickstart start validate build up up-with-targets down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground playground-env benchmark-list benchmark-build benchmark-run benchmark-stop benchmark-flag
 
 help: ## Show this help message
 	@echo "openhackstack - OpenCode Development Environment"
@@ -89,7 +89,15 @@ docs: ## Print documentation locations
 	@echo "  - ./README.md"
 
 playground: ## Start playground container (Kali-based, profile: playground)
-	docker compose --profile playground up -d playground
+	@if [ -f ./data/playground.env ]; then \
+		docker compose --env-file ./data/playground.env --profile playground up -d playground; \
+	else \
+		docker compose --profile playground up -d playground; \
+	fi
+
+playground-env: ## Create ./data/playground.env (gitignored) from example
+	@test -f ./data/playground.env || cp ./data/playground.env.example ./data/playground.env
+	@echo "Edit: ./data/playground.env"
 
 benchmark-list: ## List available XBOW benchmarks
 	./bin/benchmark list

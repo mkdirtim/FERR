@@ -16,8 +16,13 @@ x-playground-common: &playground-common
   cap_add:
     - NET_RAW
     - NET_ADMIN
+  # Allow agents inside the playground container to run sibling containers
+  # (e.g. Strix sandbox) via the host Docker daemon.
+  group_add:
+    - "0" # /var/run/docker.sock is typically root:root 660 on Docker Desktop
   volumes:
     - ./data/projects:/playground/projects
+    - /var/run/docker.sock:/var/run/docker.sock
   networks:
     - openhackstack-network
 

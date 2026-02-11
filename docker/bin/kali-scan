@@ -1,0 +1,269 @@
+#!/usr/bin/env bash
+# Scan all forwarded targets from the Kali VM.
+# Runs nmap, whatweb, and nikto per port, saves to ~/targets/<port>/
+# Optionally runs GVM/OpenVAS scans (--gvm flag, much slower).
+#
+# Usage:
+#   ./bin/kali-scan                    # scan all targets
+#   ./bin/kali-scan 3333               # scan one target
+#   ./bin/kali-scan 3333 3334          # scan specific targets
+#   ./bin/kali-scan --gvm              # include GVM/OpenVAS scans
+#   ./bin/kali-scan --gvm 3333         # GVM scan on one target
+#
+# Environment:
+#   GVM_USER   GVM username  (default: mkdirtim)
+#   GVM_PASS   GVM password  (default: root)
+
+set -euo pipefail
+
+HOST="localhost"
+BASE_DIR="${HOME}/targets"
+ALL_PORTS=(3333 3334 3335 3336 3337 3338)
+GVM_USER="${GVM_USER:-mkdirtim}"
+GVM_PASS="${GVM_PASS:-root}"
+GVM_SOCK="/run/gvmd/gvmd.sock"
+RUN_GVM=false
+
+# --- Parse args ---
+PORTS=()
+for arg in "$@"; do
+    if [ "$arg" = "--gvm" ]; then
+        RUN_GVM=true
+    else
+        PORTS+=("$arg")
+    fi
+done
+if [ ${#PORTS[@]} -eq 0 ]; then
+    PORTS=("${ALL_PORTS[@]}")
+fi
+
+NMAP_SCRIPTS="default,vuln,http-title,http-headers,http-methods,http-robots.txt,http-enum,http-server-header"
+
+# ============================================================
+# GVM helpers
+# ============================================================
+
+gvm_cmd() {
+    # Run a GMP XML command via gvm-cli, return raw XML
+    # sg _gvm ensures socket access; auth flags go before connection type
+    sg _gvm -c "gvm-cli --gmp-username '$GVM_USER' --gmp-password '$GVM_PASS' socket --socketpath '$GVM_SOCK' --xml '$1'"
+}
+
+gvm_extract() {
+    # Extract an attribute or element from XML using xmllint
+    # Usage: gvm_extract "xml" "xpath"
+    echo "$1" | xmllint --xpath "$2" - 2>/dev/null || true
+}
+
+gvm_ensure_running() {
+    if sudo systemctl is-active --quiet gvmd 2>/dev/null; then
+        echo "[+] GVM already running"
+        return 0
+    fi
+    echo "[+] Starting GVM services (this may take a minute)..."
+    sudo gvm-start
+    # Wait for socket to appear
+    for i in $(seq 1 30); do
+        if [ -S "$GVM_SOCK" ]; then
+            echo "[+] GVM ready"
+            return 0
+        fi
+        sleep 2
+    done
+    echo "[-] GVM failed to start (socket not found: ${GVM_SOCK})"
+    return 1
+}
+
+gvm_get_config_id() {
+    # Get "Full and fast" scan config ID
+    local xml
+    xml=$(gvm_cmd '<get_configs/>')
+    echo "$xml" | xmllint --xpath 'string(//config[name="Full and fast"]/@id)' - 2>/dev/null
+}
+
+gvm_get_scanner_id() {
+    # Get "OpenVAS Default" scanner ID
+    local xml
+    xml=$(gvm_cmd '<get_scanners/>')
+    echo "$xml" | xmllint --xpath 'string(//scanner[name="OpenVAS Default"]/@id)' - 2>/dev/null
+}
+
+gvm_scan_port() {
+    local port=$1
+    local dir=$2
+    local ts
+    ts=$(date +%Y%m%d-%H%M%S)
+    local target_name="kali-scan-${HOST}-${port}-${ts}"
+    local task_name="scan-${port}-${ts}"
+
+    echo "[+] GVM: getting scanner and config IDs..."
+    local config_id scanner_id
+    config_id=$(gvm_get_config_id)
+    scanner_id=$(gvm_get_scanner_id)
+
+    if [ -z "$config_id" ] || [ -z "$scanner_id" ]; then
+        echo "[-] GVM: could not find scan config or scanner. Skipping."
+        return 1
+    fi
+
+    # Create port list for this single port
+    echo "[+] GVM: creating port list (TCP ${port})..."
+    local pl_xml pl_id
+    pl_xml=$(gvm_cmd "<create_port_list><name>port-${port}-${ts}</name><port_range>T:${port}</port_range></create_port_list>")
+    pl_id=$(echo "$pl_xml" | xmllint --xpath 'string(/create_port_list_response/@id)' - 2>/dev/null)
+
+    if [ -z "$pl_id" ]; then
+        echo "[-] GVM: failed to create port list. Skipping."
+        return 1
+    fi
+
+    # Create target
+    echo "[+] GVM: creating target (${HOST}:${port})..."
+    local tgt_xml tgt_id
+    tgt_xml=$(gvm_cmd "<create_target><name>${target_name}</name><hosts>${HOST}</hosts><port_list id=\"${pl_id}\"/></create_target>")
+    tgt_id=$(echo "$tgt_xml" | xmllint --xpath 'string(/create_target_response/@id)' - 2>/dev/null)
+
+    if [ -z "$tgt_id" ]; then
+        echo "[-] GVM: failed to create target. Skipping."
+        return 1
+    fi
+
+    # Create task
+    echo "[+] GVM: creating task..."
+    local task_xml task_id
+    task_xml=$(gvm_cmd "<create_task><name>${task_name}</name><target id=\"${tgt_id}\"/><config id=\"${config_id}\"/><scanner id=\"${scanner_id}\"/></create_task>")
+    task_id=$(echo "$task_xml" | xmllint --xpath 'string(/create_task_response/@id)' - 2>/dev/null)
+
+    if [ -z "$task_id" ]; then
+        echo "[-] GVM: failed to create task. Skipping."
+        return 1
+    fi
+
+    # Start task
+    echo "[+] GVM: starting scan (task ${task_id})..."
+    local start_xml report_id
+    start_xml=$(gvm_cmd "<start_task task_id=\"${task_id}\"/>")
+    report_id=$(echo "$start_xml" | xmllint --xpath 'string(/start_task_response/report_id)' - 2>/dev/null)
+
+    # Poll until done
+    echo "[+] GVM: scanning port ${port} (this may take 30-60 min)..."
+    local status=""
+    local elapsed=0
+    while true; do
+        local task_status_xml
+        task_status_xml=$(gvm_cmd "<get_tasks task_id=\"${task_id}\"/>")
+        status=$(echo "$task_status_xml" | xmllint --xpath 'string(//task/status)' - 2>/dev/null)
+        local progress
+        progress=$(echo "$task_status_xml" | xmllint --xpath 'string(//task/progress)' - 2>/dev/null)
+
+        if [ "$status" = "Done" ] || [ "$status" = "Stopped" ]; then
+            echo "[+] GVM: scan complete (status: ${status})."
+            break
+        elif [ "$status" = "Stop Requested" ]; then
+            echo "[-] GVM: scan stop requested. Waiting for finalization..."
+        fi
+
+        printf "\r    [%dm elapsed] status=%s progress=%s%%  " "$((elapsed / 60))" "$status" "$progress"
+        sleep 15
+        elapsed=$((elapsed + 15))
+
+        # Timeout after 90 minutes
+        if [ $elapsed -ge 5400 ]; then
+            echo ""
+            echo "[-] GVM: timeout after 90 minutes. Stopping task."
+            gvm_cmd "<stop_task task_id=\"${task_id}\"/>" >/dev/null 2>&1
+            break
+        fi
+    done
+    echo ""
+
+    # Export report as TXT (extract base64 content from GMP XML response)
+    if [ -n "$report_id" ]; then
+        echo "[+] GVM: exporting report..."
+        local raw_xml
+        raw_xml=$(gvm_cmd "<get_reports report_id=\"${report_id}\" format_id=\"a3810a62-1f62-11e1-9219-406186ea4fc5\" details=\"1\"/>")
+        echo "$raw_xml" \
+            | xmllint --xpath 'string(//report_format/following-sibling::text()[1])' - 2>/dev/null \
+            | base64 -d > "${dir}/gvm-${port}.txt" 2>/dev/null || true
+
+        echo "[+] GVM done: ${dir}/gvm-${port}.txt"
+    else
+        echo "[-] GVM: no report ID, cannot export."
+    fi
+
+    # Cleanup: remove temporary port list and target
+    gvm_cmd "<delete_port_list port_list_id=\"${pl_id}\" ultimate=\"1\"/>" >/dev/null 2>&1 || true
+    gvm_cmd "<delete_target target_id=\"${tgt_id}\" ultimate=\"1\"/>" >/dev/null 2>&1 || true
+    gvm_cmd "<delete_task task_id=\"${task_id}\" ultimate=\"1\"/>" >/dev/null 2>&1 || true
+}
+
+# ============================================================
+# Quick scans (nmap, whatweb, nikto)
+# ============================================================
+
+scan_port() {
+    local port=$1
+    local dir="${BASE_DIR}/${port}"
+    mkdir -p "$dir"
+
+    echo "========================================"
+    echo "[*] Scanning port ${port}"
+    echo "    Output: ${dir}/"
+    echo "========================================"
+
+    # --- nmap ---
+    echo "[+] nmap (port ${port})..."
+    sudo nmap -p"${port}" -sS -sV --version-all -A --reason -T4 \
+        --script "${NMAP_SCRIPTS}" \
+        -oN "${dir}/nmap-${port}.txt" "$HOST"
+    echo "[+] nmap done: ${dir}/nmap-${port}.txt"
+
+    # --- whatweb ---
+    echo "[+] whatweb (port ${port})..."
+    whatweb -v -a 3 --log-verbose="${dir}/whatweb-${port}.txt" \
+        "http://${HOST}:${port}" || true
+    echo "[+] whatweb done: ${dir}/whatweb-${port}.txt"
+
+    # --- nikto ---
+    echo "[+] nikto (port ${port})..."
+    nikto -h "http://${HOST}:${port}" -o "${dir}/nikto-${port}.txt" \
+        -Format txt || true
+    echo "[+] nikto done: ${dir}/nikto-${port}.txt"
+
+    # --- ZAP ---
+    echo "[+] ZAP quick scan (port ${port})..."
+    zaproxy -cmd -silent -quickurl "http://${HOST}:${port}" \
+        -quickout "${dir}/zap-${port}.md" -quickprogress || true
+    echo "[+] ZAP done: ${dir}/zap-${port}.md"
+
+    # --- GVM (optional) ---
+    if [ "$RUN_GVM" = true ]; then
+        echo "[+] GVM (port ${port})..."
+        gvm_scan_port "$port" "$dir" || echo "[-] GVM scan failed for port ${port}"
+    fi
+
+    echo "[*] Port ${port} complete."
+    echo ""
+}
+
+# ============================================================
+# Main
+# ============================================================
+
+echo "Targets: ${PORTS[*]}"
+echo "Base dir: ${BASE_DIR}"
+echo "GVM: ${RUN_GVM}"
+echo ""
+
+if [ "$RUN_GVM" = true ]; then
+    gvm_ensure_running
+fi
+
+for port in "${PORTS[@]}"; do
+    scan_port "$port"
+done
+
+echo "========================================"
+echo "All scans complete."
+echo ""
+tree "${BASE_DIR}" 2>/dev/null || find "${BASE_DIR}" -type f | sort

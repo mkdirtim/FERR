@@ -31,11 +31,11 @@ graph LR
     playground <--->|"by hostname"| benchmarks
     openhack <--->|"by hostname"| playground
     playground -.->|"docker.sock"| dockerd
-    vm -->|"via host gateway<br/>127.0.0.1 ports"| openhack
-    vm -->|"via host gateway<br/>127.0.0.1 ports"| targets
+    vm -->|"SSH tunnel<br/>(bin/kali-forward)"| openhack
+    vm -->|"SSH tunnel<br/>(bin/kali-forward)"| targets
 ```
 
-All ports are bound to `127.0.0.1` only (not exposed to the LAN). The Kali VM reaches services via the host gateway (`192.168.64.1`).
+All ports are bound to `127.0.0.1` only (not exposed to the LAN). The Kali VM reaches services via SSH remote forwarding (see [Kali VM](#kali-vm)).
 
 ## Prerequisites
 
@@ -77,6 +77,8 @@ make app         # web app dev server (port 3000)
 make web         # opencode web (port 4096)
 make serve       # opencode HTTP server (port 4096)
 make playground  # start playground container
+make kali-forward      # forward target ports to Kali VM
+make kali-forward-stop # stop Kali VM forwarding
 make status      # show service status
 make down        # stop everything
 make validate    # run smoke tests
@@ -156,6 +158,28 @@ Most of these projects require API keys and/or an interactive first-run setup:
 - **Strix**: runs a sandbox via Docker and needs Docker daemon access. This Compose profile mounts `/var/run/docker.sock` into the playground container. It also requires `STRIX_LLM` and typically `LLM_API_KEY` (and optionally `LLM_API_BASE`).
 
 Security note: mounting `/var/run/docker.sock` gives the playground container effectively root-equivalent control over your Docker daemon. Only run trusted code in `./data/projects`.
+
+## Kali VM
+
+The Kali UTM virtual machine (shared network, `192.168.64.x`) can reach Docker target ports via SSH remote forwarding. Docker Desktop on macOS only supports binding to `127.0.0.1` or `0.0.0.0`, so `bin/kali-forward` tunnels the localhost-bound ports into the VM.
+
+```bash
+make kali-forward       # start tunnel (uses SSH host "kaliutm")
+make kali-forward-stop  # stop tunnel
+```
+
+Once the tunnel is active, targets are available inside the Kali VM at `localhost`:
+
+| Target | URL (inside VM) |
+|---|---|
+| Juice Shop | `http://localhost:3333` |
+| DVWA | `http://localhost:3334` |
+| bWAPP | `http://localhost:3335` |
+| BadStore | `http://localhost:3336` |
+| WebGoat | `http://localhost:3337` |
+| WebWolf | `http://localhost:3338` |
+
+The script requires an SSH host entry `kaliutm` in `~/.ssh/config`. Pass a different host with `./bin/kali-forward <host>`.
 
 ## Benchmarks
 

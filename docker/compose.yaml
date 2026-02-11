@@ -13,6 +13,24 @@ x-playground-common: &playground-common
   tty: true
   init: true
   restart: unless-stopped
+  # Pass through host/env-file variables into the container.
+  # With `make playground`, this is loaded from ./data/playground.env (gitignored) if present.
+  environment:
+    - STRIX_LLM
+    - LLM_API_KEY
+    - LLM_API_BASE
+    - PERPLEXITY_API_KEY
+    - OPENAI_API_KEY
+    - OPENAI_BASE_URL
+    - ANTHROPIC_API_KEY
+    - ALIAS_API_KEY
+    - OLLAMA
+    - OLLAMA_API_BASE
+    - PROMPT_TOOLKIT_NO_CPR
+    - CAI_STREAM
+    - CAI_MODEL
+    - CAI_OPENAI_API_KEY
+    - STRIX_REASONING_EFFORT
   cap_add:
     - NET_RAW
     - NET_ADMIN

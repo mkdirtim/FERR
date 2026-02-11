@@ -126,6 +126,8 @@ $EDITOR data/playground.env
 make playground
 ```
 
+`make playground` passes these variables into the container so tools like Strix/CAI can read them.
+
 ### Projects
 
 One-time setup to clone third-party agent repos into `docker/data/projects/` (git-ignored):
@@ -148,8 +150,10 @@ To force reinstall: delete the project's `.venv` on the host and restart the con
 Most of these projects require API keys and/or an interactive first-run setup:
 
 - **PentestGPT**: uses Claude Code (`claude`). In the playground container, run `claude` and complete `/login` before running `pentestgpt`.
-- **CAI**: requires a TTY (run from `docker compose exec playground bash`). It expects `OPENAI_API_KEY` to be set (can be a placeholder like `sk-1234` for startup); for `CAI_MODEL=alias1` you'll also need `ALIAS_API_KEY`.
-- **Strix**: runs a sandbox via Docker and needs Docker daemon access. This Compose profile mounts `/var/run/docker.sock` into the playground container. It also requires `STRIX_LLM` and typically `LLM_API_KEY`.
+- **CAI**: requires a TTY (run from `docker compose exec playground bash`). It expects `OPENAI_API_KEY` to be set (can be a placeholder like `sk-1234` for startup). Set `CAI_MODEL` (e.g. `alias1`) and `ALIAS_API_KEY` if you want CAI Pro, and use `OPENAI_BASE_URL` if you want to point at an OpenAI-compatible local/proxy endpoint.
+- **Strix**: runs a sandbox via Docker and needs Docker daemon access. This Compose profile mounts `/var/run/docker.sock` into the playground container. It also requires `STRIX_LLM` and typically `LLM_API_KEY` (and optionally `LLM_API_BASE`).
+
+Security note: mounting `/var/run/docker.sock` gives the playground container effectively root-equivalent control over your Docker daemon. Only run trusted code in `./data/projects`.
 
 ## Benchmarks
 

@@ -9,7 +9,7 @@ graph LR
     subgraph host["Host (macOS)"]
         subgraph docker["Docker / openhackstack-network (192.168.77.0/24)"]
             openhack["openhack<br/>Kali + Bun<br/>:4096 :3000"]
-            playground["playground-kali<br/>Kali + python/uv/poetry<br/>claude-code · docker-cli"]
+            playground["playground-kali<br/>Kali + python/uv/poetry<br/>claude-code · docker-cli<br/>nmap · nikto · whatweb · ZAP<br/>ffuf · sqlmap · nuclei"]
             subgraph targets["Targets (profile: targets)"]
                 juiceshop["juiceshop :3333"]
                 dvwa["dvwa :3334"]
@@ -22,7 +22,6 @@ graph LR
             end
         end
         dockerd["Docker daemon"]
-        vm["Kali VM (UTM)<br/>192.168.64.x"]
     end
 
     openhack <--->|"by hostname"| targets
@@ -31,11 +30,9 @@ graph LR
     playground <--->|"by hostname"| benchmarks
     openhack <--->|"by hostname"| playground
     playground -.->|"docker.sock"| dockerd
-    vm -->|"SSH tunnel<br/>(bin/kali-forward)"| openhack
-    vm -->|"SSH tunnel<br/>(bin/kali-forward)"| targets
 ```
 
-All ports are bound to `127.0.0.1` only (not exposed to the LAN). The Kali VM reaches services via SSH remote forwarding (see [Kali VM](#kali-vm)).
+Containers communicate by hostname on the shared Docker network. Target ports are also bound to `127.0.0.1` on the host for browser access (see [Host Access](#host-access)).
 
 ## Prerequisites
 
@@ -49,14 +46,22 @@ From `docker/`:
 ./setup/quickstart    # clone all repos, build, and start (first time)
 ```
 
+Start everything (dev + targets + playground):
+
+```bash
+make quickstart-all   # first time: clone repos, build, start everything
+make up-all           # subsequent: start everything (builds if needed)
+```
+
 Or selectively:
 
 ```bash
 make up               # dev container only
 make up-with-targets  # dev + all vulnerable targets
-make shell            # enter the dev container
-make playground       # start playground container
+make playground       # start playground container only
 ```
+
+Note: `up-all` and `playground` mount `/var/run/docker.sock` into the playground container, giving it root-equivalent control over your Docker daemon. Only run trusted code in `./data/projects`.
 
 Compose directly:
 
@@ -69,19 +74,19 @@ docker compose --profile targets up -d                        # dev + all target
 ## Commands
 
 ```bash
-make help        # list all commands
-make shell       # enter dev container
-make install     # bun install
-make dev         # bun run dev (TUI/CLI)
-make app         # web app dev server (port 3000)
-make web         # opencode web (port 4096)
-make serve       # opencode HTTP server (port 4096)
-make playground  # start playground container
-make kali-forward      # forward target ports to Kali VM
-make kali-forward-stop # stop Kali VM forwarding
-make status      # show service status
-make down        # stop everything
-make validate    # run smoke tests
+make help           # list all commands
+make up-all         # start everything (dev + targets + playground)
+make shell          # enter dev container
+make install        # bun install
+make dev            # bun run dev (TUI/CLI)
+make app            # web app dev server (port 3000)
+make web            # opencode web (port 4096)
+make serve          # opencode HTTP server (port 4096)
+make playground     # start playground container
+make kali-scan      # scan all targets (nmap, nikto, whatweb, ZAP, ffuf, sqlmap)
+make status         # show service status
+make down           # stop everything
+make validate       # run smoke tests
 ```
 
 ## Containers
@@ -119,6 +124,26 @@ Kali-based container for running third-party OSS hacking agents on the same Dock
 make playground
 docker compose exec playground bash
 ```
+
+### Scanning
+
+The `kali-scan` script runs automated scans against all Docker-internal targets using their real hostnames and ports. Tools: nmap, whatweb, nikto, ZAP, ffuf, sqlmap.
+
+```bash
+make kali-scan                 # scan all targets
+docker compose exec playground kali-scan juiceshop   # scan one target
+docker compose exec playground kali-scan dvwa bwapp  # scan specific targets
+```
+
+| Target | Hostname | Port |
+|---|---|---|
+| Juice Shop | `juiceshop` | 3000 |
+| DVWA | `dvwa` | 80 |
+| bWAPP | `bwapp` | 80 |
+| BadStore | `badstore` | 80 |
+| WebGoat | `webgoat` | 8080 |
+
+Scan output is saved to `/playground/scans/<hostname>/` inside the container, which maps to `docker/data/scans/` on the host (gitignored). SecLists wordlists are available at `/usr/share/wordlists/seclists/`.
 
 ### Simple Setup
 
@@ -159,18 +184,11 @@ Most of these projects require API keys and/or an interactive first-run setup:
 
 Security note: mounting `/var/run/docker.sock` gives the playground container effectively root-equivalent control over your Docker daemon. Only run trusted code in `./data/projects`.
 
-## Kali VM
+## Host Access
 
-The Kali UTM virtual machine (shared network, `192.168.64.x`) can reach Docker target ports via SSH remote forwarding. Docker Desktop on macOS only supports binding to `127.0.0.1` or `0.0.0.0`, so `bin/kali-forward` tunnels the localhost-bound ports into the VM.
+Target web apps are bound to `127.0.0.1` on the host for browser access:
 
-```bash
-make kali-forward       # start tunnel (uses SSH host "kaliutm")
-make kali-forward-stop  # stop tunnel
-```
-
-Once the tunnel is active, targets are available inside the Kali VM at `localhost`:
-
-| Target | URL (inside VM) |
+| Target | Host URL |
 |---|---|
 | Juice Shop | `http://localhost:3333` |
 | DVWA | `http://localhost:3334` |
@@ -179,7 +197,7 @@ Once the tunnel is active, targets are available inside the Kali VM at `localhos
 | WebGoat | `http://localhost:3337` |
 | WebWolf | `http://localhost:3338` |
 
-The script requires an SSH host entry `kaliutm` in `~/.ssh/config`. Pass a different host with `./bin/kali-forward <host>`.
+From inside containers, use Docker hostnames instead (e.g. `http://juiceshop:3000`).
 
 ## Benchmarks
 

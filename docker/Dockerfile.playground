@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     kali-linux-headless \
     # Not in kali-linux-headless
     nuclei \
+    zaproxy \
     # Node is required for Claude Code (PentestGPT default backend).
     nodejs \
     npm \
@@ -71,7 +72,8 @@ RUN useradd -m -s /bin/bash playground && \
     chown -R playground:playground /work /playground
 
 COPY entrypoint/playground /usr/local/bin/playground
-RUN chmod +x /usr/local/bin/playground
+COPY bin/kali-scan /usr/local/bin/kali-scan
+RUN chmod +x /usr/local/bin/playground /usr/local/bin/kali-scan
 
 USER playground
 WORKDIR /work

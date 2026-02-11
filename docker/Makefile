@@ -1,7 +1,7 @@
 # openhackstack Makefile
 # Quick commands for managing the Docker environment
 
-.PHONY: help quickstart start validate build up up-with-targets down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground playground-env kali-forward kali-forward-stop benchmark-list benchmark-build benchmark-run benchmark-stop benchmark-flag
+.PHONY: help quickstart quickstart-all start validate build up up-with-targets up-all down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground playground-env kali-scan kali-forward kali-forward-stop benchmark-list benchmark-build benchmark-run benchmark-stop benchmark-flag
 
 help: ## Show this help message
 	@echo "openhackstack - OpenCode Development Environment"
@@ -15,6 +15,10 @@ help: ## Show this help message
 
 quickstart: ## Clone all repos, build, and start (first-time setup)
 	./setup/quickstart
+
+quickstart-all: ## Quickstart then start everything (dev + targets + playground)
+	./setup/quickstart
+	$(MAKE) up-all
 
 start: ## Run startup script (builds and starts services)
 	./bin/up
@@ -31,8 +35,15 @@ up: ## Start dev container only (service: openhack)
 up-with-targets: ## Start dev container with vulnerable targets
 	docker compose --profile targets up -d
 
+up-all: ## Start everything (dev + targets + playground)
+	@if [ -f ./data/playground.env ]; then \
+		docker compose --env-file ./data/playground.env --profile targets --profile playground up -d --build; \
+	else \
+		docker compose --profile targets --profile playground up -d --build; \
+	fi
+
 down: ## Stop all services
-	docker compose --profile targets down
+	docker compose --profile targets --profile playground down
 
 restart: down up ## Restart dev container only
 
@@ -105,8 +116,8 @@ kali-forward: ## Forward target ports to Kali VM via SSH tunnel
 kali-forward-stop: ## Stop Kali VM port forwarding
 	./bin/kali-forward --stop
 
-kali-scan: ## Scan all targets from Kali VM (nmap, whatweb, nikto)
-	./bin/kali-scan
+kali-scan: ## Scan targets from playground-kali (nmap, whatweb, nikto, ZAP, ffuf, sqlmap)
+	docker compose --profile playground exec playground kali-scan
 
 benchmark-list: ## List available XBOW benchmarks
 	./bin/benchmark list

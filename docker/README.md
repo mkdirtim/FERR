@@ -8,7 +8,7 @@ Docker-based dev environment with Kali tools, optional vulnerable targets, and a
 graph LR
     subgraph host["Host (macOS)"]
         subgraph docker["Docker / openhackstack-network (192.168.77.0/24)"]
-            openhack["openhack<br/>Kali + Bun<br/>:4096 :3000"]
+            openhack["openhack<br/>Kali + Bun"]
             playground["playground-kali<br/>Kali + python/uv/poetry<br/>claude-code · docker-cli<br/>nmap · nikto · whatweb · ZAP<br/>ffuf · sqlmap · nuclei"]
             subgraph targets["Targets (profile: targets)"]
                 juiceshop["juiceshop :3333"]
@@ -58,7 +58,7 @@ Or selectively:
 ```bash
 make up               # dev container only
 make up-with-targets  # dev + all vulnerable targets
-make playground       # start playground container only
+make playground       # start playground container only (not GVM)
 ```
 
 Note: `up-all` and `playground` mount `/var/run/docker.sock` into the playground container, giving it root-equivalent control over your Docker daemon. Only run trusted code in `./data/projects`.
@@ -93,9 +93,9 @@ make validate       # run smoke tests
 
 | Container | Service | Profile | Hostname | URL |
 |---|---|---|---|---|
-| `openhack` | `openhack` | *(default)* | `openhack` | `http://localhost:4096` |
+| `openhack` | `openhack` | *(default)* | `openhack` | `http://localhost:4096` (after `make web`/`serve`) |
 | `playground-kali` | `playground` | `playground` | `kali` | — |
-| `playground-gvm` | `gvm` | `playground` | `gvm` | `https://localhost:9392` (via container) |
+| `playground-gvm` | `gvm` | `playground` | `gvm` | `http://localhost:9392` (container-internal) |
 | `targets-juiceshop` | `juiceshop` | `targets` | `juiceshop` | `http://localhost:3333` |
 | `targets-dvwa` | `dvwa` | `targets` | `dvwa` | `http://localhost:3334` |
 | `targets-bwapp` | `bwapp` | `targets` | `bwapp` | `http://localhost:3335` |
@@ -147,7 +147,7 @@ docker compose exec playground kali-scan --gvm       # include GVM/OpenVAS (slow
 
 Scan output is saved to `/playground/scans/<hostname>/` inside the container, which maps to `docker/data/scans/` on the host (gitignored). SecLists wordlists are available at `/usr/share/wordlists/seclists/`.
 
-GVM (Greenbone Vulnerability Management / OpenVAS) runs as a sidecar container (`playground-gvm`). First startup takes 5-10 minutes to sync vulnerability feeds. The `--gvm` flag connects to it via GMP on port 9390. GVM scans are significantly slower (30-60 min per target).
+GVM (Greenbone Vulnerability Management / OpenVAS) runs as a separate container (`playground-gvm`) in the `playground` profile. `make playground` starts only the playground container; use `make up-all` or `docker compose --profile playground up -d` to start both playground and GVM. First startup takes 5-10 minutes to sync vulnerability feeds. The `--gvm` flag connects to it via GMP on port 9390. GVM scans are significantly slower (30-60 min per target).
 
 ### Simple Setup
 

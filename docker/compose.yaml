@@ -117,7 +117,7 @@ services:
     networks:
       - openhackstack-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsSk https://localhost:9392/ || exit 1"]
+      test: ["CMD-SHELL", "curl -fsSk http://localhost:9392/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 20

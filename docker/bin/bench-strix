@@ -3,7 +3,12 @@
 #
 # Usage:  ./bin/bench-strix [RUNS] [START]
 #         RUNS defaults to 5, START defaults to 1.
-#         Example: ./bin/bench-strix 5 3  — runs 3,4,5 (skips 1,2)
+#         TARGET=name to run a single target (default: all).
+#
+#         Examples:
+#           ./bin/bench-strix 5 3                  — runs 3-5 on all targets
+#           TARGET=badstore ./bin/bench-strix 5    — all 5 runs, badstore only
+#           TARGET=juiceshop ./bin/bench-strix 3 3 — just run 3, juiceshop only
 #
 # Requires: STRIX_LLM and LLM_API_KEY set in playground.env
 # Each run: archive /tmp → restart target → wait healthy → run Strix → archive strix_runs.
@@ -54,6 +59,11 @@ wait_for_target() {
 
 for entry in "${TARGETS[@]}"; do
   read -r name container url health_path <<< "$entry"
+
+  # Skip targets not matching TARGET filter (if set)
+  if [ -n "${TARGET:-}" ] && [ "$name" != "$TARGET" ]; then
+    continue
+  fi
 
   log_dir="/playground/scans/${name}/strix/results"
 

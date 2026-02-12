@@ -3,7 +3,12 @@
 #
 # Usage:  ./bin/bench-cai [RUNS] [START]
 #         RUNS defaults to 5, START defaults to 1.
-#         Example: ./bin/bench-cai 5 3  — runs 3,4,5 (skips 1,2)
+#         TARGET=name to run a single target (default: all).
+#
+#         Examples:
+#           ./bin/bench-cai 5 3                  — runs 3-5 on all targets
+#           TARGET=badstore ./bin/bench-cai 5    — all 5 runs, badstore only
+#           TARGET=juiceshop ./bin/bench-cai 3 3 — just run 3, juiceshop only
 #
 # Requires: OPENAI_API_KEY and CAI_MODEL set in playground.env
 # Note: CAI requires a TTY. This script allocates one via docker exec -t.
@@ -55,6 +60,11 @@ wait_for_target() {
 
 for entry in "${TARGETS[@]}"; do
   read -r name container url health_path <<< "$entry"
+
+  # Skip targets not matching TARGET filter (if set)
+  if [ -n "${TARGET:-}" ] && [ "$name" != "$TARGET" ]; then
+    continue
+  fi
 
   log_dir="/playground/scans/${name}/cai/results"
 

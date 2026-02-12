@@ -43,6 +43,8 @@ x-playground-common: &playground-common
     - ./data/scans:/playground/scans
     - ./data/seclists:/usr/share/wordlists/seclists:ro
     - /var/run/docker.sock:/var/run/docker.sock
+    # Persist Claude Code login across container recreations (used by PentestGPT).
+    - playground-claude:/root/.claude
   networks:
     - openhackstack-network
 
@@ -229,4 +231,5 @@ networks:
 volumes:
   openhack-npm:
   openhack-playwright:
+  playground-claude:
   gvm-data:

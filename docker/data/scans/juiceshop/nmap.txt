@@ -1,0 +1,91 @@
+# Nmap 7.95 scan initiated Wed Feb 11 17:27:01 2026 as: /usr/lib/nmap/nmap --privileged -p3000 -sS -sV --version-all -A --reason -T4 --script default,vuln,http-title,http-headers,http-methods,http-robots.txt,http-enum,http-server-header -oN /playground/scans/juiceshop/nmap.txt juiceshop
+Nmap scan report for juiceshop (192.168.77.8)
+Host is up, received arp-response (0.000077s latency).
+rDNS record for 192.168.77.8: targets-juiceshop.openhackstack_openhackstack-network
+
+PORT     STATE SERVICE REASON         VERSION
+3000/tcp open  ppp?    syn-ack ttl 64
+| fingerprint-strings: 
+|   GetRequest: 
+|     HTTP/1.1 200 OK
+|     Access-Control-Allow-Origin: *
+|     X-Content-Type-Options: nosniff
+|     X-Frame-Options: SAMEORIGIN
+|     Feature-Policy: payment 'self'
+|     X-Recruiting: /#/jobs
+|     Accept-Ranges: bytes
+|     Cache-Control: public, max-age=0
+|     Last-Modified: Wed, 11 Feb 2026 17:26:14 GMT
+|     ETag: W/"1252f-19c4dbd3ff3"
+|     Content-Type: text/html; charset=UTF-8
+|     Content-Length: 75055
+|     Vary: Accept-Encoding
+|     Date: Wed, 11 Feb 2026 17:27:22 GMT
+|     Connection: close
+|     <!--
+|     Copyright (c) 2014-2026 Bjoern Kimminich & the OWASP Juice Shop contributors.
+|     SPDX-License-Identifier: MIT
+|     <!doctype html>
+|     <html lang="en" data-beasties-container>
+|     <head>
+|     <meta charset="utf-8">
+|     <title>OWASP Juice Shop</title>
+|     <meta name="description" content="Probably the most modern and sophisticated insecure web application">
+|     <meta name="viewport" content="width=device-width, initial-scale=1">
+|     <link id="favicon" rel="icon"
+|   HTTPOptions, RTSPRequest: 
+|     HTTP/1.1 204 No Content
+|     Access-Control-Allow-Origin: *
+|     Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
+|     Vary: Access-Control-Request-Headers
+|     Content-Length: 0
+|     Date: Wed, 11 Feb 2026 17:27:22 GMT
+|     Connection: close
+|   Help, NCP: 
+|     HTTP/1.1 400 Bad Request
+|_    Connection: close
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port3000-TCP:V=7.95%I=9%D=2/11%Time=698CBBFA%P=aarch64-unknown-linux-gn
+SF:u%r(GetRequest,101B9,"HTTP/1\.1\x20200\x20OK\r\nAccess-Control-Allow-Or
+SF:igin:\x20\*\r\nX-Content-Type-Options:\x20nosniff\r\nX-Frame-Options:\x
+SF:20SAMEORIGIN\r\nFeature-Policy:\x20payment\x20'self'\r\nX-Recruiting:\x
+SF:20/#/jobs\r\nAccept-Ranges:\x20bytes\r\nCache-Control:\x20public,\x20ma
+SF:x-age=0\r\nLast-Modified:\x20Wed,\x2011\x20Feb\x202026\x2017:26:14\x20G
+SF:MT\r\nETag:\x20W/\"1252f-19c4dbd3ff3\"\r\nContent-Type:\x20text/html;\x
+SF:20charset=UTF-8\r\nContent-Length:\x2075055\r\nVary:\x20Accept-Encoding
+SF:\r\nDate:\x20Wed,\x2011\x20Feb\x202026\x2017:27:22\x20GMT\r\nConnection
+SF::\x20close\r\n\r\n<!--\n\x20\x20~\x20Copyright\x20\(c\)\x202014-2026\x2
+SF:0Bjoern\x20Kimminich\x20&\x20the\x20OWASP\x20Juice\x20Shop\x20contribut
+SF:ors\.\n\x20\x20~\x20SPDX-License-Identifier:\x20MIT\n\x20\x20-->\n\n<!d
+SF:octype\x20html>\n<html\x20lang=\"en\"\x20data-beasties-container>\n<hea
+SF:d>\n\x20\x20<meta\x20charset=\"utf-8\">\n\x20\x20<title>OWASP\x20Juice\
+SF:x20Shop</title>\n\x20\x20<meta\x20name=\"description\"\x20content=\"Pro
+SF:bably\x20the\x20most\x20modern\x20and\x20sophisticated\x20insecure\x20w
+SF:eb\x20application\">\n\x20\x20<meta\x20name=\"viewport\"\x20content=\"w
+SF:idth=device-width,\x20initial-scale=1\">\n\x20\x20<link\x20id=\"favicon
+SF:\"\x20rel=\"icon\"\x20")%r(Help,2F,"HTTP/1\.1\x20400\x20Bad\x20Request\
+SF:r\nConnection:\x20close\r\n\r\n")%r(NCP,2F,"HTTP/1\.1\x20400\x20Bad\x20
+SF:Request\r\nConnection:\x20close\r\n\r\n")%r(HTTPOptions,EA,"HTTP/1\.1\x
+SF:20204\x20No\x20Content\r\nAccess-Control-Allow-Origin:\x20\*\r\nAccess-
+SF:Control-Allow-Methods:\x20GET,HEAD,PUT,PATCH,POST,DELETE\r\nVary:\x20Ac
+SF:cess-Control-Request-Headers\r\nContent-Length:\x200\r\nDate:\x20Wed,\x
+SF:2011\x20Feb\x202026\x2017:27:22\x20GMT\r\nConnection:\x20close\r\n\r\n"
+SF:)%r(RTSPRequest,EA,"HTTP/1\.1\x20204\x20No\x20Content\r\nAccess-Control
+SF:-Allow-Origin:\x20\*\r\nAccess-Control-Allow-Methods:\x20GET,HEAD,PUT,P
+SF:ATCH,POST,DELETE\r\nVary:\x20Access-Control-Request-Headers\r\nContent-
+SF:Length:\x200\r\nDate:\x20Wed,\x2011\x20Feb\x202026\x2017:27:22\x20GMT\r
+SF:\nConnection:\x20close\r\n\r\n");
+MAC Address: 7E:60:F5:28:04:66 (Unknown)
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose
+Running: Linux 4.X|5.X
+OS CPE: cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5
+OS details: Linux 4.15 - 5.19
+Network Distance: 1 hop
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.08 ms targets-juiceshop.openhackstack_openhackstack-network (192.168.77.8)
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Wed Feb 11 17:27:28 2026 -- 1 IP address (1 host up) scanned in 27.69 seconds

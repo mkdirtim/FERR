@@ -1,0 +1,33 @@
+# Nmap 7.95 scan initiated Wed Feb 11 19:08:31 2026 as: /usr/lib/nmap/nmap --privileged -p8080 -sS -sV --version-all -A --reason -T4 --script default,vuln,http-title,http-headers,http-methods,http-robots.txt,http-enum,http-server-header -oN /playground/scans/webgoat/nmap.txt webgoat
+Nmap scan report for webgoat (192.168.77.9)
+Host is up, received arp-response (0.00021s latency).
+rDNS record for 192.168.77.9: targets-webgoat.openhackstack_openhackstack-network
+
+PORT     STATE SERVICE REASON         VERSION
+8080/tcp open  http    syn-ack ttl 64 Apache Tomcat (language: en)
+|_http-csrf: Couldn't find any CSRF vulnerabilities.
+| http-headers: 
+|   Content-Type: text/html;charset=utf-8
+|   Content-Language: en
+|   Content-Length: 683
+|   Date: Wed, 11 Feb 2026 19:08:51 GMT
+|   Connection: close
+|   
+|_  (Request type: GET)
+|_http-title: HTTP Status 404 \xE2\x80\x93 Not Found
+|_http-stored-xss: Couldn't find any stored XSS vulnerabilities.
+|_http-dombased-xss: Couldn't find any DOM based XSS.
+MAC Address: 32:16:35:70:F6:B2 (Unknown)
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose
+Running: Linux 4.X|5.X
+OS CPE: cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5
+OS details: Linux 4.15 - 5.19
+Network Distance: 1 hop
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.21 ms targets-webgoat.openhackstack_openhackstack-network (192.168.77.9)
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Wed Feb 11 19:10:01 2026 -- 1 IP address (1 host up) scanned in 89.23 seconds

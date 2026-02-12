@@ -1,0 +1,66 @@
+WhatWeb report for http://webgoat:8080
+Status    : 404 Not Found
+Title     : HTTP Status 404 – Not Found
+IP        : 192.168.77.9
+Country   : RESERVED, ZZ
+
+Summary   : Apache-Tomcat[10.1.36], Content-Language[en], HTML5
+
+Detected Plugins:
+[ Apache-Tomcat ]
+	Apache Tomcat Web Server 
+
+	Version      : 10.1.36 (from Footer)
+	Aggressive function available (check plugin file or details).
+	Website     : http://tomcat.apache.org/
+
+[ Content-Language ]
+	Detect the content-language setting from the HTTP header. 
+
+	String       : en
+
+[ HTML5 ]
+	HTML version 5, detected by the doctype declaration 
+
+
+HTTP Headers:
+	HTTP/1.1 404 
+	Content-Type: text/html;charset=utf-8
+	Content-Language: en
+	Content-Length: 683
+	Date: Wed, 11 Feb 2026 18:02:52 GMT
+	Connection: close
+	
+WhatWeb report for http://webgoat:8080
+Status    : 404 Not Found
+Title     : HTTP Status 404 – Not Found
+IP        : 192.168.77.9
+Country   : RESERVED, ZZ
+
+Summary   : Apache-Tomcat[10.1.36], Content-Language[en], HTML5
+
+Detected Plugins:
+[ Apache-Tomcat ]
+	Apache Tomcat Web Server 
+
+	Version      : 10.1.36 (from Footer)
+	Aggressive function available (check plugin file or details).
+	Website     : http://tomcat.apache.org/
+
+[ Content-Language ]
+	Detect the content-language setting from the HTTP header. 
+
+	String       : en
+
+[ HTML5 ]
+	HTML version 5, detected by the doctype declaration 
+
+
+HTTP Headers:
+	HTTP/1.1 404 
+	Content-Type: text/html;charset=utf-8
+	Content-Language: en
+	Content-Length: 683
+	Date: Wed, 11 Feb 2026 19:10:03 GMT
+	Connection: close
+	

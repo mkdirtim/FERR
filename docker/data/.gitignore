@@ -10,7 +10,6 @@ benchmarks/
 
 # Runtime data
 benchmark/
-scans/
 
 # Playground environment (keys/config) - copy from playground.env.example
 playground.env

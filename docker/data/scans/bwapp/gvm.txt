@@ -1,0 +1,511 @@
+I Summary
+=========
+
+This document reports on the results of an automatic security scan.
+The report first summarises the results found.
+Then, for each host, the report describes every issue found.
+Please consider the advice given in each description, in order to rectify
+the issue.
+
+All dates are displayed using the timezone "Coordinated Universal Time",
+which is abbreviated "UTC".
+
+Vendor security updates are not trusted.
+
+Overrides are off.  Even when a result has an override, this report uses
+the actual threat of the result.
+
+Notes are included in the report.Information on overrides is included in the report.
+
+This report might not show details of all issues that were found.
+Issues with the threat level "Critical" are not shown.
+Issues with the threat level "High" are not shown.
+Issues with the threat level "Medium" are not shown.
+Issues with the threat level "Low" are not shown.
+Issues with the threat level "Log" are not shown.
+Issues with the threat level "Debug" are not shown.
+Issues with the threat level "False Positive" are not shown.
+Only results with a minimum QoD of 70 are shown.
+
+This report contains results 1 to 10 of the 25 results selected by the
+filtering described above.  Before filtering there were 178 results.
+
+Scan started: Wed Feb 11 18:24:43 2026 UTC
+Scan ended:   Wed Feb 11 18:31:35 2026 UTC
+Task:         scan-bwapp-20260211-182433
+
+Host Summary
+************
+
+Host            Critical  High  Medium  Low  Log  False Positive
+192.168.77.4           0     2       0    0    8               0    targets-bwapp.openhackstack_openhackstack-network
+Total: 1               0     2       0    0    8               0
+
+
+II Results per Host
+===================
+
+Host 192.168.77.4
+*****************
+
+Scanning of this host started at: Wed Feb 11 18:24:53 2026 UTC
+Number of results: 10
+
+Port Summary for Host 192.168.77.4
+----------------------------------
+
+Service (Port)          Threat Level
+80/tcp                  High (CVSS: 7.5)
+general/CPE-T           Log (CVSS: 0.0)
+general/tcp             Log (CVSS: 0.0)
+
+Security Issues for Host 192.168.77.4
+-------------------------------------
+
+Issue
+-----
+NVT:    Apache HTTP Server Detection Consolidation
+OID:    1.3.6.1.4.1.25623.1.0.117232
+Threat: Log (CVSS: 0.0)
+Port:   general/tcp
+
+Summary:
+Consolidation of Apache HTTP Server detections.
+
+Vulnerability Detection Result:
+Detected Apache HTTP Server
+Version:       2.4.7
+Location:      80/tcp
+CPE:           cpe:/a:apache:http_server:2.4.7
+Concluded from version/product identification result:
+Server: Apache/2.4.7 (Ubuntu)
+
+Solution:
+
+Log Method:
+Details:
+Apache HTTP Server Detection Consolidation
+(OID: 1.3.6.1.4.1.25623.1.0.117232)
+Version used: 2024-03-08T15:37:10Z
+
+References:
+ url: https://httpd.apache.org
+
+
+Issue
+-----
+NVT:    CPE Inventory
+OID:    1.3.6.1.4.1.25623.1.0.810002
+Threat: Log (CVSS: 0.0)
+Port:   general/CPE-T
+
+Summary:
+This routine uses information collected by other routines about
+  CPE identities of operating systems, services and applications detected during!
+ the scan.
+  Note: Some CPEs for specific products might show up twice or more in the outpu!
+t. Background:
+  After a product got renamed or a specific vendor was acquired by another one i!
+t might happen that
+  a product gets a new CPE within the NVD CPE Dictionary but older entries are k!
+ept with the older
+  CPE.
+
+Vulnerability Detection Result:
+192.168.77.4|cpe:/a:apache:http_server:2.4.7
+192.168.77.4|cpe:/a:php:php:5.5.9
+192.168.77.4|cpe:/o:canonical:ubuntu_linux
+
+Solution:
+
+Log Method:
+Details:
+CPE Inventory
+(OID: 1.3.6.1.4.1.25623.1.0.810002)
+Version used: 2022-07-27T10:11:28Z
+
+References:
+ url: https://nvd.nist.gov/products/cpe
+
+
+Issue
+-----
+NVT:    EasyPHP Webserver <= 12.1 Multiple Vulnerabilities - Active Check
+OID:    1.3.6.1.4.1.25623.1.0.803189
+Threat: High (CVSS: 7.5)
+Port:   80/tcp
+
+Summary:
+EasyPHP Webserver is prone to multiple vulnerabilities.
+
+Vulnerability Detection Result:
+Vulnerable URL: http://bwapp/phpinfo.php
+Concluded from:
+  <title>phpinfo()</title><meta name="ROBOTS" content="NOINDEX,NOFOLLOW,NOARCHIV!
+E" /></head>
+  <tr><td class="e">Configuration File (php.ini) Path </td><td class="v">/etc/ph!
+p5/apache2 </td></tr>
+  <h2>PHP Variables</h2>
+
+Impact:
+Successful exploitation will allow attackers to gain
+  administrative access, disclose the information, inject PHP code/shell and exe!
+cute a remote PHP
+  Code.
+
+Solution:
+Solution type: WillNotFix
+No known solution was made available for at least one year
+  since the disclosure of this vulnerability. Likely none will be provided anymo!
+re. General solution
+  options are to upgrade to a newer release, disable respective features, remove!
+ the product or
+  replace the product by another one.
+
+Affected Software/OS:
+EasyPHP version 12.1 and prior.
+
+Vulnerability Insight:
+The bug in EasyPHP WebServer Manager, its skipping
+  authentication for certain requests. Which allows to bypass the authentication!
+, disclose the
+  information or execute a remote PHP code.
+
+Vulnerability Detection Method:
+Sends a crafted HTTP GET request and checks the response.
+  Note: It is currently expected that a result of this VT is reported if the sys!
+tem is generally
+  exposing a phpinfo() output on the relevant URL / endpoint (independent from t!
+he running product).
+  Exposing such sensitive information is generally seen as a security misconfigu!
+ration and should be
+  avoided.
+Details:
+EasyPHP Webserver <= 12.1 Multiple Vulnerabilities - Active Check
+(OID: 1.3.6.1.4.1.25623.1.0.803189)
+Version used: 2025-11-11T05:40:18Z
+
+References:
+ url: https://cxsecurity.com/issue/WLB-2013040069
+
+
+Issue
+-----
+NVT:    EasyPHP Webserver <= 12.1 Multiple Vulnerabilities - Active Check
+OID:    1.3.6.1.4.1.25623.1.0.803189
+Threat: High (CVSS: 7.5)
+Port:   80/tcp
+
+Summary:
+EasyPHP Webserver is prone to multiple vulnerabilities.
+
+Vulnerability Detection Result:
+Vulnerable URL: http://targets-bwapp.openhackstack_openhackstack-network/phpinfo!
+.php
+Concluded from:
+  <title>phpinfo()</title><meta name="ROBOTS" content="NOINDEX,NOFOLLOW,NOARCHIV!
+E" /></head>
+  <tr><td class="e">Configuration File (php.ini) Path </td><td class="v">/etc/ph!
+p5/apache2 </td></tr>
+  <h2>PHP Variables</h2>
+
+Impact:
+Successful exploitation will allow attackers to gain
+  administrative access, disclose the information, inject PHP code/shell and exe!
+cute a remote PHP
+  Code.
+
+Solution:
+Solution type: WillNotFix
+No known solution was made available for at least one year
+  since the disclosure of this vulnerability. Likely none will be provided anymo!
+re. General solution
+  options are to upgrade to a newer release, disable respective features, remove!
+ the product or
+  replace the product by another one.
+
+Affected Software/OS:
+EasyPHP version 12.1 and prior.
+
+Vulnerability Insight:
+The bug in EasyPHP WebServer Manager, its skipping
+  authentication for certain requests. Which allows to bypass the authentication!
+, disclose the
+  information or execute a remote PHP code.
+
+Vulnerability Detection Method:
+Sends a crafted HTTP GET request and checks the response.
+  Note: It is currently expected that a result of this VT is reported if the sys!
+tem is generally
+  exposing a phpinfo() output on the relevant URL / endpoint (independent from t!
+he running product).
+  Exposing such sensitive information is generally seen as a security misconfigu!
+ration and should be
+  avoided.
+Details:
+EasyPHP Webserver <= 12.1 Multiple Vulnerabilities - Active Check
+(OID: 1.3.6.1.4.1.25623.1.0.803189)
+Version used: 2025-11-11T05:40:18Z
+
+References:
+ url: https://cxsecurity.com/issue/WLB-2013040069
+
+
+Issue
+-----
+NVT:    Hostname Determination Reporting
+OID:    1.3.6.1.4.1.25623.1.0.108449
+Threat: Log (CVSS: 0.0)
+Port:   general/tcp
+
+Summary:
+The script reports information on how the hostname of the target
+  was determined.
+
+Vulnerability Detection Result:
+Hostname determination for IP 192.168.77.4:
+Hostname|Source
+bwapp|Forward-DNS
+targets-bwapp.openhackstack_openhackstack-network|Reverse-DNS
+
+Solution:
+
+Log Method:
+Details:
+Hostname Determination Reporting
+(OID: 1.3.6.1.4.1.25623.1.0.108449)
+Version used: 2022-07-27T10:11:28Z
+
+
+Issue
+-----
+NVT:    HTTP Security Headers Detection
+OID:    1.3.6.1.4.1.25623.1.0.112081
+Threat: Log (CVSS: 0.0)
+Port:   80/tcp
+
+Summary:
+All known security headers are being checked on the remote web
+  server.
+  On completion a report will hand back whether a specific security header has b!
+een implemented
+  (including its value and if it is deprecated) or is missing on the target.
+
+Vulnerability Detection Result:
+Missing Headers                   | More Information
+--------------------------------------------------------------------------------!
+--------------------------------------------------------------------------------!
+----------------------------------------------
+Content-Security-Policy           | https://owasp.org/www-project-secure-headers!
+/#content-security-policy
+Cross-Origin-Embedder-Policy      | https://scotthelme.co.uk/coop-and-coep/, Not!
+e: This is an upcoming header
+Cross-Origin-Opener-Policy        | https://scotthelme.co.uk/coop-and-coep/, Not!
+e: This is an upcoming header
+Cross-Origin-Resource-Policy      | https://scotthelme.co.uk/coop-and-coep/, Not!
+e: This is an upcoming header
+Document-Policy                   | https://w3c.github.io/webappsec-feature-poli!
+cy/document-policy#document-policy-http-header
+Feature-Policy                    | https://owasp.org/www-project-secure-headers!
+/#feature-policy, Note: The Feature Policy header has been renamed to Permission!
+s Policy
+Permissions-Policy                | https://w3c.github.io/webappsec-feature-poli!
+cy/#permissions-policy-http-header-field
+Referrer-Policy                   | https://owasp.org/www-project-secure-headers!
+/#referrer-policy
+Sec-Fetch-Dest                    | https://developer.mozilla.org/en-US/docs/Web!
+/HTTP/Headers#fetch_metadata_request_headers, Note: This is a new header support!
+ed only in newer browsers like e.g. Firefox 90
+Sec-Fetch-Mode                    | https://developer.mozilla.org/en-US/docs/Web!
+/HTTP/Headers#fetch_metadata_request_headers, Note: This is a new header support!
+ed only in newer browsers like e.g. Firefox 90
+Sec-Fetch-Site                    | https://developer.mozilla.org/en-US/docs/Web!
+/HTTP/Headers#fetch_metadata_request_headers, Note: This is a new header support!
+ed only in newer browsers like e.g. Firefox 90
+Sec-Fetch-User                    | https://developer.mozilla.org/en-US/docs/Web!
+/HTTP/Headers#fetch_metadata_request_headers, Note: This is a new header support!
+ed only in newer browsers like e.g. Firefox 90
+X-Content-Type-Options            | https://owasp.org/www-project-secure-headers!
+/#x-content-type-options
+X-Frame-Options                   | https://owasp.org/www-project-secure-headers!
+/#x-frame-options
+X-Permitted-Cross-Domain-Policies | https://owasp.org/www-project-secure-headers!
+/#x-permitted-cross-domain-policies
+X-XSS-Protection                  | https://owasp.org/www-project-secure-headers!
+/#x-xss-protection, Note: Most major browsers have dropped / deprecated support !
+for this header in 2020.
+
+Solution:
+
+Log Method:
+Details:
+HTTP Security Headers Detection
+(OID: 1.3.6.1.4.1.25623.1.0.112081)
+Version used: 2025-03-21T15:40:43Z
+
+References:
+ url: https://owasp.org/www-project-secure-headers/
+ url: https://owasp.org/www-project-secure-headers/#div-headers
+ url: https://securityheaders.com/
+
+
+Issue
+-----
+NVT:    HTTP Security Headers Detection
+OID:    1.3.6.1.4.1.25623.1.0.112081
+Threat: Log (CVSS: 0.0)
+Port:   80/tcp
+
+Summary:
+All known security headers are being checked on the remote web
+  server.
+  On completion a report will hand back whether a specific security header has b!
+een implemented
+  (including its value and if it is deprecated) or is missing on the target.
+
+Vulnerability Detection Result:
+Missing Headers                   | More Information
+--------------------------------------------------------------------------------!
+--------------------------------------------------------------------------------!
+----------------------------------------------
+Content-Security-Policy           | https://owasp.org/www-project-secure-headers!
+/#content-security-policy
+Cross-Origin-Embedder-Policy      | https://scotthelme.co.uk/coop-and-coep/, Not!
+e: This is an upcoming header
+Cross-Origin-Opener-Policy        | https://scotthelme.co.uk/coop-and-coep/, Not!
+e: This is an upcoming header
+Cross-Origin-Resource-Policy      | https://scotthelme.co.uk/coop-and-coep/, Not!
+e: This is an upcoming header
+Document-Policy                   | https://w3c.github.io/webappsec-feature-poli!
+cy/document-policy#document-policy-http-header
+Feature-Policy                    | https://owasp.org/www-project-secure-headers!
+/#feature-policy, Note: The Feature Policy header has been renamed to Permission!
+s Policy
+Permissions-Policy                | https://w3c.github.io/webappsec-feature-poli!
+cy/#permissions-policy-http-header-field
+Referrer-Policy                   | https://owasp.org/www-project-secure-headers!
+/#referrer-policy
+Sec-Fetch-Dest                    | https://developer.mozilla.org/en-US/docs/Web!
+/HTTP/Headers#fetch_metadata_request_headers, Note: This is a new header support!
+ed only in newer browsers like e.g. Firefox 90
+Sec-Fetch-Mode                    | https://developer.mozilla.org/en-US/docs/Web!
+/HTTP/Headers#fetch_metadata_request_headers, Note: This is a new header support!
+ed only in newer browsers like e.g. Firefox 90
+Sec-Fetch-Site                    | https://developer.mozilla.org/en-US/docs/Web!
+/HTTP/Headers#fetch_metadata_request_headers, Note: This is a new header support!
+ed only in newer browsers like e.g. Firefox 90
+Sec-Fetch-User                    | https://developer.mozilla.org/en-US/docs/Web!
+/HTTP/Headers#fetch_metadata_request_headers, Note: This is a new header support!
+ed only in newer browsers like e.g. Firefox 90
+X-Content-Type-Options            | https://owasp.org/www-project-secure-headers!
+/#x-content-type-options
+X-Frame-Options                   | https://owasp.org/www-project-secure-headers!
+/#x-frame-options
+X-Permitted-Cross-Domain-Policies | https://owasp.org/www-project-secure-headers!
+/#x-permitted-cross-domain-policies
+X-XSS-Protection                  | https://owasp.org/www-project-secure-headers!
+/#x-xss-protection, Note: Most major browsers have dropped / deprecated support !
+for this header in 2020.
+
+Solution:
+
+Log Method:
+Details:
+HTTP Security Headers Detection
+(OID: 1.3.6.1.4.1.25623.1.0.112081)
+Version used: 2025-03-21T15:40:43Z
+
+References:
+ url: https://owasp.org/www-project-secure-headers/
+ url: https://owasp.org/www-project-secure-headers/#div-headers
+ url: https://securityheaders.com/
+
+
+Issue
+-----
+NVT:    HTTP Server Banner Enumeration
+OID:    1.3.6.1.4.1.25623.1.0.108708
+Threat: Log (CVSS: 0.0)
+Port:   80/tcp
+
+Summary:
+This script tries to detect / enumerate different HTTP server
+  banner (e.g. from a frontend, backend or proxy server) by sending various diff!
+erent HTTP requests
+  (valid and invalid ones).
+
+Vulnerability Detection Result:
+It was possible to enumerate the following HTTP server banner(s):
+Server banner                       | Enumeration technique
+--------------------------------------------------------------------------------!
+----------------------
+Server: Apache/2.4.7 (Ubuntu)       | Invalid HTTP 00.5 GET request (non-existen!
+t HTTP version) to '/'
+X-Powered-By: PHP/5.5.9-1ubuntu4.14 | Invalid HTTP 00.5 GET request (non-existen!
+t HTTP version) to '/'
+
+Solution:
+
+Log Method:
+Details:
+HTTP Server Banner Enumeration
+(OID: 1.3.6.1.4.1.25623.1.0.108708)
+Version used: 2025-01-31T15:39:24Z
+
+
+Issue
+-----
+NVT:    HTTP Server Banner Enumeration
+OID:    1.3.6.1.4.1.25623.1.0.108708
+Threat: Log (CVSS: 0.0)
+Port:   80/tcp
+
+Summary:
+This script tries to detect / enumerate different HTTP server
+  banner (e.g. from a frontend, backend or proxy server) by sending various diff!
+erent HTTP requests
+  (valid and invalid ones).
+
+Vulnerability Detection Result:
+It was possible to enumerate the following HTTP server banner(s):
+Server banner                       | Enumeration technique
+--------------------------------------------------------------------------------!
+----------------------
+Server: Apache/2.4.7 (Ubuntu)       | Invalid HTTP 00.5 GET request (non-existen!
+t HTTP version) to '/'
+X-Powered-By: PHP/5.5.9-1ubuntu4.14 | Invalid HTTP 00.5 GET request (non-existen!
+t HTTP version) to '/'
+
+Solution:
+
+Log Method:
+Details:
+HTTP Server Banner Enumeration
+(OID: 1.3.6.1.4.1.25623.1.0.108708)
+Version used: 2025-01-31T15:39:24Z
+
+
+Issue
+-----
+NVT:    HTTP Server type and version
+OID:    1.3.6.1.4.1.25623.1.0.10107
+Threat: Log (CVSS: 0.0)
+Port:   80/tcp
+
+Summary:
+This script detects and reports the HTTP Server's banner
+  which might provide the type and version of it.
+
+Vulnerability Detection Result:
+The remote HTTP Server banner is:
+Server: Apache/2.4.7 (Ubuntu)
+
+Solution:
+
+Log Method:
+Details:
+HTTP Server type and version
+(OID: 1.3.6.1.4.1.25623.1.0.10107)
+Version used: 2023-08-01T13:29:10Z
+
+

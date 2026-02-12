@@ -1,0 +1,54 @@
+# Nmap 7.95 scan initiated Wed Feb 11 18:31:42 2026 as: /usr/lib/nmap/nmap --privileged -p80 -sS -sV --version-all -A --reason -T4 --script default,vuln,http-title,http-headers,http-methods,http-robots.txt,http-enum,http-server-header -oN /playground/scans/badstore/nmap.txt badstore
+Nmap scan report for badstore (192.168.77.7)
+Host is up, received arp-response (0.00024s latency).
+rDNS record for 192.168.77.7: targets-badstore.openhackstack_openhackstack-network
+
+PORT   STATE SERVICE REASON         VERSION
+80/tcp open  http    syn-ack ttl 64 Apache httpd 2.4.65 ((Debian))
+| http-headers: 
+|   Date: Wed, 11 Feb 2026 18:32:01 GMT
+|   Server: Apache/2.4.65 (Debian)
+|   Last-Modified: Thu, 18 Dec 2025 15:01:47 GMT
+|   ETag: "74-6463b3d604cc0"
+|   Accept-Ranges: bytes
+|   Content-Length: 116
+|   Vary: Accept-Encoding
+|   Connection: close
+|   Content-Type: text/html
+|   
+|_  (Request type: HEAD)
+| vulners: 
+|   cpe:/a:apache:http_server:2.4.65: 
+|     	CVE-2025-58098	8.3	https://vulners.com/cve/CVE-2025-58098
+|     	CVE-2025-59775	7.5	https://vulners.com/cve/CVE-2025-59775
+|     	CVE-2025-55753	7.5	https://vulners.com/cve/CVE-2025-55753
+|     	CNVD-2025-30837	7.5	https://vulners.com/cnvd/CNVD-2025-30837
+|     	CNVD-2025-30836	7.5	https://vulners.com/cnvd/CNVD-2025-30836
+|     	CVE-2025-65082	6.5	https://vulners.com/cve/CVE-2025-65082
+|     	CNVD-2025-30833	6.5	https://vulners.com/cnvd/CNVD-2025-30833
+|     	CVE-2025-66200	5.4	https://vulners.com/cve/CVE-2025-66200
+|_    	CNVD-2025-30835	5.4	https://vulners.com/cnvd/CNVD-2025-30835
+|_http-csrf: Couldn't find any CSRF vulnerabilities.
+|_http-stored-xss: Couldn't find any stored XSS vulnerabilities.
+|_http-server-header: Apache/2.4.65 (Debian)
+|_http-title: Site doesn't have a title (text/html).
+| http-robots.txt: 5 disallowed entries 
+|_/cgi-bin /scanbot /backup /supplier /upload
+|_http-dombased-xss: Couldn't find any DOM based XSS.
+| http-enum: 
+|   /backup/: Possible backup
+|_  /robots.txt: Robots file
+MAC Address: B6:80:77:01:18:2F (Unknown)
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose
+Running: Linux 4.X|5.X
+OS CPE: cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5
+OS details: Linux 4.15 - 5.19
+Network Distance: 1 hop
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.24 ms targets-badstore.openhackstack_openhackstack-network (192.168.77.7)
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Wed Feb 11 18:32:21 2026 -- 1 IP address (1 host up) scanned in 38.64 seconds

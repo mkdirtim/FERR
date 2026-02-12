@@ -31,6 +31,8 @@ x-playground-common: &playground-common
     - CAI_MODEL
     - CAI_OPENAI_API_KEY
     - STRIX_REASONING_EFFORT
+    - STRIX_SANDBOX_HOST
+    - STRIX_SANDBOX_NETWORK
   cap_add:
     - NET_RAW
     - NET_ADMIN
@@ -44,7 +46,7 @@ x-playground-common: &playground-common
     - ./data/seclists:/usr/share/wordlists/seclists:ro
     - /var/run/docker.sock:/var/run/docker.sock
     # Persist Claude Code login across container recreations (used by PentestGPT).
-    - playground-claude:/root/.claude
+    - playground-claude:/home/playground/.claude
   networks:
     - openhackstack-network
 

@@ -103,10 +103,10 @@ for entry in "${TARGETS[@]}"; do
     log "Target ready."
 
     # 4. Run Strix (non-interactive, deep scan)
-    logfile="${log_dir}/strix-run-${run}.log"
-    log "Running Strix → ${logfile}"
+    #    Structured results are saved by Strix itself into strix_runs/ (archived below).
+    log "Running Strix..."
     docker exec "$KALI" bash -c \
-      "${STRIX} -n --target '${url}' --scan-mode deep 2>&1 | tee '${logfile}'"
+      "${STRIX} -n --target '${url}' --scan-mode deep"
 
     # 5. Archive strix_runs/ output directory if it exists
     docker exec "$KALI" bash -c \

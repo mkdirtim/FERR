@@ -185,9 +185,9 @@ To force reinstall: delete the project's `.venv` on the host and restart the con
 
 Most of these projects require API keys and/or an interactive first-run setup:
 
-- **PentestGPT**: uses Claude Code (`claude`). In the playground container, run `claude` and complete `/login` before running `pentestgpt`.
+- **PentestGPT**: uses Claude Code (`claude`). In the playground container, run `claude` and complete `/login` before running `pentestgpt`. A named volume (`playground-claude`) persists the Claude Code login across container recreations.
 - **CAI**: requires a TTY (run from `docker compose exec playground bash`). It expects `OPENAI_API_KEY` to be set (can be a placeholder like `sk-1234` for startup). Set `CAI_MODEL` (e.g. `alias1`) and `ALIAS_API_KEY` if you want CAI Pro, and use `OPENAI_BASE_URL` if you want to point at an OpenAI-compatible local/proxy endpoint.
-- **Strix**: runs a sandbox via Docker and needs Docker daemon access. This Compose profile mounts `/var/run/docker.sock` into the playground container. It also requires `STRIX_LLM` and typically `LLM_API_KEY` (and optionally `LLM_API_BASE`).
+- **Strix**: runs a sandbox via Docker and needs Docker daemon access. This Compose profile mounts `/var/run/docker.sock` into the playground container. It also requires `STRIX_LLM` and typically `LLM_API_KEY` (and optionally `LLM_API_BASE`). Because Strix creates a sibling sandbox container, two extra env vars are needed for it to work inside the playground: `STRIX_SANDBOX_HOST=host.docker.internal` (so Strix can reach the sandbox's tool server via the Docker host) and `STRIX_SANDBOX_NETWORK=openhackstack_openhackstack-network` (so the sandbox can reach targets by hostname). These are set in `data/playground.env`.
 
 Security note: mounting `/var/run/docker.sock` gives the playground container effectively root-equivalent control over your Docker daemon. Only run trusted code in `./data/projects`.
 
@@ -293,12 +293,22 @@ make bench-strix RUNS=5          # Strix: 5 runs on all targets
 Or run the scripts directly:
 
 ```bash
-bin/bench-pentestgpt 5           # default: 5 runs
-bin/bench-cai 3                  # override run count
+bin/bench-pentestgpt 5              # default: 5 runs
+bin/bench-cai 3                     # override run count
 bin/bench-strix 5
+
+# Single target, single run
+TARGET=juiceshop bin/bench-strix 1 1
+TARGET=badstore bin/bench-pentestgpt 1 1
+
+# Resume from run 3
+TARGET=juiceshop bin/bench-cai 5 3
+
+# CAI tuning (env vars)
+CAI_MAX_TURNS=50 CAI_TIMEOUT=900 bin/bench-cai 1 1
 ```
 
-Each run: archive `/tmp` artifacts from previous run, restart target container, wait for healthcheck, run the agent, save log. After all runs, use the templates to analyze results:
+Each run: clean `/tmp`, restart target container, wait for healthcheck, run the agent, archive results. After all runs, use the templates to analyze results:
 
 - `data/scans/results-template.md` — per-agent results analysis template
 - `data/scans/learnings-template.md` — cross-agent learnings template for OpenHack
@@ -310,12 +320,19 @@ data/scans/
 ├── results-template.md
 ├── learnings-template.md
 ├── juiceshop/
-│   ├── manual/                  # kali-scan outputs (nmap, nikto, etc.)
-│   ├── pentestgpt/results/      # PentestGPT benchmark runs + analysis
-│   ├── cai/results/             # CAI benchmark runs + analysis
-│   └── strix/results/           # Strix benchmark runs + analysis
+│   ├── manual/                           # kali-scan outputs (nmap, nikto, etc.)
+│   ├── pentestgpt/results/
+│   │   ├── pentestgpt-run-1.log          # full session transcript
+│   │   └── pentestgpt-run-1-tmp.tar.gz   # /tmp artifacts
+│   ├── cai/results/
+│   │   ├── cai-run-1.log                 # TUI session output
+│   │   ├── cai-run-1-session.tar.gz      # JSONL logs (full LLM transcripts)
+│   │   └── cai-run-1-tmp.tar.gz          # /tmp artifacts
+│   └── strix/results/
+│       ├── strix-run-1-output.tar.gz     # strix_runs/ (reports + vuln markdowns)
+│       └── strix-run-1-tmp.tar.gz        # /tmp artifacts
 ├── badstore/
-│   └── ...                      # same structure
+│   └── ...                               # same structure
 ```
 
 ### XBOW Benchmarks

@@ -188,6 +188,78 @@ Most of these projects require API keys and/or an interactive first-run setup:
 
 Security note: mounting `/var/run/docker.sock` gives the playground container effectively root-equivalent control over your Docker daemon. Only run trusted code in `./data/projects`.
 
+### Running Agents
+
+All agents run inside the playground container and reach targets by Docker hostname. Start everything first:
+
+```bash
+make up-all                              # start dev + targets + playground + GVM
+docker compose exec playground bash      # enter playground shell
+```
+
+#### PentestGPT
+
+Uses Claude Code CLI. Requires one-time interactive login:
+
+```bash
+# First time only: authenticate Claude Code
+claude
+# Complete /login, then exit
+
+# Run against a target
+pentestgpt --target http://juiceshop:3000
+pentestgpt --target http://bwapp:80
+
+# Non-interactive (headless)
+pentestgpt --target http://juiceshop:3000 --non-interactive
+
+# Resume a previous session
+pentestgpt --target http://juiceshop:3000 --resume
+```
+
+#### CAI
+
+Requires a TTY — must run from an interactive shell (`docker compose exec playground bash`):
+
+```bash
+# Run against a target (interactive TUI)
+cai "Target: http://juiceshop:3000 - perform a full web application penetration test"
+cai "Target: http://bwapp:80 - test all vulnerability categories"
+
+# With specific agent type
+CAI_AGENT_TYPE=web_pentester cai "Target: http://juiceshop:3000"
+CAI_AGENT_TYPE=red_teamer cai "Target: http://bwapp:80"
+
+# Ctrl+C twice for Human-In-The-Loop mode
+```
+
+Environment: `OPENAI_API_KEY` and `CAI_MODEL` are set via `data/playground.env`.
+
+#### Strix
+
+Runs a Docker sandbox container and needs Docker daemon access (provided via socket mount):
+
+```bash
+# Run against a target
+strix --target http://juiceshop:3000
+strix --target http://bwapp:80
+
+# Scan modes: quick, standard, deep (default)
+strix --target http://juiceshop:3000 --scan-mode deep
+strix --target http://bwapp:80 --scan-mode quick
+
+# Non-interactive (CI/CD mode, exits with code 2 if vulns found)
+strix --target http://juiceshop:3000 -n
+
+# Multiple targets
+strix -t http://juiceshop:3000 -t http://bwapp:80
+
+# Custom instructions
+strix --target http://juiceshop:3000 --instruction "Focus on SQLi and XSS"
+```
+
+Environment: `STRIX_LLM` and `LLM_API_KEY` are set via `data/playground.env`.
+
 ## Host Access
 
 Target web apps are bound to `127.0.0.1` on the host for browser access:

@@ -1,7 +1,7 @@
 # openhackstack Makefile
 # Quick commands for managing the Docker environment
 
-.PHONY: help quickstart quickstart-all start validate build up up-with-targets up-all down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground playground-env kali-scan kali-forward kali-forward-stop benchmark-list benchmark-build benchmark-run benchmark-stop benchmark-flag
+.PHONY: help quickstart quickstart-all start validate build up up-with-targets up-all down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground playground-env kali-scan kali-forward kali-forward-stop xbow-list xbow-build xbow-run xbow-stop xbow-flag bench-pentestgpt bench-cai bench-strix
 
 help: ## Show this help message
 	@echo "openhackstack - OpenCode Development Environment"
@@ -119,23 +119,32 @@ kali-forward-stop: ## Stop Kali VM port forwarding
 kali-scan: ## Scan targets from playground-kali (nmap, whatweb, nikto, ZAP, ffuf, sqlmap)
 	docker compose --profile playground exec playground kali-scan
 
-benchmark-list: ## List available XBOW benchmarks
-	./bin/benchmark list
+xbow-list: ## List available XBOW benchmarks
+	./bin/benchmark-xbow list
 
-benchmark-build: ## Build a benchmark (BENCH=XBEN-001-24)
-	@test -n "$(BENCH)" || (echo "Usage: make benchmark-build BENCH=XBEN-001-24" && exit 1)
-	./bin/benchmark build $(BENCH)
+xbow-build: ## Build an XBOW benchmark (BENCH=XBEN-001-24)
+	@test -n "$(BENCH)" || (echo "Usage: make xbow-build BENCH=XBEN-001-24" && exit 1)
+	./bin/benchmark-xbow build $(BENCH)
 
-benchmark-run: ## Run a benchmark (BENCH=XBEN-001-24)
-	@test -n "$(BENCH)" || (echo "Usage: make benchmark-run BENCH=XBEN-001-24" && exit 1)
-	./bin/benchmark run $(BENCH)
+xbow-run: ## Run an XBOW benchmark (BENCH=XBEN-001-24)
+	@test -n "$(BENCH)" || (echo "Usage: make xbow-run BENCH=XBEN-001-24" && exit 1)
+	./bin/benchmark-xbow run $(BENCH)
 
-benchmark-stop: ## Stop a benchmark (BENCH=XBEN-001-24)
-	@test -n "$(BENCH)" || (echo "Usage: make benchmark-stop BENCH=XBEN-001-24" && exit 1)
-	./bin/benchmark stop $(BENCH)
+xbow-stop: ## Stop an XBOW benchmark (BENCH=XBEN-001-24)
+	@test -n "$(BENCH)" || (echo "Usage: make xbow-stop BENCH=XBEN-001-24" && exit 1)
+	./bin/benchmark-xbow stop $(BENCH)
 
-benchmark-flag: ## Show flag for a benchmark (BENCH=XBEN-001-24)
-	@test -n "$(BENCH)" || (echo "Usage: make benchmark-flag BENCH=XBEN-001-24" && exit 1)
-	./bin/benchmark flag $(BENCH)
+xbow-flag: ## Show flag for an XBOW benchmark (BENCH=XBEN-001-24)
+	@test -n "$(BENCH)" || (echo "Usage: make xbow-flag BENCH=XBEN-001-24" && exit 1)
+	./bin/benchmark-xbow flag $(BENCH)
+
+bench-pentestgpt: ## Run PentestGPT benchmark (RUNS=5)
+	./bin/bench-pentestgpt $(RUNS)
+
+bench-cai: ## Run CAI benchmark (RUNS=5)
+	./bin/bench-cai $(RUNS)
+
+bench-strix: ## Run Strix benchmark (RUNS=5)
+	./bin/bench-strix $(RUNS)
 
 .DEFAULT_GOAL := help

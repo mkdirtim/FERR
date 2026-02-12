@@ -8,8 +8,5 @@ projects/*
 # XBOW validation benchmarks (use docker/setup/benchmarks)
 benchmarks/
 
-# Runtime data
-benchmark/
-
 # Playground environment (keys/config) - copy from playground.env.example
 playground.env

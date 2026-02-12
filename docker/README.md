@@ -282,7 +282,7 @@ From inside containers, use Docker hostnames instead (e.g. `http://juiceshop:300
 
 ### Agent Benchmarks
 
-Automated benchmark scripts run N runs per target with clean container restarts and `/tmp` archival between runs. Results are saved to `data/scans/<target>/<agent>/results/`.
+Automated benchmark scripts run N runs per target with clean container restarts and `/tmp` archival between runs. Results are saved to `data/scans/<target>/<agent>/`.
 
 ```bash
 make bench-pentestgpt RUNS=5     # PentestGPT: 5 runs on all targets
@@ -321,14 +321,14 @@ data/scans/
 ├── learnings-template.md
 ├── juiceshop/
 │   ├── manual/                           # kali-scan outputs (nmap, nikto, etc.)
-│   ├── pentestgpt/results/
+│   ├── pentestgpt/
 │   │   ├── pentestgpt-run-1.log          # full session transcript
 │   │   └── pentestgpt-run-1-tmp.tar.gz   # /tmp artifacts
-│   ├── cai/results/
+│   ├── cai/
 │   │   ├── cai-run-1.log                 # TUI session output
 │   │   ├── cai-run-1-session.tar.gz      # JSONL logs (full LLM transcripts)
 │   │   └── cai-run-1-tmp.tar.gz          # /tmp artifacts
-│   └── strix/results/
+│   └── strix/
 │       ├── strix-run-1-output.tar.gz     # strix_runs/ (reports + vuln markdowns)
 │       └── strix-run-1-tmp.tar.gz        # /tmp artifacts
 ├── badstore/

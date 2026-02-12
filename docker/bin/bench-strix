@@ -77,7 +77,7 @@ for entry in "${TARGETS[@]}"; do
     continue
   fi
 
-  log_dir="/playground/scans/${name}/strix/results"
+  log_dir="/playground/scans/${name}/strix"
 
   # Ensure output directory exists inside the container
   docker exec "$KALI" mkdir -p "$log_dir"

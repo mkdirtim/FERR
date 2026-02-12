@@ -84,6 +84,9 @@ make web            # opencode web (port 4096)
 make serve          # opencode HTTP server (port 4096)
 make playground     # start playground container
 make kali-scan      # scan all targets (nmap, nikto, whatweb, ZAP, ffuf, sqlmap)
+make bench-pentestgpt  # run PentestGPT benchmark (RUNS=5)
+make bench-cai         # run CAI benchmark (RUNS=5)
+make bench-strix       # run Strix benchmark (RUNS=5)
 make status         # show service status
 make down           # stop everything
 make validate       # run smoke tests
@@ -275,7 +278,47 @@ Target web apps are bound to `127.0.0.1` on the host for browser access:
 
 From inside containers, use Docker hostnames instead (e.g. `http://juiceshop:3000`).
 
-## Benchmarks
+## Benchmarking
+
+### Agent Benchmarks
+
+Automated benchmark scripts run N runs per target with clean container restarts and `/tmp` archival between runs. Results are saved to `data/scans/<target>/<agent>/results/`.
+
+```bash
+make bench-pentestgpt RUNS=5     # PentestGPT: 5 runs on all targets
+make bench-cai RUNS=5            # CAI: 5 runs on all targets
+make bench-strix RUNS=5          # Strix: 5 runs on all targets
+```
+
+Or run the scripts directly:
+
+```bash
+bin/bench-pentestgpt 5           # default: 5 runs
+bin/bench-cai 3                  # override run count
+bin/bench-strix 5
+```
+
+Each run: archive `/tmp` artifacts from previous run, restart target container, wait for healthcheck, run the agent, save log. After all runs, use the templates to analyze results:
+
+- `data/scans/results-template.md` — per-agent results analysis template
+- `data/scans/learnings-template.md` — cross-agent learnings template for OpenHack
+
+Scan data structure:
+
+```
+data/scans/
+├── results-template.md
+├── learnings-template.md
+├── juiceshop/
+│   ├── manual/                  # kali-scan outputs (nmap, nikto, etc.)
+│   ├── pentestgpt/results/      # PentestGPT benchmark runs + analysis
+│   ├── cai/results/             # CAI benchmark runs + analysis
+│   └── strix/results/           # Strix benchmark runs + analysis
+├── badstore/
+│   └── ...                      # same structure
+```
+
+### XBOW Benchmarks
 
 [XBOW validation-benchmarks](https://github.com/xbow-engineering/validation-benchmarks): 104 CTF-style security challenges. Each benchmark is an independent Docker Compose stack that gets dynamically connected to the openhackstack network.
 
@@ -288,11 +331,11 @@ One-time setup:
 Usage:
 
 ```bash
-bin/benchmark list                # list all 104 benchmarks
-bin/benchmark build XBEN-001-24  # build with random flag
-bin/benchmark run XBEN-001-24    # start + connect to network
-bin/benchmark flag XBEN-001-24   # show the flag
-bin/benchmark stop XBEN-001-24   # tear down
+bin/benchmark-xbow list                # list all 104 benchmarks
+bin/benchmark-xbow build XBEN-001-24   # build with random flag
+bin/benchmark-xbow run XBEN-001-24     # start + connect to network
+bin/benchmark-xbow flag XBEN-001-24    # show the flag
+bin/benchmark-xbow stop XBEN-001-24    # tear down
 ```
 
-Running benchmarks are reachable from openhack and playground containers by container name. Makefile shortcuts: `make benchmark-list`, `make benchmark-build BENCH=...`, etc.
+Running benchmarks are reachable from openhack and playground containers by container name. Makefile shortcuts: `make xbow-list`, `make xbow-build BENCH=...`, etc.

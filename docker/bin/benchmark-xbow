@@ -20,7 +20,7 @@ NC='\033[0m'
 
 usage() {
     cat <<EOF
-Usage: bin/benchmark <command> [BENCHMARK_ID]
+Usage: bin/benchmark-xbow <command> [BENCHMARK_ID]
 
 Commands:
   list                    List all available benchmarks
@@ -30,11 +30,11 @@ Commands:
   flag  BENCHMARK_ID      Show the flag for a built benchmark
 
 Examples:
-  bin/benchmark list
-  bin/benchmark build XBEN-001-24
-  bin/benchmark run XBEN-001-24
-  bin/benchmark flag XBEN-001-24
-  bin/benchmark stop XBEN-001-24
+  bin/benchmark-xbow list
+  bin/benchmark-xbow build XBEN-001-24
+  bin/benchmark-xbow run XBEN-001-24
+  bin/benchmark-xbow flag XBEN-001-24
+  bin/benchmark-xbow stop XBEN-001-24
 EOF
 }
 
@@ -54,7 +54,7 @@ validate_id() {
     fi
     if [ ! -d "$BENCHMARKS_DIR/$id" ]; then
         echo -e "${RED}Benchmark not found: $id${NC}"
-        echo "Run: bin/benchmark list"
+        echo "Run: bin/benchmark-xbow list"
         exit 1
     fi
 }
@@ -166,7 +166,7 @@ show_flag() {
     local flag_file="$BENCHMARKS_DIR/$id/.flag"
     if [ ! -f "$flag_file" ]; then
         echo -e "${RED}No flag found for $id${NC}"
-        echo "Run: bin/benchmark build $id"
+        echo "Run: bin/benchmark-xbow build $id"
         exit 1
     fi
 

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # bench-strix — Run N Strix benchmark runs per target with clean restarts.
 #
-# Usage:  ./bin/bench-strix [RUNS]
-#         RUNS defaults to 5.
+# Usage:  ./bin/bench-strix [RUNS] [START]
+#         RUNS defaults to 5, START defaults to 1.
+#         Example: ./bin/bench-strix 5 3  — runs 3,4,5 (skips 1,2)
 #
 # Requires: STRIX_LLM and LLM_API_KEY set in playground.env
 # Each run: archive /tmp → restart target → wait healthy → run Strix → archive strix_runs.
@@ -10,6 +11,7 @@
 set -euo pipefail
 
 RUNS="${1:-5}"
+START="${2:-1}"
 KALI="playground-kali"
 
 # target-name  container-name       url                      healthcheck-path
@@ -58,7 +60,7 @@ for entry in "${TARGETS[@]}"; do
   # Ensure output directory exists inside the container
   docker exec "$KALI" mkdir -p "$log_dir"
 
-  for run in $(seq 1 "$RUNS"); do
+  for run in $(seq "$START" "$RUNS"); do
     log "${name} — run ${run}/${RUNS}"
 
     # 1. Archive /tmp from previous run

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # bench-cai — Run N CAI benchmark runs per target with clean restarts.
 #
-# Usage:  ./bin/bench-cai [RUNS]
-#         RUNS defaults to 5.
+# Usage:  ./bin/bench-cai [RUNS] [START]
+#         RUNS defaults to 5, START defaults to 1.
+#         Example: ./bin/bench-cai 5 3  — runs 3,4,5 (skips 1,2)
 #
 # Requires: OPENAI_API_KEY and CAI_MODEL set in playground.env
 # Note: CAI requires a TTY. This script allocates one via docker exec -t.
@@ -11,6 +12,7 @@
 set -euo pipefail
 
 RUNS="${1:-5}"
+START="${2:-1}"
 KALI="playground-kali"
 
 # target-name  container-name       url                      healthcheck-path
@@ -59,7 +61,7 @@ for entry in "${TARGETS[@]}"; do
   # Ensure output directory exists inside the container
   docker exec "$KALI" mkdir -p "$log_dir"
 
-  for run in $(seq 1 "$RUNS"); do
+  for run in $(seq "$START" "$RUNS"); do
     log "${name} — run ${run}/${RUNS}"
 
     # 1. Archive /tmp from previous run

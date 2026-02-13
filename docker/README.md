@@ -308,31 +308,40 @@ TARGET=juiceshop bin/bench-cai 5 3
 CAI_MAX_TURNS=50 CAI_TIMEOUT=900 bin/bench-cai 1 1
 ```
 
-Each run: clean `/tmp`, restart target container, wait for healthcheck, run the agent, archive results. After all runs, use the templates to analyze results:
+Each run: clean `/tmp`, restart target container, wait for healthcheck, run the agent, archive results. After all runs, use the analysis templates to evaluate results:
 
-- `data/scans/results-template.md` — per-agent results analysis template
-- `data/scans/learnings-template.md` — cross-agent learnings template for OpenHack
+- `data/projects/analysis/templates/agent-project-template.md` — project/codebase analysis (fill first, from source code)
+- `data/projects/analysis/templates/results-template.md` — per-agent × target benchmark results
+- `data/projects/analysis/templates/learnings-template.md` — cross-agent learnings synthesis (fill last)
 
 Scan data structure:
 
 ```
-data/scans/
-├── results-template.md
-├── learnings-template.md
+data/scans/                                  # raw benchmark data (logs, archives)
 ├── juiceshop/
-│   ├── manual/                           # kali-scan outputs (nmap, nikto, etc.)
+│   ├── manual/                              # kali-scan outputs (nmap, nikto, etc.)
 │   ├── pentestgpt/
-│   │   ├── pentestgpt-run-1.log          # full session transcript
-│   │   └── pentestgpt-run-1-tmp.tar.gz   # /tmp artifacts
+│   │   ├── pentestgpt-run-1.log             # full session transcript
+│   │   └── pentestgpt-run-1-tmp.tar.gz      # /tmp artifacts
 │   ├── cai/
-│   │   ├── cai-run-1.log                 # TUI session output
-│   │   ├── cai-run-1-session.tar.gz      # JSONL logs (full LLM transcripts)
-│   │   └── cai-run-1-tmp.tar.gz          # /tmp artifacts
+│   │   ├── cai-run-1.log                    # TUI session output
+│   │   ├── cai-run-1-session.tar.gz         # JSONL logs (full LLM transcripts)
+│   │   └── cai-run-1-tmp.tar.gz             # /tmp artifacts
 │   └── strix/
-│       ├── strix-run-1-output.tar.gz     # strix_runs/ (reports + vuln markdowns)
-│       └── strix-run-1-tmp.tar.gz        # /tmp artifacts
+│       ├── strix-run-1-output.tar.gz        # strix_runs/ (reports + vuln markdowns)
+│       └── strix-run-1-tmp.tar.gz           # /tmp artifacts
 ├── badstore/
-│   └── ...                               # same structure
+│   └── ...                                  # same structure
+
+data/projects/analysis/                      # analysis documents
+├── templates/
+│   ├── agent-project-template.md            # project analysis template
+│   ├── results-template.md                  # benchmark results template
+│   └── learnings-template.md                # learnings synthesis template
+├── pentestgpt-project-analysis.md           # filled project analyses
+├── cai-project-analysis.md
+├── pentestgpt-juiceshop-results.md          # filled benchmark results
+├── pentestgpt-badstore-results.md
 ```
 
 ### XBOW Benchmarks

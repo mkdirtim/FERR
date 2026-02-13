@@ -104,9 +104,11 @@ for entry in "${TARGETS[@]}"; do
 
     # 4. Run Strix (non-interactive, deep scan)
     #    Structured results are saved by Strix itself into strix_runs/ (archived below).
+    #    Strix exits with code 2 when vulnerabilities are found — this is expected.
     log "Running Strix..."
     docker exec "$KALI" bash -c \
-      "${STRIX} -n --target '${url}' --scan-mode deep"
+      "${STRIX} -n --target '${url}' --scan-mode deep" \
+      || true
 
     # 5. Archive strix_runs/ output directory if it exists
     docker exec "$KALI" bash -c \

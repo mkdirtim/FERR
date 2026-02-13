@@ -212,14 +212,14 @@ which GVM cannot test.
 
 ### Cross-Tool (same target: BadStore)
 
-| Metric | GVM (baseline) | PentestGPT (5 runs) | CAI (5 runs) | Strix (prelim, n=1) |
-|--------|----------------|----------------------|--------------|---------------------|
+| Metric | GVM (baseline) | PentestGPT (5 runs) | CAI (5 runs) | Strix (n=2) |
+|--------|----------------|----------------------|--------------|-------------|
 | Type | Signature scanner | AI agent (LLM) | AI agent (LLM) | AI agent (LLM) |
-| Findings (actionable) | 0 | 10/14 vuln categories exploited | 3 (Run 1 only; 100% stall rate) | 7 (5 Crit, 2 High) |
-| Max CVSS | 0.0 | N/A (no CVSS scoring) | N/A (no CVSS scoring) | 10.0 (SQLi search) |
-| Duration | 6m 44s | 10m 19s (mean) | ~4 min (mean, pre-stall) | ~39–59 min (est.) |
+| Findings (actionable) | 0 | 10/14 vuln categories exploited | 3 (Run 1 only; 100% stall rate) | 9 unique (mean 6.5/run) |
+| Max CVSS | 0.0 | N/A (no CVSS scoring) | N/A (no CVSS scoring) | 10.0 (SQLi search + cart add) |
+| Duration | 6m 44s | 10m 19s (mean) | ~4 min (mean, pre-stall) | ~45–60 min (est.) |
 | Cost | $0.00 | $3.00/run ($15.00 total) | $0.045/run ($0.22 total) | N/A |
-| SQLi Detected | No | Yes (all 5 runs) | Yes (Run 1 only) | Yes (2: search + login) |
+| SQLi Detected | No | Yes (all 5 runs) | Yes (Run 1 only) | Yes (3: search + login + cart add) |
 | Webshell Upload | No | Yes (4/5 runs via sqlmap) | No | Not reported |
 | Password Extraction | No | Yes (MD5 hashes via SQLi) | No | No |
 | Report Quality | Template informational | Agent-written markdown | `/tmp/report.md` (Run 1 only) | Structured CVSS + PoC |
@@ -261,3 +261,9 @@ which GVM cannot test.
 - **For a fairer traditional-scanner comparison**, consider using OWASP ZAP or Burp Suite,
   which perform dynamic application security testing (DAST) and would be more comparable
   to AI agent capabilities.
+
+---
+
+## Data Sources
+
+- `data/projects/scans/badstore/manual/gvm.txt` — GVM scan output (raw text report)

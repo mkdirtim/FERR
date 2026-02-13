@@ -147,8 +147,8 @@ sqlmap-driven exploitation or Strix's browser-validated findings.
 | CAI combined (post-fix) | $0.095 | $0.95 | 2.8 | $0.034 |
 | PentestGPT × Juice Shop | $2.49 | $12.46 | 0 verified | undefined |
 | PentestGPT × BadStore | $3.00 | $14.99 | ~10 categories | ~$0.30/cat |
-| Strix × Juice Shop | N/A | N/A | 7 vulns | N/A |
-| Strix × BadStore | N/A | N/A | 7 vulns | N/A |
+| Strix × Juice Shop (n=2) | N/A | N/A | 15 unique (mean 10.5/run) | N/A |
+| Strix × BadStore (n=2) | N/A | N/A | 9 unique (mean 6.5/run) | N/A |
 | GVM × either | $0.00 | $0.00 | 0 app-layer | N/A |
 
 **CAI is the cheapest productive agent by a wide margin.** Total cost for all
@@ -181,7 +181,7 @@ higher cost yields OS-level access (sqlmap `--os-shell` in 4/5 BadStore runs).
 
 **Across all 20 CAI runs, 7 of ~14 vulnerability categories were touched** (8 if
 counting the partial stored XSS attempt). This compares to PentestGPT's 10/14
-on BadStore alone and Strix's 10+/14 on BadStore alone.
+on BadStore alone, Strix's 10/14 on Juice Shop (n=2), and Strix's 10+/14 on BadStore.
 
 **No single CAI run covered more than 4 categories.** A complete CAI assessment
 requires aggregating findings across all runs on a target — and even then,
@@ -260,7 +260,7 @@ than interrupted reconnaissance.
 |--------|-----|----------------|------------|-------|
 | Type | Signature scanner | AI agent | AI agent | AI agent |
 | Model | N/A | GPT-5.2 | Sonnet 4.5 | GPT-5 |
-| Runs (per target) | 1 | 5 | 5 | 1 |
+| Runs (per target) | 1 | 5 | 5 | 1–2 |
 | Mean Cost/Run | $0.00 | $0.095 | $2.75 | N/A |
 | Mean Duration | 22m 17s | ~5 min | 8m 48s | ~40-60 min |
 | Browser | No | No | No | Yes (Playwright) |
@@ -275,7 +275,7 @@ than interrupted reconnaissance.
 
 | Rank | Agent | Categories | Exploitation | Notes |
 |------|-------|-----------|-------------|-------|
-| 1 | Strix | 8/14 (validated PoCs) | Yes | 7 vulns, mean CVSS 8.86, browser-enabled |
+| 1 | Strix | 10/14 (validated PoCs, n=2) | Yes | 15 unique vulns, mean CVSS 7.76–8.86, browser-enabled |
 | 2 | PentestGPT | 9/14 (attempted) | Yes (0 flags) | Real exploitation but 0 verified CTF flags |
 | 3 | CAI (post-fix) | 2/14 | No | Passive findings only |
 | 4 | GVM | 0/14 | N/A | Network-layer only |
@@ -285,7 +285,7 @@ than interrupted reconnaissance.
 | Rank | Agent | Categories | Exploitation | Notes |
 |------|-------|-----------|-------------|-------|
 | 1 | PentestGPT | 10/14 | Yes | OS shell via sqlmap, full DB dump |
-| 2 | Strix | 10+/14 (validated PoCs) | Yes | 7 vulns, mean CVSS 9.14, browser-enabled |
+| 2 | Strix | 12+/14 (validated PoCs, n=2) | Yes | 9 unique vulns, mean CVSS 9.21, browser-enabled |
 | 3 | CAI (post-fix) | 6/14 | 60% of runs | Unique privesc finding (Run 3) |
 | 4 | GVM | 0/14 | N/A | Network-layer only |
 
@@ -321,7 +321,7 @@ Despite ranking third on both targets, CAI produced findings not found by other 
 | CAI (post-fix) | $0.95 | 15 unique | ~$0.06 |
 | CAI (all 20 runs) | $0.89 | 17 unique | ~$0.05 |
 | PentestGPT | $27.45 | ~15 categories | ~$1.83/cat |
-| Strix | N/A | 14 vulns (7+7) | N/A |
+| Strix | N/A | 24 unique vulns (15 JS + 9 BS) | N/A |
 
 CAI occupies a unique position: **cheapest agent with non-trivial findings.**
 It cannot match PentestGPT's exploitation depth or Strix's validated PoC quality,
@@ -386,7 +386,7 @@ and non-deterministic.
 Practical implications:
 - Minimum 5 runs per target for stable aggregate statistics
 - Report exploitation rate as a confidence interval, not a point estimate
-- Acknowledge that single-run results (like Strix) have unknown variance
+- Acknowledge that small-sample results (Strix n=1–2) have high variance uncertainty
 
 ### F6. All agents converge on the same high-value targets but through different paths
 
@@ -430,8 +430,10 @@ pure recall.
   exploitation might yield different results.
 - **No target restart for PentestGPT:** PentestGPT runs share cumulative state,
   potentially inflating later runs' findings. CAI and Strix restart between runs.
-- **Strix: single run per target.** No run-to-run variance data. The 7/7 finding
-  consistency may be an artifact of a single sample.
+- **Strix: limited sample (n=2 per target).** Juice Shop showed high inter-run variance
+  (7 vs 14 vulns, SD 4.9); BadStore showed low variance (7 vs 6 vulns, SD 0.7). The
+  contrasting variance profiles suggest target architecture influences reproducibility.
+  Cost constraints prevented the 5-run target.
 - **No cost data for Strix.** Cannot compute cost-per-finding for the most
   thorough agent.
 
@@ -491,8 +493,10 @@ pure recall.
 2. **Alternative agent configurations:** Test `one_tool_agent` or other CAI agent
    types to determine if the shallow assessment is `web_pentester_agent`-specific.
 
-3. **Increase Strix sample size.** 5 runs per target would enable meaningful
-   aggregate statistics and variance comparison.
+3. **Increase Strix sample size.** Both targets were extended to n=2, revealing
+   contrasting variance: Juice Shop (7 vs 14, SD 4.9) vs BadStore (7 vs 6, SD 0.7).
+   5 runs per target would enable meaningful aggregate statistics; cost is the primary
+   constraint.
 
 4. **Normalize scoring.** Define a 14-category OWASP-based scoring rubric that
    applies uniformly to all agents and targets.
@@ -504,6 +508,8 @@ pure recall.
 
 ## Appendix A: Data Sources
 
+### A1. Analysis Files (inputs to this document)
+
 | File | Description | Runs |
 |------|-------------|------|
 | `cai-juiceshop-results.md` | Post-fix CAI × Juice Shop (primary) + pre-fix historical | 5+5 |
@@ -514,8 +520,47 @@ pure recall.
 | `pentestgpt-badstore-results.md` | PentestGPT × BadStore | 5 |
 | `gvm-juiceshop-results.md` | GVM baseline × Juice Shop | 1 |
 | `gvm-badstore-results.md` | GVM baseline × BadStore | 1 |
-| `prelim-strix-juiceshop-results.md` | Strix × Juice Shop (preliminary) | 1 |
-| `prelim-strix-badstore-results.md` | Strix × BadStore (preliminary) | 1 |
+| `prelim-strix-juiceshop-results.md` | Strix × Juice Shop (final) | 2 |
+| `prelim-strix-badstore-results.md` | Strix × BadStore (final) | 2 |
+
+### A2. Underlying Scan Data
+
+Each results file references its raw scan data. All paths are relative to the repository root.
+
+| Agent | Target | Path | Files |
+|-------|--------|------|-------|
+| CAI (post-fix) | Juice Shop | `data/projects/scans/juiceshop/cai/` | `cai-run-{1-5}.log`, `cai-run-{1-4}-tmp.tar.gz` |
+| CAI (post-fix) | BadStore | `data/projects/scans/badstore/cai/` | `cai-run-{1-5}.log`, `cai-run-{1-5}-tmp.tar.gz` |
+| CAI (pre-fix) | Juice Shop | `data/projects/scans/juiceshop/cai/` | `bugstalled-cai-run-{1-5}.log`, `bugstalled-cai-run-{1-5}-tmp.tar.gz` |
+| CAI (pre-fix) | BadStore | `data/projects/scans/badstore/cai/` | `bugstalled-cai-run-{1-5}.log`, `bugstalled-cai-run-{1-5}-tmp.tar.gz` |
+| PentestGPT | Juice Shop | `data/projects/scans/juiceshop/pentestgpt/` | `pentestgpt-run-{1-5}.log`, `pentestgpt-run-{1,3,4,5}-tmp.tar.gz`, `archive-no-restart.tar.gz` |
+| PentestGPT | BadStore | `data/projects/scans/badstore/pentestgpt/` | `pentestgpt-run-{1-5}.log`, `pentestgpt-run-{1-5}-tmp.tar.gz`, `archive-no-restart.tar.gz` |
+| GVM | Juice Shop | `data/projects/scans/juiceshop/manual/` | `gvm.txt` |
+| GVM | BadStore | `data/projects/scans/badstore/manual/` | `gvm.txt` |
+| Strix | Juice Shop | `data/projects/scans/juiceshop/strix/` | `strix-run-{1,2}-output.tar.gz` |
+| Strix | BadStore | `data/projects/scans/badstore/strix/` | `strix-run-{1,2}-output.tar.gz` |
+
+### A3. Scan Data Not Referenced in This Analysis
+
+The following scan data exists in the repository but is **not incorporated** into any
+results or analysis file:
+
+| Path | Contents | Reason Not Referenced |
+|------|----------|----------------------|
+| `data/projects/scans/juiceshop/manual/nikto.txt` | Nikto web scanner output | Manual baseline scans — out of thesis scope |
+| `data/projects/scans/juiceshop/manual/ffuf.json` | ffuf directory fuzzing output | Manual baseline scans — out of thesis scope |
+| `data/projects/scans/juiceshop/manual/whatweb.txt` | WhatWeb fingerprinting output | Manual baseline scans — out of thesis scope |
+| `data/projects/scans/juiceshop/manual/nmap.txt` | Nmap port scan output | Manual baseline scans — out of thesis scope |
+| `data/projects/scans/juiceshop/manual/zap.md` | OWASP ZAP scan report | Manual baseline scans — out of thesis scope |
+| `data/projects/scans/badstore/manual/nikto.txt` | Nikto web scanner output | Manual baseline scans — out of thesis scope |
+| `data/projects/scans/badstore/manual/ffuf.json` | ffuf directory fuzzing output | Manual baseline scans — out of thesis scope |
+| `data/projects/scans/badstore/manual/whatweb.txt` | WhatWeb fingerprinting output | Manual baseline scans — out of thesis scope |
+| `data/projects/scans/badstore/manual/nmap.txt` | Nmap port scan output | Manual baseline scans — out of thesis scope |
+| `data/projects/scans/badstore/manual/zap.md` | OWASP ZAP scan report | Manual baseline scans — out of thesis scope |
+| `data/projects/scans/badstore/manual/sqlmap/` | sqlmap scan results (CSV + logs) | Manual baseline scans — out of thesis scope |
+| `data/projects/scans/strix.txt` | Strix console log (~251 KB) | Raw terminal output; data captured in tar.gz archives |
+| `data/projects/scans/strix-2.txt` | Strix console log (~311 KB) | Raw terminal output; data captured in tar.gz archives |
+| `data/projects/scans/archive/` | Manual scans for DVWA, WebGoat, bwapp | Archived targets not included in thesis |
 
 ## Appendix B: Aggregate Statistics by Round
 

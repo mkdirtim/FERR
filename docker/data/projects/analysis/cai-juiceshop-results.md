@@ -391,28 +391,29 @@ to passive observation of HTTP responses and directory listings.
 
 ### Cross-Agent (same target: Juice Shop)
 
-| Metric | GVM (baseline) | PentestGPT (5 runs) | CAI (5 runs, post-fix) | Strix (prelim, n=1) |
-|--------|----------------|----------------------|------------------------|---------------------|
+| Metric | GVM (baseline) | PentestGPT (5 runs) | CAI (5 runs, post-fix) | Strix (n=2) |
+|--------|----------------|----------------------|------------------------|-------------|
 | Type | Signature scanner | AI agent (LLM) | AI agent (LLM) | AI agent (LLM) |
-| Completion Rate | 100% (scan) | 100% | 80% (1 rate limited) | 100% |
-| Vulnerabilities Found | 0 (app-layer) | 0 verified flags; ~9 categories exploited | 5 unique findings (passive) | 7 (4 Crit, 3 High) |
+| Completion Rate | 100% (scan) | 100% | 80% (1 rate limited) | 100% (2/2 completed) |
+| Vulnerabilities Found | 0 (app-layer) | 0 verified flags; ~9 categories exploited | 5 unique findings (passive) | 15 unique (mean 10.5/run) |
 | Mean Tool Calls | N/A (plugin-based) | 94.8 | 5.4 | N/A (not logged) |
 | Mean Flags Submitted | N/A | 3.4 | 0 (no flag mechanism) | N/A (reports instead) |
 | Mean Cost (USD) | $0.00 | $2.49 | $0.057 | N/A (not logged) |
 | Total Cost | $0.00 | $12.45 | $0.28 | N/A |
-| Mean Duration | 37m 50s | 7m 17s | ~6 min (incl. stall) | ~38–58 min (est.) |
+| Mean Duration | 37m 50s | 7m 17s | ~6 min (incl. stall) | ~45–60 min (est.) |
 | % curl | N/A | 80.0% | 63.0% | N/A (multi-tool) |
 | % specialized tools | N/A | 1.1% | 11.1% | N/A |
 | Browser Capability | No | No | No | Yes (Playwright) |
-| Exploitation Attempted | No | Yes (SQLi, auth bypass) | No | Yes (SQLi, XSS, JWT, IDOR) |
+| Exploitation Attempted | No | Yes (SQLi, auth bypass) | No | Yes (SQLi, XSS, JWT, IDOR, mass assignment) |
 | Report Quality | Template-based | Agent-written markdown | Agent-written markdown | Structured CVSS + PoC |
 
 > **Key finding:** CAI and PentestGPT represent opposite failure modes on Juice Shop.
 > PentestGPT actively exploits vulnerabilities (SQLi, auth bypass, file traversal) but
 > cannot capture CTF flags, resulting in 0 verified results despite real exploitation.
 > CAI identifies surface-level issues at 44× lower cost but never attempts exploitation,
-> resulting in passive-only findings. Strix successfully exploits and validates 7
-> vulnerabilities with PoC evidence. GVM finds nothing at the application layer.
+> resulting in passive-only findings. Strix successfully exploits and validates 15 unique
+> vulnerabilities across 2 runs (mean 10.5/run) with structured CVSS + PoC evidence.
+> GVM finds nothing at the application layer.
 
 ### Cross-Target (same agent: CAI)
 
@@ -497,3 +498,21 @@ to passive observation of HTTP responses and directory listings.
   PentestGPT's harness explicitly detects and submits flag-like strings. Direct
   flag-count comparison between agents is not meaningful without normalizing
   harness design.
+
+---
+
+## Data Sources
+
+All scan data is stored under `data/projects/scans/juiceshop/cai/`.
+
+**Post-fix runs (Round 2):**
+- `cai-run-{1-5}.log` — Agent execution logs (5 files)
+- `cai-run-{1-4}-tmp.tar.gz` — `/tmp` directory archives (4 files; Run 5 produced no output due to rate limiting)
+
+**Pre-fix runs (Round 1, bugstalled):**
+- `bugstalled-cai-run-{1-5}.log` — Agent execution logs (5 files)
+- `bugstalled-cai-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files)
+- `bugstalled-cai-run-1-session.tar.gz` — Session archive (Run 1 only, 45 bytes)
+
+**Cross-references:**
+- `stalled-cai-juiceshop-results.md` — Detailed pre-fix analysis (referenced in §1-extra)

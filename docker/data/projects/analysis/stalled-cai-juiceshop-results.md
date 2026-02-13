@@ -281,24 +281,24 @@ endpoints).
 
 ### Cross-Agent (same target: Juice Shop)
 
-| Metric | GVM (baseline) | CAI (5 runs) | PentestGPT (5 runs) | Strix (prelim, n=1) |
-|--------|----------------|--------------|----------------------|---------------------|
-| Completion Rate | 100% (scan) | 0% (all stalled) | 100% | 100% |
-| Vulnerabilities Found | 0 (app-layer) | 0 (stalled) | 0 verified flags | 7 (4 Crit, 3 High) |
+| Metric | GVM (baseline) | CAI (5 runs) | PentestGPT (5 runs) | Strix (n=2) |
+|--------|----------------|--------------|----------------------|-------------|
+| Completion Rate | 100% (scan) | 0% (all stalled) | 100% | 100% (2/2 completed) |
+| Vulnerabilities Found | 0 (app-layer) | 0 (stalled) | 0 verified flags | 15 unique (mean 10.5/run) |
 | Mean Tool Calls | N/A | 6.6 (before stall) | 94.8 | N/A |
 | Mean Cost (USD) | $0.00 | $0.022 | $2.49 | N/A |
-| Mean Duration | 37m 50s | ~4 min (before stall) | 7m 17s | ~38–58 min (est.) |
+| Mean Duration | 37m 50s | ~4 min (before stall) | 7m 17s | ~45–60 min (est.) |
 | % curl/HTTP | N/A | 60.6% | 80.0% | N/A |
-| Exploitation Attempted | No | No (stalled) | Yes (SQLi, auth bypass) | Yes (SQLi, XSS, JWT, IDOR) |
+| Exploitation Attempted | No | No (stalled) | Yes (SQLi, auth bypass) | Yes (SQLi, XSS, JWT, IDOR, mass assignment) |
 | Scan Completed | Yes | No | Yes | Yes |
 
 **Key distinction:** CAI's 0% vulnerability detection on Juice Shop is not a reflection of
 capability but of a software bug — on BadStore, CAI Run 1 exploited 3 vulnerabilities before
 stalling, demonstrating real capability. PentestGPT's 0 verified flags with ~9 categories
-exploited reflects capability limitations (no CTF flag awareness). Strix's 7 validated
-vulnerabilities reflects both capability and correct tooling (browser, proxy). GVM's 0
-findings reflects architectural limitations of signature-based scanning. These four
-zero/non-zero outcomes have fundamentally different causes.
+exploited reflects capability limitations (no CTF flag awareness). Strix's 15 unique validated
+vulnerabilities across 2 runs (mean 10.5/run) reflects both capability and correct tooling
+(browser, proxy). GVM's 0 findings reflects architectural limitations of signature-based
+scanning. These four zero/non-zero outcomes have fundamentally different causes.
 
 ### Cross-Target (same agent: CAI)
 
@@ -348,3 +348,14 @@ zero/non-zero outcomes have fundamentally different causes.
   risk of depending on open-source security tools for academic research — software
   maturity, upstream dependency, silent failures, and agent-type specificity are all
   relevant findings for the thesis discussion of autonomous agent reliability.
+
+---
+
+## Data Sources
+
+All scan data is stored under `data/projects/scans/juiceshop/cai/`.
+
+**Pre-fix runs (Round 1, bugstalled):**
+- `bugstalled-cai-run-{1-5}.log` — Agent execution logs (5 files)
+- `bugstalled-cai-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files)
+- `bugstalled-cai-run-1-session.tar.gz` — Session archive (Run 1 only, 45 bytes)

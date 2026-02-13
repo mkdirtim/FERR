@@ -448,21 +448,21 @@ upload.
 
 ### Cross-Agent (same target: BadStore)
 
-| Metric | GVM (baseline) | CAI (post-fix, 5 runs) | PentestGPT (5 runs) | Strix (prelim, n=1) |
-|--------|----------------|------------------------|----------------------|---------------------|
+| Metric | GVM (baseline) | CAI (post-fix, 5 runs) | PentestGPT (5 runs) | Strix (n=2) |
+|--------|----------------|------------------------|----------------------|-------------|
 | Type | Signature scanner | AI agent (LLM) | AI agent (LLM) | AI agent (LLM) |
-| Completion Rate | 100% (scan) | 100% | 100% | 100% |
-| Unique Findings | 0 (app-layer) | 10 (across 5 runs) | 10/14 categories | 7 (5 Crit, 2 High) |
-| Exploitation Runs | N/A | 3/5 (60%) | 5/5 (100%) | 1/1 (100%) |
+| Completion Rate | 100% (scan) | 100% | 100% | 100% (2/2 completed) |
+| Unique Findings | 0 (app-layer) | 10 (across 5 runs) | 10/14 categories | 9 unique (mean 6.5/run) |
+| Exploitation Runs | N/A | 3/5 (60%) | 5/5 (100%) | 2/2 (100%) |
 | Mean Tool Calls | N/A | 11.0 | 131.8 | N/A |
 | Mean Cost (USD) | $0.00 | $0.133 | $3.00 | N/A |
 | Total Cost | $0.00 | $0.67 | $14.99 | N/A |
-| Mean Duration | 6m 44s | ~4 min (active) | 10m 19s | ~39–59 min (est.) |
+| Mean Duration | 6m 44s | ~4 min (active) | 10m 19s | ~45–60 min (est.) |
 | % curl/HTTP | N/A | 72.7% | 50.9% | N/A |
-| SQLi Found | No | Yes (search, Runs 2, 5) | Yes (search + login) | Yes (search + login) |
+| SQLi Found | No | Yes (search, Runs 2, 5) | Yes (search + login) | Yes (3: search + login + cart add) |
 | XSS Found | No | Reflected (Run 2) | No (no browser) | Yes (reflected + stored) |
 | Priv Escalation | No | Yes (Run 3, role=A) | Implicit (via SQLi) | Yes (SSOid forgery) |
-| Session Attack | No | Yes (Run 3, SSOid decode) | Implicit | Yes (SSOid forgery) |
+| Session Attack | No | Yes (Run 3, SSOid decode) | Implicit | Yes (SSOid forgery, both runs) |
 | OS-Level Access | No | No | Yes (4/5, sqlmap --os-shell) | Not reported |
 | Browser Capability | No | No | No | Yes (Playwright) |
 | Report Quality | Template scan | Professional (all runs) | Agent-written markdown | Structured CVSS + PoC |
@@ -591,3 +591,20 @@ upload.
   vs. PentestGPT's ~$0.30/finding (on BadStore) is a 7.5× cost advantage.
   However, PentestGPT achieves deeper exploitation (OS-level shell via sqlmap)
   that CAI never attempts.
+
+---
+
+## Data Sources
+
+All scan data is stored under `data/projects/scans/badstore/cai/`.
+
+**Post-fix runs (Round 2):**
+- `cai-run-{1-5}.log` — Agent execution logs (5 files)
+- `cai-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files)
+
+**Pre-fix runs (Round 1, bugstalled):**
+- `bugstalled-cai-run-{1-5}.log` — Agent execution logs (5 files)
+- `bugstalled-cai-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files)
+
+**Cross-references:**
+- `stalled-cai-badstore-results.md` — Detailed pre-fix analysis (referenced in §1-extra)

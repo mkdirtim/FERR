@@ -348,19 +348,19 @@ injection, file upload.
 
 ### Cross-Agent (same target: BadStore)
 
-| Metric | GVM (baseline) | CAI (5 runs) | PentestGPT (5 runs) | Strix (prelim, n=1) |
-|--------|----------------|--------------|----------------------|---------------------|
-| Completion Rate | 100% (scan) | 0% (all stalled) | 100% | 100% |
-| Vulnerabilities Found | 0 | 3 (Run 1 only) | 10/14 categories | 7 (5 Crit, 2 High) |
-| Exploitation Runs | N/A | 1/5 (20%) | 5/5 (100%) | 1/1 (100%) |
+| Metric | GVM (baseline) | CAI (5 runs) | PentestGPT (5 runs) | Strix (n=2) |
+|--------|----------------|--------------|----------------------|-------------|
+| Completion Rate | 100% (scan) | 0% (all stalled) | 100% | 100% (2/2 completed) |
+| Vulnerabilities Found | 0 | 3 (Run 1 only) | 10/14 categories | 9 unique (mean 6.5/run) |
+| Exploitation Runs | N/A | 1/5 (20%) | 5/5 (100%) | 2/2 (100%) |
 | Mean Tool Calls | N/A | 6.6 (before stall) | 131.8 | N/A |
 | Mean Cost (USD) | $0.00 | $0.045 | $3.00 | N/A |
-| Mean Duration | 6m 44s | ~4 min (before stall) | 10m 19s | ~39–59 min (est.) |
+| Mean Duration | 6m 44s | ~4 min (before stall) | 10m 19s | ~45–60 min (est.) |
 | % curl/HTTP | N/A | 81.8% | 50.9% | N/A |
-| SQLi Found | No | Yes (Run 1, search) | Yes (all 5, search + login) | Yes (2: search + login) |
+| SQLi Found | No | Yes (Run 1, search) | Yes (all 5, search + login) | Yes (3: search + login + cart add) |
 | XSS Found | No | Reflected only (Run 1) | No (no browser) | Yes (reflected + stored) |
 | OS-Level Access | No | No | Yes (4/5, sqlmap --os-shell) | Not reported |
-| Session Forgery | No | No | Implicit (via SQLi) | Yes (explicit, vuln-0001) |
+| Session Forgery | No | No | Implicit (via SQLi) | Yes (explicit, both runs) |
 | Report Quality | Template scan | Professional (1 run) | Agent-written markdown | Structured CVSS + PoC |
 
 **Key distinctions:**
@@ -368,13 +368,14 @@ injection, file upload.
    PentestGPT found 10/14 categories in 131.8 tool calls ($3.00). CAI is 21x cheaper
    but 3x narrower in coverage. Run 1 produced a more professionally structured report
    than PentestGPT's self-summaries.
-2. **CAI Run 1 vs. Strix:** Strix found 7 vulnerabilities with CVSS scoring and PoCs;
-   CAI found 3 with category/CWE classification but no CVSS scores. Strix's browser
-   enabled stored XSS and DOM-level verification; CAI's curl-only approach missed stored
-   XSS. Strix also found session forgery, BOLA, and path traversal — all absent from CAI.
+2. **CAI Run 1 vs. Strix:** Strix found 9 unique vulnerabilities across 2 runs with CVSS
+   scoring and PoCs; CAI found 3 with category/CWE classification but no CVSS scores.
+   Strix's browser enabled stored XSS and DOM-level verification; CAI's curl-only approach
+   missed stored XSS. Strix also found session forgery, BOLA, path traversal, and cart
+   total tampering — all absent from CAI.
 3. **Stored XSS gap:** CAI attempted stored XSS (guestbook) but couldn't verify it with
-   curl. Strix confirmed it with Playwright. PentestGPT never attempted XSS. This
-   demonstrates that browser-equipped agents (Strix) have a fundamental advantage for
+   curl. Strix confirmed it in both runs with Playwright. PentestGPT never attempted XSS.
+   This demonstrates that browser-equipped agents (Strix) have a fundamental advantage for
    client-side vulnerability classes.
 
 ### Cross-Target (same agent: CAI)
@@ -438,3 +439,13 @@ injection, file upload.
   calls before stall suggests the bug trigger is timing-based, not target-based. This
   supports the thesis argument that the stall is a systemic software defect rather than
   a target-specific failure mode.
+
+---
+
+## Data Sources
+
+All scan data is stored under `data/projects/scans/badstore/cai/`.
+
+**Pre-fix runs (Round 1, bugstalled):**
+- `bugstalled-cai-run-{1-5}.log` — Agent execution logs (5 files)
+- `bugstalled-cai-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files)

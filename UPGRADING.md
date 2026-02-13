@@ -46,18 +46,25 @@ Policy: only merge upstream release tags into `openhack` (never merge upstream b
 
 ## Reapplying fork customizations
 
-After merging an upstream tag, cherry-pick the single fork-pruning commit
-to remove upstream-only directories again:
+After merging an upstream tag, cherry-pick the fork-maintenance commits:
+- prune upstream-only directories
+- reapply fork root manifest/patch consistency
 
   git cherry-pick <PRUNE_COMMIT_SHA>
+  git cherry-pick <FORK_FIX_COMMIT_SHA>
   # resolve any conflicts, then test:
   bun run typecheck
   cd packages/opencode && bun run test
 
 ### Current prune commit
 
-  SHA: 6fb8e38b0
+  SHA: ef477d051
   Message: fork: prune upstream-only directories
+
+### Current fork-fix commit
+
+  SHA: eea6468ee
+  Message: fork: fix workspace and patch consistency
 
 This commit deletes 715 files (116,053 lines) — whole-directory removals only,
 no individual file changes within kept packages. This minimizes conflicts.
@@ -85,7 +92,8 @@ After resolving, update the prune commit SHA in this file and in TODOs.md.
   git fetch upstream --tags --prune-tags
 
   NEW_TAG=vX.Y.Z
-  PRUNE_SHA=6fb8e38b0
+  PRUNE_SHA=ef477d051
+  FORK_FIX_SHA=eea6468ee
 
   git checkout openhack
   git pull --ff-only origin openhack
@@ -93,6 +101,7 @@ After resolving, update the prune commit SHA in this file and in TODOs.md.
 
   git merge --no-ff "${NEW_TAG}" -m "Upgrade upstream opencode to ${NEW_TAG}"
   git cherry-pick ${PRUNE_SHA}
+  git cherry-pick ${FORK_FIX_SHA}
   # resolve conflicts if any, run tests
 
   bun run typecheck

@@ -520,25 +520,25 @@ pure recall.
 | `pentestgpt-badstore-results.md` | PentestGPT × BadStore | 5 |
 | `gvm-juiceshop-results.md` | GVM baseline × Juice Shop | 1 |
 | `gvm-badstore-results.md` | GVM baseline × BadStore | 1 |
-| `prelim-strix-juiceshop-results.md` | Strix × Juice Shop (final) | 2 |
-| `prelim-strix-badstore-results.md` | Strix × BadStore (final) | 2 |
+| `strix-juiceshop-results.md` | Strix × Juice Shop (final) | 2 |
+| `strix-badstore-results.md` | Strix × BadStore (final) | 2 |
 
 ### A2. Underlying Scan Data
 
-Each results file references its raw scan data. All paths are relative to the repository root.
+Each results file references its raw scan data. All paths are relative to this analysis directory.
 
 | Agent | Target | Path | Files |
 |-------|--------|------|-------|
-| CAI (post-fix) | Juice Shop | `data/projects/scans/juiceshop/cai/` | `cai-run-{1-5}.log`, `cai-run-{1-4}-tmp.tar.gz` |
-| CAI (post-fix) | BadStore | `data/projects/scans/badstore/cai/` | `cai-run-{1-5}.log`, `cai-run-{1-5}-tmp.tar.gz` |
-| CAI (pre-fix) | Juice Shop | `data/projects/scans/juiceshop/cai/` | `bugstalled-cai-run-{1-5}.log`, `bugstalled-cai-run-{1-5}-tmp.tar.gz` |
-| CAI (pre-fix) | BadStore | `data/projects/scans/badstore/cai/` | `bugstalled-cai-run-{1-5}.log`, `bugstalled-cai-run-{1-5}-tmp.tar.gz` |
-| PentestGPT | Juice Shop | `data/projects/scans/juiceshop/pentestgpt/` | `pentestgpt-run-{1-5}.log`, `pentestgpt-run-{1,3,4,5}-tmp.tar.gz`, `archive-no-restart.tar.gz` |
-| PentestGPT | BadStore | `data/projects/scans/badstore/pentestgpt/` | `pentestgpt-run-{1-5}.log`, `pentestgpt-run-{1-5}-tmp.tar.gz`, `archive-no-restart.tar.gz` |
-| GVM | Juice Shop | `data/projects/scans/juiceshop/manual/` | `gvm.txt` |
-| GVM | BadStore | `data/projects/scans/badstore/manual/` | `gvm.txt` |
-| Strix | Juice Shop | `data/projects/scans/juiceshop/strix/` | `strix-run-{1,2}-output.tar.gz` |
-| Strix | BadStore | `data/projects/scans/badstore/strix/` | `strix-run-{1,2}-output.tar.gz` |
+| CAI (post-fix) | Juice Shop | `../scans/juiceshop/cai/` | `cai-run-{1-5}.log`, `cai-run-{1-4}-tmp.tar.gz` |
+| CAI (post-fix) | BadStore | `../scans/badstore/cai/` | `cai-run-{1-5}.log`, `cai-run-{1-5}-tmp.tar.gz` |
+| CAI (pre-fix) | Juice Shop | `../scans/juiceshop/cai/` | `bugstalled-cai-run-{1-5}.log`, `bugstalled-cai-run-{1-5}-tmp.tar.gz` |
+| CAI (pre-fix) | BadStore | `../scans/badstore/cai/` | `bugstalled-cai-run-{1-5}.log`, `bugstalled-cai-run-{1-5}-tmp.tar.gz` |
+| PentestGPT | Juice Shop | `../scans/juiceshop/pentestgpt/` | `pentestgpt-run-{1-5}.log`, `pentestgpt-run-{1,3,4,5}-tmp.tar.gz`, `archive-no-restart.tar.gz` |
+| PentestGPT | BadStore | `../scans/badstore/pentestgpt/` | `pentestgpt-run-{1-5}.log`, `pentestgpt-run-{1-5}-tmp.tar.gz`, `archive-no-restart.tar.gz` |
+| GVM | Juice Shop | `../scans/juiceshop/manual/` | `gvm.txt` |
+| GVM | BadStore | `../scans/badstore/manual/` | `gvm.txt` |
+| Strix | Juice Shop | `../scans/juiceshop/strix/` | `strix-run-{1,2}-output.tar.gz` |
+| Strix | BadStore | `../scans/badstore/strix/` | `strix-run-{1,2}-output.tar.gz` |
 
 ### A3. Scan Data Not Referenced in This Analysis
 
@@ -547,20 +547,20 @@ results or analysis file:
 
 | Path | Contents | Reason Not Referenced |
 |------|----------|----------------------|
-| `data/projects/scans/juiceshop/manual/nikto.txt` | Nikto web scanner output | Manual baseline scans — out of thesis scope |
-| `data/projects/scans/juiceshop/manual/ffuf.json` | ffuf directory fuzzing output | Manual baseline scans — out of thesis scope |
-| `data/projects/scans/juiceshop/manual/whatweb.txt` | WhatWeb fingerprinting output | Manual baseline scans — out of thesis scope |
-| `data/projects/scans/juiceshop/manual/nmap.txt` | Nmap port scan output | Manual baseline scans — out of thesis scope |
-| `data/projects/scans/juiceshop/manual/zap.md` | OWASP ZAP scan report | Manual baseline scans — out of thesis scope |
-| `data/projects/scans/badstore/manual/nikto.txt` | Nikto web scanner output | Manual baseline scans — out of thesis scope |
-| `data/projects/scans/badstore/manual/ffuf.json` | ffuf directory fuzzing output | Manual baseline scans — out of thesis scope |
-| `data/projects/scans/badstore/manual/whatweb.txt` | WhatWeb fingerprinting output | Manual baseline scans — out of thesis scope |
-| `data/projects/scans/badstore/manual/nmap.txt` | Nmap port scan output | Manual baseline scans — out of thesis scope |
-| `data/projects/scans/badstore/manual/zap.md` | OWASP ZAP scan report | Manual baseline scans — out of thesis scope |
-| `data/projects/scans/badstore/manual/sqlmap/` | sqlmap scan results (CSV + logs) | Manual baseline scans — out of thesis scope |
-| `data/projects/scans/strix.txt` | Strix console log (~251 KB) | Raw terminal output; data captured in tar.gz archives |
-| `data/projects/scans/strix-2.txt` | Strix console log (~311 KB) | Raw terminal output; data captured in tar.gz archives |
-| `data/projects/scans/archive/` | Manual scans for DVWA, WebGoat, bwapp | Archived targets not included in thesis |
+| `../scans/juiceshop/manual/nikto.txt` | Nikto web scanner output | Manual baseline scans — out of thesis scope |
+| `../scans/juiceshop/manual/ffuf.json` | ffuf directory fuzzing output | Manual baseline scans — out of thesis scope |
+| `../scans/juiceshop/manual/whatweb.txt` | WhatWeb fingerprinting output | Manual baseline scans — out of thesis scope |
+| `../scans/juiceshop/manual/nmap.txt` | Nmap port scan output | Manual baseline scans — out of thesis scope |
+| `../scans/juiceshop/manual/zap.md` | OWASP ZAP scan report | Manual baseline scans — out of thesis scope |
+| `../scans/badstore/manual/nikto.txt` | Nikto web scanner output | Manual baseline scans — out of thesis scope |
+| `../scans/badstore/manual/ffuf.json` | ffuf directory fuzzing output | Manual baseline scans — out of thesis scope |
+| `../scans/badstore/manual/whatweb.txt` | WhatWeb fingerprinting output | Manual baseline scans — out of thesis scope |
+| `../scans/badstore/manual/nmap.txt` | Nmap port scan output | Manual baseline scans — out of thesis scope |
+| `../scans/badstore/manual/zap.md` | OWASP ZAP scan report | Manual baseline scans — out of thesis scope |
+| `../scans/badstore/manual/sqlmap/` | sqlmap scan results (CSV + logs) | Manual baseline scans — out of thesis scope |
+| `../scans/juiceshop/strix/strix-juiceshop.txt` | Strix console log (~221 KB) | Raw terminal output; data captured in tar.gz archives |
+| `../scans/badstore/strix/strix-badstore.txt` | Strix console log (~83 KB) | Raw terminal output; data captured in tar.gz archives |
+| `../scans/archive/` | Manual scans for DVWA, WebGoat, bwapp | Archived targets not included in thesis |
 
 ## Appendix B: Aggregate Statistics by Round
 

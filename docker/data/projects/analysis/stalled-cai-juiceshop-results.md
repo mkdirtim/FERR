@@ -353,7 +353,7 @@ scanning. These four zero/non-zero outcomes have fundamentally different causes.
 
 ## Data Sources
 
-All scan data is stored under `data/projects/scans/juiceshop/cai/`.
+All scan data is stored under `../scans/juiceshop/cai/`.
 
 **Pre-fix runs (Round 1, bugstalled):**
 - `bugstalled-cai-run-{1-5}.log` — Agent execution logs (5 files)

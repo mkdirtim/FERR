@@ -596,7 +596,7 @@ upload.
 
 ## Data Sources
 
-All scan data is stored under `data/projects/scans/badstore/cai/`.
+All scan data is stored under `../scans/badstore/cai/`.
 
 **Post-fix runs (Round 2):**
 - `cai-run-{1-5}.log` — Agent execution logs (5 files)

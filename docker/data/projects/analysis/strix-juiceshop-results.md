@@ -540,7 +540,7 @@ mapping to an estimated ~15–25 individual Juice Shop challenges.
 
 ## Data Sources
 
-All scan data is stored under `data/projects/scans/juiceshop/strix/`.
+All scan data is stored under `../scans/juiceshop/strix/`.
 
 - `strix-run-1-output.tar.gz` — Run 1 output archive (contains `strix_runs/juiceshop-3000_6518/`: `vulnerabilities.csv`, 7 `vuln-*.md` files, `penetration_test_report.md`)
 - `strix-run-2-output.tar.gz` — Run 2 output archive (contains `strix_runs/juiceshop-3000_0986/`: `vulnerabilities.csv`, 14 `vuln-*.md` files; no executive report)

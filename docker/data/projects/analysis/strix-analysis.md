@@ -2,7 +2,7 @@
 
 > **Scope:** Synthesis of Strix benchmark results across both targets (Juice
 > Shop, BadStore) and cross-agent comparison with CAI, GVM, and PentestGPT.
-> Based on `prelim-strix-juiceshop-results.md` and `prelim-strix-badstore-results.md`,
+> Based on `strix-juiceshop-results.md` and `strix-badstore-results.md`,
 > with data from all per-target results files.
 >
 > **Limited sample (n=2 per target).** Due to the high estimated cost of Strix
@@ -539,15 +539,15 @@ quality, but PentestGPT achieves deeper exploitation depth on specific targets.
 
 | File | Description | Runs |
 |------|-------------|------|
-| `prelim-strix-juiceshop-results.md` | Strix × Juice Shop | 2 |
-| `prelim-strix-badstore-results.md` | Strix × BadStore | 2 |
+| `strix-juiceshop-results.md` | Strix × Juice Shop | 2 |
+| `strix-badstore-results.md` | Strix × BadStore | 2 |
 
 ### A2. Underlying Scan Data
 
 | Target | Path | Files |
 |--------|------|-------|
-| Juice Shop | `data/projects/scans/juiceshop/strix/` | `strix-run-1-output.tar.gz`, `strix-run-2-output.tar.gz`, `strix-juiceshop.txt` |
-| BadStore | `data/projects/scans/badstore/strix/` | `strix-run-1-output.tar.gz`, `strix-run-2-output.tar.gz`, `strix-badstore.txt` |
+| Juice Shop | `../scans/juiceshop/strix/` | `strix-run-1-output.tar.gz`, `strix-run-2-output.tar.gz`, `strix-juiceshop.txt` |
+| BadStore | `../scans/badstore/strix/` | `strix-run-1-output.tar.gz`, `strix-run-2-output.tar.gz`, `strix-badstore.txt` |
 
 ### A3. Cross-Agent Comparison Data
 
@@ -564,8 +564,7 @@ quality, but PentestGPT achieves deeper exploitation depth on specific targets.
 
 | Path | Contents | Reason Not Referenced |
 |------|----------|----------------------|
-| `data/projects/scans/strix.txt` | Strix console log (~251 KB) | Raw terminal output; data captured in tar.gz archives |
-| `data/projects/scans/strix-2.txt` | Strix console log (~311 KB) | Raw terminal output; data captured in tar.gz archives |
+| `../scans/archive/` | Archived scans for DVWA, WebGoat, bwapp | Archived targets not included in this analysis |
 
 ---
 

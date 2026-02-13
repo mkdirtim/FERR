@@ -370,10 +370,10 @@ stateDiagram-v2
 > comparison lives in `learnings-template.md` section 9.
 
 - Similarities with PentestGPT:
-  - Both are highly autonomous CLI-first pentest agents with strong shell-driven exploitation workflows (`analysis/pentestgpt-project-analysis.md:130`, `strix/strix/tools/terminal/terminal_actions.py:7`).
-  - Both use containerized environments to improve reproducibility and isolate runtime impact (`analysis/pentestgpt-project-analysis.md:37`, `strix/containers/Dockerfile:1`).
+  - Both are highly autonomous CLI-first pentest agents with strong shell-driven exploitation workflows (`pentestgpt-project-analysis.md:130`, `strix/strix/tools/terminal/terminal_actions.py:7`).
+  - Both use containerized environments to improve reproducibility and isolate runtime impact (`pentestgpt-project-analysis.md:37`, `strix/containers/Dockerfile:1`).
 - Similarities with CAI:
-  - Both provide explicit multi-agent/agent-pattern capabilities and configurable tool surfaces (`analysis/cai-project-analysis.md:27`, `strix/strix/tools/agents_graph/agents_graph_actions.py:187`).
+  - Both provide explicit multi-agent/agent-pattern capabilities and configurable tool surfaces (`stalled-cai-project-analysis.md:40`, `strix/strix/tools/agents_graph/agents_graph_actions.py:187`).
   - Both expose richer orchestration primitives than single-loop wrappers (guardrails/turn control in CAI; finish/report/state contracts in Strix).
 - Key differences from PentestGPT:
   - Strix has a larger first-class internal tool and reporting stack (browser/proxy/python/reporting), while PentestGPT relies more directly on Claude Code tool mediation.
@@ -433,4 +433,3 @@ stateDiagram-v2
    - Parse `strix_runs/<run-name>/vulnerabilities.csv` for structured comparison (`strix/strix/telemetry/tracer.py:286`, `strix/strix/telemetry/tracer.py:314`, `strix/strix/telemetry/tracer.py:372`).
 7. **Use exit code semantics in benchmark harness:**
    - `0` no vulnerabilities, `1` execution error, `2` vulnerabilities found (headless mode) (`strix/docs/integrations/ci-cd.mdx:18`, `strix/strix/interface/main.py:578`).
-

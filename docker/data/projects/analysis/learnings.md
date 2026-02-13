@@ -12,7 +12,7 @@
 |-------|-----|------------|-------|
 | **Version** | 0.5.10 | 1.0.0 | 0.7.0 |
 | **Repository** | https://github.com/aliasrobotics/cai | https://github.com/GreyDGL/PentestGPT | https://github.com/usestrix/strix |
-| **Framework** | Custom Python SDK (OpenAI Agents-style) | Claude Agent SDK wrapper | Custom Python + Docker sandbox + tool server |
+| **Framework** | Custom Python SDK (OpenAI Agents-style) | Claude Code SDK wrapper | Custom Python + Docker sandbox + tool server |
 | **Model** | GPT-5.2 | Claude Sonnet 4.5 | GPT-5 |
 | **License** | MIT + proprietary | MIT | Apache-2.0 |
 | **Date Reviewed** | 2026-02-13 | 2026-02-12 | 2026-02-13 |
@@ -26,8 +26,8 @@
 > | Strix codebase analysis | `strix-project-analysis.md` | done |
 > | Benchmark: CAI × Juice Shop + BadStore | `cai-juiceshop-results.md`, `cai-badstore-results.md` | done |
 > | Benchmark: PentestGPT × Juice Shop + BadStore | `pentestgpt-juiceshop-results.md`, `pentestgpt-badstore-results.md` | done |
-> | Benchmark: Strix × Juice Shop + BadStore | `PRELIM-strix-juiceshop-results.md`, `PRELIM-strix-badstore-results.md` | done |
-> | Cross-target analyses | `cai-analysis.md`, `pentestgpt-analysis.md`, `prelim-strix-analysis.md` | done |
+> | Benchmark: Strix × Juice Shop + BadStore | `strix-juiceshop-results.md`, `strix-badstore-results.md` | done |
+> | Cross-target analyses | `cai-analysis.md`, `pentestgpt-analysis.md`, `strix-analysis.md` | done |
 > | Benchmark summary | `summary.md` | done |
 >
 > **Workflow:** Read each agent's project analysis for design intent, then
@@ -80,7 +80,7 @@
 
 > **Adopt for OpenHack?** Yes — three specific patterns:
 > 1. **Strix's structured finish tool** — forces the agent to produce required report sections before terminating. Prevents premature abandonment observed in CAI.
-> 2. **Iteration-limit warning injection** (Strix `state.py:94`) — reminds the agent of remaining budget near ceiling. CAI and PentestGPT both self-terminate far below budget without awareness.
+> 2. **Iteration-limit warning injection** (Strix `strix/strix/agents/state.py:94`) — reminds the agent of remaining budget near ceiling. CAI and PentestGPT both self-terminate far below budget without awareness.
 > 3. **Wrapper retry policy** (PentestGPT) — non-interactive wrapper retries if no flags/findings found. Simple reliability gain for autonomous runs.
 
 ---
@@ -201,7 +201,7 @@
 > **Adopt for OpenHack?** Yes — critical findings:
 > 1. **Browser is mandatory.** 5 XSS findings exclusively from Strix establish browser capability as a binary threshold. OpenHack must include Playwright or equivalent headless browser.
 > 2. **OS-level exploitation is model/prompt driven.** PentestGPT's 4/5 `--os-shell` success rate demonstrates that depth depends on model behavior, not just tool availability (Strix has sqlmap but never uses `--os-shell`).
-> 3. **Multi-step attack chains are rare but high-value.** CAI's Run 3 privilege escalation (1/20 runs) and Strix's session forgery (4/4 runs) show that architectural analysis capability varies dramatically by agent design.
+> 3. **Multi-step attack chains are rare but high-value.** CAI's Run 3 privilege escalation (1/20 runs) and Strix's session forgery (2/2 BadStore runs) show that architectural analysis capability varies dramatically by agent design.
 
 ---
 
@@ -241,7 +241,7 @@ Clean decoupling of UI, orchestration, and backend via typed events (`TEXT`, `TO
 
 **L5. Strix's structured finish contract**
 The `finish_scan` tool enforces required report sections before termination, preventing premature abandonment. Combined with iteration-limit warnings, this produces complete assessments in 100% of runs — unlike CAI (mean 8.2% budget utilization) and PentestGPT (28–56% utilization).
-*Evidence: `strix/strix/tools/finish/finish_actions.py:86`, `strix/strix/agents/base_agent.py:183`. All 4 runs produced executive reports with per-vulnerability breakdowns.*
+*Evidence: `strix/strix/tools/finish/finish_actions.py:86`, `strix/strix/agents/base_agent.py:183`. 3/4 runs produced executive reports in the archive; all 4 runs produced per-vulnerability breakdowns.*
 
 **L6. CAI's cost controls**
 Proactive and streaming-time price limit checks, per-turn cost tracking, and preflight budget validation provide the strongest cost governance tested. CAI's total benchmark cost ($0.89 for 20 runs) reflects both cheap model usage and active budget enforcement.
@@ -277,11 +277,11 @@ A bug in `fix_message_list()` (`cai/src/cai/util.py:1250`) caused 100% stall rat
 
 **F6. Missing cost data for Strix**
 Strix does not persist cost/token data to its output archive. The most thorough agent's cost-per-finding is unknown, leaving the cost-effectiveness frontier incomplete. This is the most impactful missing metric for cross-agent comparison in the thesis.
-*Evidence: `prelim-strix-analysis.md` §4b. Estimate: $15–30/run based on model pricing and session duration.*
+*Evidence: `strix-analysis.md` §4b. Estimate: $15–30/run based on model pricing and session duration.*
 
-**F7. All agents' premature self-termination**
-Every agent declares "mission complete" after exploiting vulnerabilities recognized from training data, without exhausting configured budgets. Budget utilization ranges from 5% (CAI) to ~56% (PentestGPT). The depth ceiling is set by model recall, not tool availability or time constraints.
-*Evidence: `summary.md` §4/Finding 8. CAI: 5–17 of 100 turns; PentestGPT: 83–168 of 300 iterations.*
+**F7. CAI and PentestGPT premature self-termination (Strix utilization unclear)**
+CAI and PentestGPT declare "mission complete" before exhausting configured budgets. Budget utilization ranges from 5% (CAI) to ~56% (PentestGPT). For Strix, iteration utilization is unknown in available archives, so only a directional conclusion is possible there.
+*Evidence: `summary.md` §4/Finding 8. CAI: 5–17 of 100 turns; PentestGPT: 83–168 of 300 iterations; Strix utilization unknown.*
 
 ---
 
@@ -423,7 +423,7 @@ Based on comparative analysis, OpenHack should adopt a **Strix-influenced archit
 |------|-------|-------|
 | `cai-analysis.md` | CAI cross-target synthesis (20 runs) | ~606 |
 | `pentestgpt-analysis.md` | PentestGPT cross-target synthesis (10 runs) | ~575 |
-| `prelim-strix-analysis.md` | Strix cross-target synthesis (4 runs) | ~641 |
+| `strix-analysis.md` | Strix cross-target synthesis (4 runs) | ~640 |
 | `summary.md` | Benchmark summary — all agents | ~472 |
 
 ### Project Analysis Files
@@ -444,8 +444,8 @@ Based on comparative analysis, OpenHack should adopt a **Strix-influenced archit
 | `stalled-cai-badstore-results.md` | CAI (pre-fix) × BadStore | 5 |
 | `pentestgpt-juiceshop-results.md` | PentestGPT × Juice Shop | 5 |
 | `pentestgpt-badstore-results.md` | PentestGPT × BadStore | 5 |
-| `PRELIM-strix-juiceshop-results.md` | Strix × Juice Shop | 2 |
-| `PRELIM-strix-badstore-results.md` | Strix × BadStore | 2 |
+| `strix-juiceshop-results.md` | Strix × Juice Shop | 2 |
+| `strix-badstore-results.md` | Strix × BadStore | 2 |
 | `gvm-juiceshop-results.md` | GVM × Juice Shop | 1 |
 | `gvm-badstore-results.md` | GVM × BadStore | 1 |
 
@@ -453,6 +453,6 @@ Based on comparative analysis, OpenHack should adopt a **Strix-influenced archit
 
 | Path | Agent | Contents |
 |------|-------|----------|
-| `data/projects/source/cai/` | CAI | Full repository clone (commit `e22a122`) |
-| `data/projects/source/PentestGPT/` | PentestGPT | Full repository clone (commit `6e84be8`) |
-| `data/projects/source/strix/` | Strix | Full repository clone (commit `0a63ffb`) |
+| `../source/cai/` | CAI | Full repository clone (commit `e22a122`) |
+| `../source/PentestGPT/` | PentestGPT | Full repository clone (commit `6e84be8`) |
+| `../source/strix/` | Strix | Full repository clone (commit `0a63ffb`) |

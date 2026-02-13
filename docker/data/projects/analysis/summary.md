@@ -2,7 +2,7 @@
 
 > **Scope:** Comprehensive cross-agent, cross-target synthesis of all benchmark
 > data. Consolidates findings from `cai-analysis.md`, `pentestgpt-analysis.md`,
-> and `prelim-strix-analysis.md` into a single reference document for thesis
+> and `strix-analysis.md` into a single reference document for thesis
 > writing.
 
 ---
@@ -32,7 +32,7 @@ applications, producing 36 total runs and generating the data for this thesis.
 
 | Dimension | GVM | CAI | PentestGPT | Strix |
 |-----------|-----|-----|------------|-------|
-| **Architecture** | Plugin-based scanner | Single-agent + sub-agents | Single-agent (Claude SDK) | Multi-agent + browser + proxy |
+| **Architecture** | Plugin-based scanner | Single-agent + sub-agents | Single-agent (Claude Code SDK) | Multi-agent + browser + proxy |
 | **Model** | N/A | GPT-5.2 | Sonnet 4.5 | GPT-5 |
 | **Mean Cost/Run** | $0.00 | $0.095 | $2.75 | est. $15–30 |
 | **Mean Duration** | ~15 min | ~5 min | 8m 48s | ~50 min |
@@ -227,7 +227,7 @@ zero. The PR #411 fix did not change the model, prompt, or tools — it only
 enabled the agent to run without crashing. **Framework quality is as important
 as model capability** in determining agent performance.
 
-### Finding 8: Agents universally self-terminate before exhausting their budgets
+### Finding 8: Budget underuse is clear for CAI/PentestGPT, unclear for Strix
 
 | Agent | Budget | Actual Usage | Utilization |
 |-------|--------|-------------|-------------|
@@ -235,10 +235,9 @@ as model capability** in determining agent performance.
 | PentestGPT | 300 iterations | 83–168 tool calls | 28–56% |
 | Strix | 300 iterations | Unknown (7–14 vulns) | Unknown |
 
-All agents declare "mission complete" after exploiting vulnerabilities
-recognized from training data, without exhausting their configured budgets.
-This premature self-termination ceiling is set by model recall, not by tool
-availability or time constraints.
+CAI and PentestGPT clearly terminate before exhausting configured budgets.
+Strix's iteration-budget utilization is unknown in available archives, so the
+same quantitative claim cannot be made for Strix.
 
 ### Finding 9: State contamination varies by methodology but always biases results
 
@@ -366,7 +365,7 @@ Each agent made findings that no other agent produced:
 
 4. **Captures failure modes.** Flag fabrication (PentestGPT), stochastic
    exploitation (CAI), framework bugs (CAI pre-fix), and premature
-   self-termination (all agents) are all documented.
+   self-termination (at least CAI/PentestGPT) are all documented.
 
 ---
 
@@ -420,7 +419,7 @@ Each agent made findings that no other agent produced:
 |------|-------|---------|-------|
 | `cai-analysis.md` | CAI | Cross-target synthesis (20 runs: 10 pre-fix + 10 post-fix) | ~606 |
 | `pentestgpt-analysis.md` | PentestGPT | Cross-target synthesis (10 runs) | ~575 |
-| `prelim-strix-analysis.md` | Strix | Cross-target synthesis (4 runs) | ~641 |
+| `strix-analysis.md` | Strix | Cross-target synthesis (4 runs) | ~640 |
 | `summary.md` | All | This document | — |
 
 ### 8b. Per-Target Results Files
@@ -433,14 +432,14 @@ Each agent made findings that no other agent produced:
 | `stalled-cai-badstore-results.md` | CAI (pre-fix) × BadStore | 5 |
 | `pentestgpt-juiceshop-results.md` | PentestGPT × Juice Shop | 5 |
 | `pentestgpt-badstore-results.md` | PentestGPT × BadStore | 5 |
-| `prelim-strix-juiceshop-results.md` | Strix × Juice Shop | 2 |
-| `prelim-strix-badstore-results.md` | Strix × BadStore | 2 |
+| `strix-juiceshop-results.md` | Strix × Juice Shop | 2 |
+| `strix-badstore-results.md` | Strix × BadStore | 2 |
 | `gvm-juiceshop-results.md` | GVM × Juice Shop | 1 |
 | `gvm-badstore-results.md` | GVM × BadStore | 1 |
 
 ### 8c. Raw Scan Data
 
-All scan data is stored under `data/projects/scans/`:
+All scan data is stored under `../scans/`:
 
 | Agent | Juice Shop Path | BadStore Path |
 |-------|----------------|---------------|

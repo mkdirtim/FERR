@@ -503,7 +503,7 @@ to passive observation of HTTP responses and directory listings.
 
 ## Data Sources
 
-All scan data is stored under `data/projects/scans/juiceshop/cai/`.
+All scan data is stored under `../scans/juiceshop/cai/`.
 
 **Post-fix runs (Round 2):**
 - `cai-run-{1-5}.log` — Agent execution logs (5 files)

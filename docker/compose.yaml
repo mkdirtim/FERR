@@ -42,7 +42,7 @@ x-playground-common: &playground-common
     - "0" # /var/run/docker.sock is typically root:root 660 on Docker Desktop
   volumes:
     - ./data/projects:/playground/projects
-    - ./data/scans:/playground/scans
+    - ./data/projects/analysis/scans:/playground/scans
     - ./data/seclists:/usr/share/wordlists/seclists:ro
     - /var/run/docker.sock:/var/run/docker.sock
     # Persist Claude Code login across container recreations (used by PentestGPT).

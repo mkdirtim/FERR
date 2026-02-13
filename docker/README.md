@@ -148,7 +148,7 @@ docker compose exec playground kali-scan --gvm       # include GVM/OpenVAS (slow
 | BadStore | `badstore` | 80 |
 | WebGoat | `webgoat` | 8080 |
 
-Scan output is saved to `/playground/scans/<hostname>/` inside the container, which maps to `docker/data/scans/` on the host (gitignored). SecLists wordlists are available at `/usr/share/wordlists/seclists/`.
+Scan output is saved to `/playground/scans/<hostname>/` inside the container, which maps to `docker/data/projects/analysis/scans/` on the host. SecLists wordlists are available at `/usr/share/wordlists/seclists/`.
 
 GVM (Greenbone Vulnerability Management / OpenVAS) runs as a separate container (`playground-gvm`) in the `playground` profile. `make playground` starts only the playground container; use `make up-all` or `docker compose --profile playground up -d` to start both playground and GVM. First startup takes 5-10 minutes to sync vulnerability feeds. The `--gvm` flag connects to it via GMP on port 9390. GVM scans are significantly slower (30-60 min per target).
 
@@ -282,7 +282,7 @@ From inside containers, use Docker hostnames instead (e.g. `http://juiceshop:300
 
 ### Agent Benchmarks
 
-Automated benchmark scripts run N runs per target with clean container restarts and `/tmp` archival between runs. Results are saved to `data/scans/<target>/<agent>/`.
+Automated benchmark scripts run N runs per target with clean container restarts and `/tmp` archival between runs. Results are saved to `data/projects/analysis/scans/<target>/<agent>/`.
 
 ```bash
 make bench-pentestgpt RUNS=5     # PentestGPT: 5 runs on all targets
@@ -317,31 +317,31 @@ Each run: clean `/tmp`, restart target container, wait for healthcheck, run the 
 Scan data structure:
 
 ```
-data/scans/                                  # raw benchmark data (logs, archives)
-├── juiceshop/
-│   ├── manual/                              # kali-scan outputs (nmap, nikto, etc.)
-│   ├── pentestgpt/
-│   │   ├── pentestgpt-run-1.log             # full session transcript
-│   │   └── pentestgpt-run-1-tmp.tar.gz      # /tmp artifacts
-│   ├── cai/
-│   │   ├── cai-run-1.log                    # TUI session output
-│   │   ├── cai-run-1-session.tar.gz         # JSONL logs (full LLM transcripts)
-│   │   └── cai-run-1-tmp.tar.gz             # /tmp artifacts
-│   └── strix/
-│       ├── strix-run-1-output.tar.gz        # strix_runs/ (reports + vuln markdowns)
-│       └── strix-run-1-tmp.tar.gz           # /tmp artifacts
-├── badstore/
-│   └── ...                                  # same structure
-
-data/projects/analysis/                      # analysis documents
+data/projects/analysis/
 ├── templates/
 │   ├── agent-project-template.md            # project analysis template
 │   ├── results-template.md                  # benchmark results template
 │   └── learnings-template.md                # learnings synthesis template
 ├── pentestgpt-project-analysis.md           # filled project analyses
 ├── cai-project-analysis.md
+├── strix-project-analysis.md
 ├── pentestgpt-juiceshop-results.md          # filled benchmark results
 ├── pentestgpt-badstore-results.md
+└── scans/                                   # raw benchmark data (logs, archives)
+    ├── juiceshop/
+    │   ├── manual/                          # kali-scan outputs (nmap, nikto, etc.)
+    │   ├── pentestgpt/
+    │   │   ├── pentestgpt-run-1.log         # full session transcript
+    │   │   └── pentestgpt-run-1-tmp.tar.gz  # /tmp artifacts
+    │   ├── cai/
+    │   │   ├── cai-run-1.log                # TUI session output
+    │   │   ├── cai-run-1-session.tar.gz     # JSONL logs (full LLM transcripts)
+    │   │   └── cai-run-1-tmp.tar.gz         # /tmp artifacts
+    │   └── strix/
+    │       ├── strix-run-1-output.tar.gz    # strix_runs/ (reports + vuln markdowns)
+    │       └── strix-run-1-tmp.tar.gz       # /tmp artifacts
+    ├── badstore/
+    │   └── ...                              # same structure
 ```
 
 ### XBOW Benchmarks

@@ -53,7 +53,7 @@ fi
 
 step "Cloning third-party agent projects"
 
-PROJECTS_DIR="$ROOT_DIR/data/projects"
+PROJECTS_DIR="$ROOT_DIR/data/projects/source"
 mkdir -p "$PROJECTS_DIR"
 
 declare -A REPOS=(

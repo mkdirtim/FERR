@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # playground — idempotent project bootstrapper for the playground container.
 #
-# Runs as ENTRYPOINT so that bind-mounted projects under /playground/projects
+# Runs as ENTRYPOINT so that bind-mounted projects under /playground/projects/source
 # get their virtualenvs + CLI tools installed on first boot.  Subsequent boots
 # are fast because the venvs persist on the host via the bind mount.
 
 set -euo pipefail
 
-PROJECTS="/playground/projects"
+PROJECTS="/playground/projects/source"
 
 # ---------- PentestGPT (uv) ----------
 if [ -d "$PROJECTS/PentestGPT" ]; then

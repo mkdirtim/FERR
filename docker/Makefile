@@ -1,7 +1,7 @@
 # openhackstack Makefile
 # Quick commands for managing the Docker environment
 
-.PHONY: help quickstart quickstart-all start validate build up up-with-targets up-all down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground playground-env kali-scan kali-forward kali-forward-stop xbow-list xbow-build xbow-run xbow-stop xbow-flag bench-pentestgpt bench-cai bench-strix
+.PHONY: help quickstart quickstart-all start validate build up up-with-targets up-all down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground playground-env kali-scan xbow-list xbow-build xbow-run xbow-stop xbow-flag bench-pentestgpt bench-cai bench-strix
 
 help: ## Show this help message
 	@echo "openhackstack - OpenCode Development Environment"
@@ -109,12 +109,6 @@ playground: ## Start playground container (Kali-based, profile: playground)
 playground-env: ## Create ./data/playground.env (gitignored) from example
 	@test -f ./data/playground.env || cp ./data/playground.env.example ./data/playground.env
 	@echo "Edit: ./data/playground.env"
-
-kali-forward: ## Forward target ports to Kali VM via SSH tunnel
-	./bin/kali-forward
-
-kali-forward-stop: ## Stop Kali VM port forwarding
-	./bin/kali-forward --stop
 
 kali-scan: ## Scan targets from playground-kali (nmap, whatweb, nikto, ZAP, ffuf, sqlmap)
 	docker compose --profile playground exec playground kali-scan

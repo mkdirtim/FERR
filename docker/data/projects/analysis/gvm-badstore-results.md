@@ -4,7 +4,7 @@
 > network vulnerability scanner. It uses signature-based NVT (Network Vulnerability Tests)
 > plugins to detect known CVEs and misconfigurations. It does **not** perform application-logic
 > testing, authentication bypass, injection payload generation, or interactive exploitation.
-> This scan serves as a **baseline** comparison for the autonomous AI agents (PentestGPT, Strix).
+> This scan serves as a **baseline** comparison for the autonomous AI agents (PentestGPT, Strix, CAI).
 
 | Field | Value |
 |-------|-------|
@@ -212,17 +212,17 @@ which GVM cannot test.
 
 ### Cross-Tool (same target: BadStore)
 
-| Metric | GVM (baseline) | PentestGPT (5 runs) | Strix (pending) |
-|--------|----------------|----------------------|-----------------|
-| Type | Signature scanner | AI agent (LLM) | AI agent (LLM) |
-| Findings (actionable) | 0 | 10/14 vuln categories exploited | Pending |
-| Max CVSS | 0.0 | N/A (no CVSS scoring) | Pending |
-| Duration | 6m 44s | 10m 19s (mean) | Pending |
-| Cost | $0.00 | $3.00/run ($15.01 total) | Pending |
-| SQLi Detected | No | Yes (all 5 runs) | Pending |
-| Webshell Upload | No | Yes (4/5 runs via sqlmap) | Pending |
-| Password Extraction | No | Yes (MD5 hashes via SQLi) | Pending |
-| Report Quality | Template informational | Agent-written markdown | Pending |
+| Metric | GVM (baseline) | PentestGPT (5 runs) | CAI (5 runs) | Strix (prelim, n=1) |
+|--------|----------------|----------------------|--------------|---------------------|
+| Type | Signature scanner | AI agent (LLM) | AI agent (LLM) | AI agent (LLM) |
+| Findings (actionable) | 0 | 10/14 vuln categories exploited | 3 (Run 1 only; 100% stall rate) | 7 (5 Crit, 2 High) |
+| Max CVSS | 0.0 | N/A (no CVSS scoring) | N/A (no CVSS scoring) | 10.0 (SQLi search) |
+| Duration | 6m 44s | 10m 19s (mean) | ~4 min (mean, pre-stall) | ~39–59 min (est.) |
+| Cost | $0.00 | $3.00/run ($15.00 total) | $0.045/run ($0.22 total) | N/A |
+| SQLi Detected | No | Yes (all 5 runs) | Yes (Run 1 only) | Yes (2: search + login) |
+| Webshell Upload | No | Yes (4/5 runs via sqlmap) | No | Not reported |
+| Password Extraction | No | Yes (MD5 hashes via SQLi) | No | No |
+| Report Quality | Template informational | Agent-written markdown | `/tmp/report.md` (Run 1 only) | Structured CVSS + PoC |
 
 ### Cross-Target (same scanner: GVM)
 

@@ -318,21 +318,21 @@ Notable gaps: OS command injection (not reported), CSRF (not reported). Estimate
 
 ### Cross-Agent (same target: BadStore)
 
-| Metric | GVM (baseline) | PentestGPT (5 runs) | Strix (prelim, n=1) |
-|--------|----------------|----------------------|---------------------|
-| Type | Signature scanner | AI agent (LLM) | AI agent (LLM) |
-| Vulnerabilities Found | 0 | 10/14 categories exploited | 7 (5 Crit, 2 High) |
-| Mean CVSS | 0.0 | N/A (no CVSS scoring) | 9.14 |
-| Mean Tool Calls | N/A | 131.8 | N/A |
-| Mean Cost (USD) | $0.00 | $3.00/run | N/A |
-| Mean Duration | 6m 44s | 10m 19s | ~39–59 min (est.) |
-| SQLi Found | No | Yes (all 5 runs) | Yes (2: search + login) |
-| XSS Found | No | No (no browser) | Yes (2: reflected + stored) |
-| Session Forgery | No | Implicit (via SQLi) | Yes (explicit, vuln-0001) |
-| File Upload/Traversal | No | Yes (sqlmap --os-shell) | Yes (supplier upload traversal) |
-| OS Command Execution | No | Yes (4/5 runs) | Not reported |
-| PoC Quality | N/A | None (flag submissions) | Professional (Python, 30–90 lines) |
-| Report Quality | Template informational | Agent-written markdown | Structured CVSS + PoC + remediation |
+| Metric | GVM (baseline) | PentestGPT (5 runs) | CAI (5 runs) | Strix (prelim, n=1) |
+|--------|----------------|----------------------|--------------|---------------------|
+| Type | Signature scanner | AI agent (LLM) | AI agent (LLM) | AI agent (LLM) |
+| Vulnerabilities Found | 0 | 10/14 categories exploited | 3 (Run 1 only; 100% stall) | 7 (5 Crit, 2 High) |
+| Mean CVSS | 0.0 | N/A (no CVSS scoring) | N/A (no CVSS scoring) | 9.14 |
+| Mean Tool Calls | N/A | 131.8 | 6.6 | N/A |
+| Mean Cost (USD) | $0.00 | $3.00/run | $0.045/run | N/A |
+| Mean Duration | 6m 44s | 10m 19s | ~4 min (pre-stall) | ~39–59 min (est.) |
+| SQLi Found | No | Yes (all 5 runs) | Yes (Run 1 only) | Yes (2: search + login) |
+| XSS Found | No | No (no browser) | Yes (Run 1, reflected) | Yes (2: reflected + stored) |
+| Session Forgery | No | Implicit (via SQLi) | No | Yes (explicit, vuln-0001) |
+| File Upload/Traversal | No | Yes (sqlmap --os-shell) | No | Yes (supplier upload traversal) |
+| OS Command Execution | No | Yes (4/5 runs) | No | Not reported |
+| PoC Quality | N/A | None (flag submissions) | None (curl commands in report) | Professional (Python, 30–90 lines) |
+| Report Quality | Template informational | Agent-written markdown | `/tmp/report.md` (Run 1 only) | Structured CVSS + PoC + remediation |
 
 **Key qualitative differences:**
 1. **Output modality:** PentestGPT submits MD5 hashes as flags; Strix produces structured

@@ -5,7 +5,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PROJECTS_DIR="$ROOT_DIR/data/projects"
+PROJECTS_DIR="$ROOT_DIR/data/projects/source"
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -51,5 +51,5 @@ done
 echo -e "${GREEN}✓ All projects ready${NC}"
 echo "Location: $PROJECTS_DIR"
 echo ""
-echo "Projects will be available in the playground container at: /playground/projects"
+echo "Projects will be available in the playground container at: /playground/projects/source"
 echo "Start the playground with: make playground"

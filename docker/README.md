@@ -61,7 +61,7 @@ make up-with-targets  # dev + all vulnerable targets
 make playground       # start playground container only (not GVM)
 ```
 
-Note: `up-all` and `playground` mount `/var/run/docker.sock` into the playground container, giving it root-equivalent control over your Docker daemon. Only run trusted code in `./data/projects`.
+Note: `up-all` and `playground` mount `/var/run/docker.sock` into the playground container, giving it root-equivalent control over your Docker daemon. Only run trusted code in `./data/projects/source`.
 
 Compose directly:
 
@@ -148,7 +148,7 @@ docker compose exec playground kali-scan --gvm       # include GVM/OpenVAS (slow
 | BadStore | `badstore` | 80 |
 | WebGoat | `webgoat` | 8080 |
 
-Scan output is saved to `/playground/scans/<hostname>/` inside the container, which maps to `docker/data/projects/analysis/scans/` on the host. SecLists wordlists are available at `/usr/share/wordlists/seclists/`.
+Scan output is saved to `/playground/scans/<hostname>/` inside the container, which maps to `docker/data/projects/scans/` on the host. SecLists wordlists are available at `/usr/share/wordlists/seclists/`.
 
 GVM (Greenbone Vulnerability Management / OpenVAS) runs as a separate container (`playground-gvm`) in the `playground` profile. `make playground` starts only the playground container; use `make up-all` or `docker compose --profile playground up -d` to start both playground and GVM. First startup takes 5-10 minutes to sync vulnerability feeds. The `--gvm` flag connects to it via GMP on port 9390. GVM scans are significantly slower (30-60 min per target).
 
@@ -166,18 +166,18 @@ make playground
 
 ### Projects
 
-One-time setup to clone third-party agent repos into `docker/data/projects/` (git-ignored):
+One-time setup to clone third-party agent repos into `docker/data/projects/source/` (git-ignored):
 
 ```bash
 ./setup/projects
 ```
 
-Inside the container they appear at `/playground/projects/`. Supported:
+Inside the container they appear at `/playground/projects/source/`. Supported:
 
 - **PentestGPT** / **CAI** — installed via `uv sync`
 - **Strix** — installed via `poetry install`
 
-The entrypoint (`entrypoint/playground`) auto-installs dependencies on first boot. It checks for each CLI binary in `.venv/bin/` and skips if present. Virtualenvs persist on the host via bind mount.
+The entrypoint (`bin/entrypoint-playground`) auto-installs dependencies on first boot. It checks for each CLI binary in `.venv/bin/` and skips if present. Virtualenvs persist on the host via bind mount.
 
 To force reinstall: delete the project's `.venv` on the host and restart the container.
 
@@ -189,7 +189,7 @@ Most of these projects require API keys and/or an interactive first-run setup:
 - **CAI**: requires a TTY (run from `docker compose exec playground bash`). It expects `OPENAI_API_KEY` to be set (can be a placeholder like `sk-1234` for startup). Set `CAI_MODEL` (e.g. `alias1`) and `ALIAS_API_KEY` if you want CAI Pro, and use `OPENAI_BASE_URL` if you want to point at an OpenAI-compatible local/proxy endpoint.
 - **Strix**: runs a sandbox via Docker and needs Docker daemon access. This Compose profile mounts `/var/run/docker.sock` into the playground container. It also requires `STRIX_LLM` and typically `LLM_API_KEY` (and optionally `LLM_API_BASE`). Because Strix creates a sibling sandbox container, two extra env vars are needed for it to work inside the playground: `STRIX_SANDBOX_HOST=host.docker.internal` (so Strix can reach the sandbox's tool server via the Docker host) and `STRIX_SANDBOX_NETWORK=openhackstack_openhackstack-network` (so the sandbox can reach targets by hostname). These are set in `data/playground.env`.
 
-Security note: mounting `/var/run/docker.sock` gives the playground container effectively root-equivalent control over your Docker daemon. Only run trusted code in `./data/projects`.
+Security note: mounting `/var/run/docker.sock` gives the playground container effectively root-equivalent control over your Docker daemon. Only run trusted code in `./data/projects/source`.
 
 ### Running Agents
 
@@ -282,7 +282,7 @@ From inside containers, use Docker hostnames instead (e.g. `http://juiceshop:300
 
 ### Agent Benchmarks
 
-Automated benchmark scripts run N runs per target with clean container restarts and `/tmp` archival between runs. Results are saved to `data/projects/analysis/scans/<target>/<agent>/`.
+Automated benchmark scripts run N runs per target with clean container restarts and `/tmp` archival between runs. Results are saved to `data/projects/scans/<target>/<agent>/`.
 
 ```bash
 make bench-pentestgpt RUNS=5     # PentestGPT: 5 runs on all targets
@@ -317,31 +317,36 @@ Each run: clean `/tmp`, restart target container, wait for healthcheck, run the 
 Scan data structure:
 
 ```
-data/projects/analysis/
-├── templates/
-│   ├── agent-project-template.md            # project analysis template
-│   ├── results-template.md                  # benchmark results template
-│   └── learnings-template.md                # learnings synthesis template
-├── pentestgpt-project-analysis.md           # filled project analyses
-├── cai-project-analysis.md
-├── strix-project-analysis.md
-├── pentestgpt-juiceshop-results.md          # filled benchmark results
-├── pentestgpt-badstore-results.md
-└── scans/                                   # raw benchmark data (logs, archives)
-    ├── juiceshop/
-    │   ├── manual/                          # kali-scan outputs (nmap, nikto, etc.)
-    │   ├── pentestgpt/
-    │   │   ├── pentestgpt-run-1.log         # full session transcript
-    │   │   └── pentestgpt-run-1-tmp.tar.gz  # /tmp artifacts
-    │   ├── cai/
-    │   │   ├── cai-run-1.log                # TUI session output
-    │   │   ├── cai-run-1-session.tar.gz     # JSONL logs (full LLM transcripts)
-    │   │   └── cai-run-1-tmp.tar.gz         # /tmp artifacts
-    │   └── strix/
-    │       ├── strix-run-1-output.tar.gz    # strix_runs/ (reports + vuln markdowns)
-    │       └── strix-run-1-tmp.tar.gz       # /tmp artifacts
-    ├── badstore/
-    │   └── ...                              # same structure
+data/projects/
+├── source/                                  # third-party agent repos (git-ignored)
+│   ├── cai/
+│   ├── strix/
+│   └── PentestGPT/
+├── scans/                                   # raw benchmark data (logs, archives)
+│   ├── juiceshop/
+│   │   ├── manual/                          # kali-scan outputs (nmap, nikto, etc.)
+│   │   ├── pentestgpt/
+│   │   │   ├── pentestgpt-run-1.log         # full session transcript
+│   │   │   └── pentestgpt-run-1-tmp.tar.gz  # /tmp artifacts
+│   │   ├── cai/
+│   │   │   ├── cai-run-1.log                # TUI session output
+│   │   │   ├── cai-run-1-session.tar.gz     # JSONL logs (full LLM transcripts)
+│   │   │   └── cai-run-1-tmp.tar.gz         # /tmp artifacts
+│   │   └── strix/
+│   │       ├── strix-run-1-output.tar.gz    # strix_runs/ (reports + vuln markdowns)
+│   │       └── strix-run-1-tmp.tar.gz       # /tmp artifacts
+│   ├── badstore/
+│   │   └── ...                              # same structure
+└── analysis/
+    ├── templates/
+    │   ├── agent-project-template.md        # project analysis template
+    │   ├── results-template.md              # benchmark results template
+    │   └── learnings-template.md            # learnings synthesis template
+    ├── pentestgpt-project-analysis.md       # filled project analyses
+    ├── cai-project-analysis.md
+    ├── strix-project-analysis.md
+    ├── pentestgpt-juiceshop-results.md      # filled benchmark results
+    └── pentestgpt-badstore-results.md
 ```
 
 ### XBOW Benchmarks

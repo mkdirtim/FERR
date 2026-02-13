@@ -73,7 +73,7 @@ RUN useradd -m -s /bin/bash playground && \
     mkdir -p /work /playground && \
     chown -R playground:playground /work /playground
 
-COPY entrypoint/playground /usr/local/bin/playground
+COPY bin/entrypoint-playground /usr/local/bin/playground
 COPY bin/kali-scan /usr/local/bin/kali-scan
 RUN chmod +x /usr/local/bin/playground /usr/local/bin/kali-scan
 
@@ -85,7 +85,7 @@ ENV PATH="/home/playground/.local/bin:${PATH}"
 
 # Put each project's .venv/bin on PATH so CLIs are available in every shell.
 RUN echo '\n# playground project venvs\n\
-for d in /playground/projects/*/; do\n\
+for d in /playground/projects/source/*/; do\n\
   [ -d "${d}.venv/bin" ] && export PATH="${d}.venv/bin:$PATH"\n\
 done' >> /home/playground/.bashrc
 

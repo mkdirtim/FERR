@@ -338,23 +338,24 @@ challenges. Conservative estimate: findings correspond to ~10–15 challenge cat
 
 ### Cross-Agent (same target: Juice Shop)
 
-| Metric | PentestGPT | Strix (prelim, n=1) |
-|--------|------------|---------------------|
-| Runs | 5 | 1 |
-| Vulnerabilities Reported | 0 verified flags | 7 (4 Critical, 3 High) |
-| Mean CVSS | N/A (no structured scoring) | 8.86 |
-| Mean Tool Calls | 94.8 | N/A (not logged) |
-| Mean Cost (USD) | $2.49 | N/A (not logged) |
-| Mean Duration | 7m 17s | ~38–58 min (estimated) |
-| % curl / HTTP-only | 80.0% | N/A (multi-tool) |
-| Browser Capability | No | Yes (Playwright) |
-| Proxy Capability | No | Yes (Caido, 1200+ requests) |
-| Client-Side Vulns Found | 0 (N/A — no browser) | 1 (DOM XSS, CVSS 9.6) |
-| PoC Quality | None (flag submissions only) | Professional (Python PoCs, 25–80 lines each) |
-| Report Quality | Agent-written markdown summaries | Structured reports with CVSS + PoC + remediation |
-| Self-Termination | ~30% of iteration budget used | Unknown (finish_scan called) |
-| Target Reset | No | Yes |
-| Vuln Categories Covered | 9/14 attempted, 0 flags captured | 8/14 reported with validated PoCs |
+| Metric | GVM (baseline) | PentestGPT (5 runs) | CAI (5 runs) | Strix (prelim, n=1) |
+|--------|----------------|----------------------|--------------|---------------------|
+| Runs | 1 | 5 | 5 (all stalled) | 1 |
+| Type | Signature scanner | AI agent (LLM) | AI agent (LLM) | AI agent (LLM) |
+| Vulnerabilities Reported | 0 (app-layer) | 0 verified flags | 0 (100% stall rate) | 7 (4 Critical, 3 High) |
+| Mean CVSS | 2.1 (ICMP only) | N/A (no structured scoring) | N/A (stalled) | 8.86 |
+| Mean Tool Calls | N/A (plugin-based) | 94.8 | 6.6 | N/A (not logged) |
+| Mean Cost (USD) | $0.00 | $2.49 | $0.022 | N/A (not logged) |
+| Mean Duration | 37m 50s | 7m 17s | ~4 min (pre-stall) | ~38–58 min (estimated) |
+| % curl / HTTP-only | N/A | 80.0% | 60.6% | N/A (multi-tool) |
+| Browser Capability | No | No | No | Yes (Playwright) |
+| Proxy Capability | No | No | No | Yes (Caido, 1200+ requests) |
+| Client-Side Vulns Found | 0 | 0 (N/A — no browser) | 0 (stalled) | 1 (DOM XSS, CVSS 9.6) |
+| PoC Quality | N/A | None (flag submissions only) | N/A (stalled) | Professional (Python PoCs, 25–80 lines each) |
+| Report Quality | Template-based | Agent-written markdown summaries | N/A (no report) | Structured reports with CVSS + PoC + remediation |
+| Self-Termination | Fixed pipeline | ~30% of iteration budget used | Stalled (software bug) | Unknown (finish_scan called) |
+| Target Reset | N/A | No | Yes | Yes |
+| Vuln Categories Covered | 0/14 | 9/14 attempted, 0 flags captured | 0/14 (stalled before testing) | 8/14 reported with validated PoCs |
 
 **Key qualitative differences:**
 1. **Output paradigm:** PentestGPT submits flag-like values (hashes, keys, fabricated data);
@@ -371,14 +372,18 @@ challenges. Conservative estimate: findings correspond to ~10–15 challenge cat
 
 ### Cross-Target (same agent: Strix)
 
-*To be filled after Strix BadStore results are available.*
-
 | Metric | Juice Shop | BadStore |
 |--------|-----------|----------|
-| Vulnerabilities Reported | 7 | |
-| Mean CVSS | 8.86 | |
-| Duration (estimated) | ~38–58 min | |
-| Browser Vulns Found | 1 | |
+| Vulnerabilities Reported | 7 (4 Crit, 3 High) | 7 (5 Crit, 2 High) |
+| Mean CVSS | 8.86 | 9.14 |
+| Duration (estimated) | ~38–58 min | ~39–59 min |
+| Proxy Requests | ≥1203 | ≥530 |
+| SQLi Findings | 2 | 2 |
+| XSS Findings | 1 (DOM) | 2 (reflected + stored) |
+| Auth Bypass Findings | 2 (SQLi + JWT) | 2 (cookie forgery + SQLi) |
+| File-Related Findings | 1 (info disclosure) | 1 (path traversal + file write) |
+| PoC Lines (approx) | 25–80 per vuln | 30–90 per vuln |
+| Browser Vulns Found | 1 | 2 |
 
 ---
 

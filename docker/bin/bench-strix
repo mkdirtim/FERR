@@ -18,7 +18,7 @@ set -euo pipefail
 RUNS="${1:-5}"
 START="${2:-1}"
 KALI="playground-kali"
-STRIX="/playground/projects/strix/.venv/bin/strix"
+STRIX="/playground/projects/source/strix/.venv/bin/strix"
 
 # target-name  container-name       url                      healthcheck-path
 TARGETS=(

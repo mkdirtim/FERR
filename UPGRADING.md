@@ -56,7 +56,7 @@ to remove upstream-only directories again:
 
 ### Current prune commit
 
-  SHA: 6fb8e38b0
+  SHA: ef477d051
   Message: fork: prune upstream-only directories
 
 This commit deletes 715 files (116,053 lines) — whole-directory removals only,
@@ -85,7 +85,7 @@ After resolving, update the prune commit SHA in this file and in TODOs.md.
   git fetch upstream --tags --prune-tags
 
   NEW_TAG=vX.Y.Z
-  PRUNE_SHA=6fb8e38b0
+  PRUNE_SHA=ef477d051
 
   git checkout openhack
   git pull --ff-only origin openhack

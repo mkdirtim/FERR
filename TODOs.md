@@ -5,6 +5,11 @@
 - SHA: `ef477d051`
 - Message: `fork: prune upstream-only directories (v1.1.64)`
 
+## Current fork-fix commit
+
+- SHA: `eea6468ee`
+- Message: `fork: fix workspace and patch consistency`
+
 ## Deleted — Whole Directories (DONE)
 
 716 files deleted, 116,053 lines removed on `feature-cleanup` branch. Only whole-directory deletions to avoid cherry-pick conflicts during upstream upgrades.

@@ -158,7 +158,7 @@ If your agent needs environment variables (API keys, model selection), create a 
 
 ```bash
 make playground-env
-$EDITOR data/playground.env
+$EDITOR data/projects/playground.env
 make playground
 ```
 
@@ -187,7 +187,7 @@ Most of these projects require API keys and/or an interactive first-run setup:
 
 - **PentestGPT**: uses Claude Code (`claude`). In the playground container, run `claude` and complete `/login` before running `pentestgpt`. A named volume (`playground-claude`) persists the Claude Code login across container recreations.
 - **CAI**: requires a TTY (run from `docker compose exec playground bash`). It expects `OPENAI_API_KEY` to be set (can be a placeholder like `sk-1234` for startup). Set `CAI_MODEL` (e.g. `alias1`) and `ALIAS_API_KEY` if you want CAI Pro, and use `OPENAI_BASE_URL` if you want to point at an OpenAI-compatible local/proxy endpoint.
-- **Strix**: runs a sandbox via Docker and needs Docker daemon access. This Compose profile mounts `/var/run/docker.sock` into the playground container. It also requires `STRIX_LLM` and typically `LLM_API_KEY` (and optionally `LLM_API_BASE`). Because Strix creates a sibling sandbox container, two extra env vars are needed for it to work inside the playground: `STRIX_SANDBOX_HOST=host.docker.internal` (so Strix can reach the sandbox's tool server via the Docker host) and `STRIX_SANDBOX_NETWORK=openhackstack_openhackstack-network` (so the sandbox can reach targets by hostname). These are set in `data/playground.env`.
+- **Strix**: runs a sandbox via Docker and needs Docker daemon access. This Compose profile mounts `/var/run/docker.sock` into the playground container. It also requires `STRIX_LLM` and typically `LLM_API_KEY` (and optionally `LLM_API_BASE`). Because Strix creates a sibling sandbox container, two extra env vars are needed for it to work inside the playground: `STRIX_SANDBOX_HOST=host.docker.internal` (so Strix can reach the sandbox's tool server via the Docker host) and `STRIX_SANDBOX_NETWORK=openhackstack_openhackstack-network` (so the sandbox can reach targets by hostname). These are set in `data/projects/playground.env`.
 
 Security note: mounting `/var/run/docker.sock` gives the playground container effectively root-equivalent control over your Docker daemon. Only run trusted code in `./data/projects/source`.
 
@@ -236,7 +236,7 @@ CAI_AGENT_TYPE=red_teamer cai "Target: http://bwapp:80"
 # Ctrl+C twice for Human-In-The-Loop mode
 ```
 
-Environment: `OPENAI_API_KEY` and `CAI_MODEL` are set via `data/playground.env`.
+Environment: `OPENAI_API_KEY` and `CAI_MODEL` are set via `data/projects/playground.env`.
 
 #### Strix
 
@@ -261,7 +261,7 @@ strix -t http://juiceshop:3000 -t http://bwapp:80
 strix --target http://juiceshop:3000 --instruction "Focus on SQLi and XSS"
 ```
 
-Environment: `STRIX_LLM` and `LLM_API_KEY` are set via `data/playground.env`.
+Environment: `STRIX_LLM` and `LLM_API_KEY` are set via `data/projects/playground.env`.
 
 ## Host Access
 

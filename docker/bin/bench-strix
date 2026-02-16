@@ -10,7 +10,7 @@
 #           TARGET=badstore ./bin/bench-strix 5    — all 5 runs, badstore only
 #           TARGET=juiceshop ./bin/bench-strix 3 3 — just run 3, juiceshop only
 #
-# Requires: STRIX_LLM and LLM_API_KEY set in playground.env
+# Requires: STRIX_LLM and LLM_API_KEY set in data/projects/playground.env
 # Each run: clean /tmp → restart target → wait healthy → run Strix → archive /tmp + strix_runs.
 
 set -euo pipefail

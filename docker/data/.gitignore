@@ -8,5 +8,4 @@ projects/*
 # XBOW validation benchmarks (use docker/setup/benchmarks)
 benchmarks/
 
-# Playground environment (keys/config) - copy from playground.env.example
-playground.env
+# Playground environment moved to projects/ (see projects/.gitignore)

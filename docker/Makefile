@@ -36,8 +36,8 @@ up-with-targets: ## Start dev container with vulnerable targets
 	docker compose --profile targets up -d
 
 up-all: ## Start everything (dev + targets + playground)
-	@if [ -f ./data/playground.env ]; then \
-		docker compose --env-file ./data/playground.env --profile targets --profile playground up -d --build; \
+	@if [ -f ./data/projects/playground.env ]; then \
+		docker compose --env-file ./data/projects/playground.env --profile targets --profile playground up -d --build; \
 	else \
 		docker compose --profile targets --profile playground up -d --build; \
 	fi
@@ -100,15 +100,15 @@ docs: ## Print documentation locations
 	@echo "  - ./README.md"
 
 playground: ## Start playground container (Kali-based, profile: playground)
-	@if [ -f ./data/playground.env ]; then \
-		docker compose --env-file ./data/playground.env --profile playground up -d playground; \
+	@if [ -f ./data/projects/playground.env ]; then \
+		docker compose --env-file ./data/projects/playground.env --profile playground up -d playground; \
 	else \
 		docker compose --profile playground up -d playground; \
 	fi
 
-playground-env: ## Create ./data/playground.env (gitignored) from example
-	@test -f ./data/playground.env || cp ./data/playground.env.example ./data/playground.env
-	@echo "Edit: ./data/playground.env"
+playground-env: ## Create ./data/projects/playground.env (gitignored) from example
+	@test -f ./data/projects/playground.env || cp ./data/projects/playground.env.example ./data/projects/playground.env
+	@echo "Edit: ./data/projects/playground.env"
 
 kali-scan: ## Scan targets from playground-kali (nmap, whatweb, nikto, ZAP, ffuf, sqlmap)
 	docker compose --profile playground exec playground kali-scan

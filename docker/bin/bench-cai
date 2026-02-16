@@ -10,7 +10,7 @@
 #           TARGET=badstore ./bin/bench-cai 5    — all 5 runs, badstore only
 #           TARGET=juiceshop ./bin/bench-cai 3 3 — just run 3, juiceshop only
 #
-# Requires: OPENAI_API_KEY and CAI_MODEL set in playground.env
+# Requires: OPENAI_API_KEY and CAI_MODEL set in data/projects/playground.env
 # Note: CAI requires a TTY. This script allocates one via docker exec -t.
 # Each run: clean /tmp → restart target → wait healthy → run CAI → archive /tmp.
 

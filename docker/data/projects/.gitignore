@@ -4,3 +4,5 @@
 !analysis/**
 !scans/
 !scans/**
+!playground.env.example
+playground.env

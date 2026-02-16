@@ -14,7 +14,7 @@ x-playground-common: &playground-common
   init: true
   restart: unless-stopped
   # Pass through host/env-file variables into the container.
-  # With `make playground`, this is loaded from ./data/playground.env (gitignored) if present.
+  # With `make playground`, this is loaded from ./data/projects/playground.env (gitignored) if present.
   environment:
     - STRIX_LLM
     - LLM_API_KEY

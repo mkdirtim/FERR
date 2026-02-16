@@ -17,8 +17,8 @@ applications, producing 36 total runs and generating the data for this thesis.
 | GVM (baseline) | N/A (signature scanner) | 2 (1+1) | $0.00 | Template report |
 | CAI | GPT-5.2 | 20 (10+10) | $0.89 | `/tmp/report.md` |
 | PentestGPT | Sonnet 4.5 | 10 (5+5) | $27.45 | `[FLAG]` + walkthrough |
-| Strix | GPT-5 | 4 (2+2) | N/A (est. $60–120) | CVSS + executable PoC |
-| **Total** | — | **36** | **$28.34 + Strix** | — |
+| Strix | GPT-5 | 4 (2+2) | ~$16.30 (est. from partial data) | CVSS + executable PoC |
+| **Total** | — | **36** | **~$44.64** | — |
 
 **Targets:**
 - **OWASP Juice Shop v19.1.1** — Modern Node.js SPA with 110 CTF challenges, SQLite backend, Angular frontend
@@ -54,7 +54,7 @@ applications, producing 36 total runs and generating the data for this thesis.
 | XSS Findings | 0 | 0 | 0 (verified) | 5 |
 | OS-Level Access | No | No | Yes (4/5 BS runs) | No |
 | Mean CVSS | N/A | N/A | N/A | ~8.7 |
-| Cost/Finding | $0.00 | ~$0.06 | ~$2.50/cat | est. ~$2.50–5.00/vuln |
+| Cost/Finding | $0.00 | ~$0.06 | ~$2.50/cat | ~$0.68/vuln |
 
 ### 2c. Per-Target Rankings
 
@@ -99,7 +99,7 @@ on all axes.
                GVM  ◆         |  (template)
                               |
           ────────────────────┼──────────────────→ Cost/Run
-          $0                  |  $0.10    $2.75        $15-30
+          $0                  |  $0.10    $2.75  ~$4.08
 ```
 
 | Position | Agent | Cost/Run | Depth | Quality | Best Use Case |
@@ -114,13 +114,17 @@ on all axes.
 1. **29× CAI's cost → PentestGPT** buys genuine exploitation depth (OS shell,
    full database dump, webshell deployment) vs. surface-level reconnaissance.
 
-2. **~5–11× PentestGPT's cost → Strix** buys validated PoCs, CVSS scoring,
+2. **~1.5× PentestGPT's cost → Strix** buys validated PoCs, CVSS scoring,
    browser capability (5 XSS findings), and professional-grade output — but
-   not deeper exploitation (no OS shell).
+   not deeper exploitation (no OS shell). At ~$4.08/run (actual, vs. original
+   $15–30 estimate), Strix is far closer to PentestGPT in cost than
+   anticipated. GPT-5 prompt caching (~87% cache hit rate) is the key driver.
 
-3. **The most capable agent is also the most expensive.** This creates a
-   practical limit: Strix's cost constrained the sample to n=2 per target,
-   while CAI and PentestGPT could afford n=5.
+3. **The most capable agent is the most expensive, but not by as much as
+   expected.** Strix's cost-per-validated-vulnerability (~$0.68) is competitive
+   with PentestGPT's cost-per-category (~$2.50) and only ~11× CAI's ~$0.06/finding.
+   The original n=2 sample was constrained by an overestimated cost ($15–30/run);
+   at ~$4/run, additional runs are feasible (~$24 for 6 more runs to reach n=5).
 
 ---
 
@@ -327,7 +331,7 @@ Each agent made findings that no other agent produced:
 | Sample size | Mixed | CAI n=10 (good), PentestGPT n=5 (adequate), Strix n=2 (limited) |
 | State management | Mixed | CAI/Strix restart; PentestGPT does not — introduces systematic bias |
 | Scoring | Weak | No common metric; CTF flags, categories, CVSS, narratives are incommensurable |
-| Cost tracking | Mixed | CAI/PentestGPT tracked; Strix unavailable (most impactful gap) |
+| Cost tracking | Good | CAI/PentestGPT tracked; Strix partially recovered from TUI logs (~$4.08/run) |
 | Tool logging | Mixed | CAI/PentestGPT have detailed logs; Strix persists only reports |
 
 ### 6b. Key Limitations
@@ -336,8 +340,9 @@ Each agent made findings that no other agent produced:
    Strix registers CVSS vulnerabilities. Vulnerability category coverage is
    the best available common metric but loses depth information.
 
-2. **Strix cost data unavailable.** Cannot compute cost-per-finding for the
-   most thorough agent, leaving the cost-effectiveness frontier incomplete.
+2. **Strix cost data partially available.** Run 2 costs recovered from TUI logs
+   ($4.42 Juice Shop, $3.73 BadStore). Run 1 costs remain uncaptured.
+   Cost-per-finding (~$0.68/vuln) is now computable from partial data.
 
 3. **PentestGPT state contamination.** No target restart inflates later runs
    and reduces measurement independence.
@@ -357,8 +362,10 @@ Each agent made findings that no other agent produced:
    that agent effectiveness is non-transferable — the central thesis finding.
 
 2. **Reveals the cost-quality tradeoff.** Three distinct cost tiers (CAI
-   $0.10, PentestGPT $2.75, Strix $15–30) with correspondingly different
-   quality levels.
+   $0.10, PentestGPT $2.75, Strix ~$4.08) with correspondingly different
+   quality levels. The gap between PentestGPT and Strix (~1.5×) is far
+   narrower than originally estimated (~5–11×), strengthening the case that
+   Strix's higher quality is cost-effective.
 
 3. **Identifies the browser threshold.** The binary capability split (with
    vs. without browser) is clearly observable from the data.
@@ -401,11 +408,11 @@ Each agent made findings that no other agent produced:
 
 | Priority | Action | Rationale |
 |----------|--------|-----------|
-| 1 | Capture Strix cost data | Completes the cost-effectiveness frontier |
+| 1 | Capture remaining Strix Run 1 costs | Run 2 costs recovered; Run 1 costs complete the dataset |
 | 2 | Normalize scoring rubric | Enables direct cross-agent comparison |
 | 3 | Restart PentestGPT targets | Eliminates state contamination bias |
 | 4 | Verify Strix PoCs | Validates the highest-count finding set |
-| 5 | Increase Strix sample size to n=5 | Enables reliable aggregate statistics |
+| 5 | Increase Strix sample size to n=5 | ~$24 for 6 more runs at ~$4/run; now feasible |
 | 6 | Test against undocumented target | Controls for training data contamination |
 | 7 | Prompt engineering for exploration | Tests whether agents can exceed recall-driven ceilings |
 
@@ -455,7 +462,7 @@ All scan data is stored under `../scans/`:
 | Statistic | Value |
 |-----------|-------|
 | Total runs across all agents | 36 |
-| Total documented cost | $28.34 (CAI + PentestGPT) |
+| Total documented cost | ~$44.64 (CAI $0.89 + PentestGPT $27.45 + Strix ~$16.30 est.) |
 | Total unique vulnerabilities (Strix) | 24 |
 | Total unique findings (CAI post-fix) | 15 |
 | Total vulnerability categories (PentestGPT) | ~11 |

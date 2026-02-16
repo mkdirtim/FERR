@@ -1,1 +1,0 @@
-http://badstore:80/badstore.cgi?action=cartview (GET)  # /usr/bin/sqlmap -u http://badstore:80 --crawl=2 --batch --random-agent --output-dir=/playground/scans/badstore/sqlmap

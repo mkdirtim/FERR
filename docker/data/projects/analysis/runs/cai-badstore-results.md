@@ -596,15 +596,15 @@ upload.
 
 ## Data Sources
 
-All scan data is stored under `../scans/badstore/cai/`.
+All post-fix scan data is stored under `../scans/`; pre-fix (bugstalled) data is under `../scans/archive/`.
 
 **Post-fix runs (Round 2):**
-- `cai-run-{1-5}.log` — Agent execution logs (5 files)
-- `cai-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files)
+- `badstore-cai-run-{1-5}.log` — Agent execution logs (5 files)
+- `badstore-cai-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files)
 
 **Pre-fix runs (Round 1, bugstalled):**
-- `bugstalled-cai-run-{1-5}.log` — Agent execution logs (5 files)
-- `bugstalled-cai-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files)
+- `badstore-cai-bug-run-{1-5}.log` — Agent execution logs (5 files) (in `../scans/archive/`)
+- `badstore-cai-bug-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files) (in `../scans/archive/`)
 
 **Cross-references:**
 - `stalled-cai-badstore-results.md` — Detailed pre-fix analysis (referenced in §1-extra)

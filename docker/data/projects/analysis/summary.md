@@ -539,12 +539,12 @@ All scan data is stored under `../scans/`:
 
 | Agent | Juice Shop Path | BadStore Path |
 |-------|----------------|---------------|
-| CAI (post-fix) | `juiceshop/cai/cai-run-{1-5}.*` | `badstore/cai/cai-run-{1-5}.*` |
-| CAI (pre-fix) | `juiceshop/cai/bugstalled-cai-run-{1-5}.*` | `badstore/cai/bugstalled-cai-run-{1-5}.*` |
-| PentestGPT | `juiceshop/pentestgpt/pentestgpt-run-{1-5}.*` | `badstore/pentestgpt/pentestgpt-run-{1-5}.*` |
-| Strix | `juiceshop/strix/strix-run-{1,2}-output.tar.gz` | `badstore/strix/strix-run-{1,2}-output.tar.gz` |
-| GVM | `juiceshop/manual/gvm.txt` | `badstore/manual/gvm.txt` |
-| Manual baselines | `juiceshop/manual/{nikto,ffuf,whatweb,nmap,zap}.*` | `badstore/manual/{nikto,ffuf,whatweb,nmap,zap,sqlmap}.*` |
+| CAI (post-fix) | `juiceshop-cai-run-{1-5}.*` | `badstore-cai-run-{1-5}.*` |
+| CAI (pre-fix) | `archive/juiceshop-cai-bug-run-{1-5}.*` | `archive/badstore-cai-bug-run-{1-5}.*` |
+| PentestGPT | `juiceshop-pentestgpt-run-{1-5}.*` | `badstore-pentestgpt-run-{1-5}.*` |
+| Strix | `juiceshop-strix-run-{1,2}-output.*` | `badstore-strix-run-{1,2}-output.*` |
+| GVM | *(removed from disk)* | *(removed from disk)* |
+| Manual baselines | *(removed from disk)* | *(removed from disk)* |
 
 ### 8d. Key Numbers at a Glance
 

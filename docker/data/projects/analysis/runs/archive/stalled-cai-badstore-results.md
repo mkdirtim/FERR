@@ -444,8 +444,8 @@ injection, file upload.
 
 ## Data Sources
 
-All scan data is stored under `../scans/badstore/cai/`.
+All pre-fix (bugstalled) scan data is stored under `../scans/archive/`.
 
 **Pre-fix runs (Round 1, bugstalled):**
-- `bugstalled-cai-run-{1-5}.log` — Agent execution logs (5 files)
-- `bugstalled-cai-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files)
+- `badstore-cai-bug-run-{1-5}.log` — Agent execution logs (5 files)
+- `badstore-cai-bug-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files)

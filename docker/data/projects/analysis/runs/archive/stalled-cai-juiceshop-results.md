@@ -353,9 +353,9 @@ scanning. These four zero/non-zero outcomes have fundamentally different causes.
 
 ## Data Sources
 
-All scan data is stored under `../scans/juiceshop/cai/`.
+All pre-fix (bugstalled) scan data is stored under `../scans/archive/`.
 
 **Pre-fix runs (Round 1, bugstalled):**
-- `bugstalled-cai-run-{1-5}.log` — Agent execution logs (5 files)
-- `bugstalled-cai-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files)
-- `bugstalled-cai-run-1-session.tar.gz` — Session archive (Run 1 only, 45 bytes)
+- `juiceshop-cai-bug-run-{1-5}.log` — Agent execution logs (5 files)
+- `juiceshop-cai-bug-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files)
+- `juiceshop-cai-bug-run-1-session.tar.gz` — Session archive (Run 1 only, 45 bytes)

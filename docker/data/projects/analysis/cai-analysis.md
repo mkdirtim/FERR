@@ -539,38 +539,47 @@ Each results file references its raw scan data. All paths are relative to this a
 
 | Agent | Target | Path | Files |
 |-------|--------|------|-------|
-| CAI (post-fix) | Juice Shop | `../scans/juiceshop/cai/` | `cai-run-{1-5}.log`, `cai-run-{1-4}-tmp.tar.gz` |
-| CAI (post-fix) | BadStore | `../scans/badstore/cai/` | `cai-run-{1-5}.log`, `cai-run-{1-5}-tmp.tar.gz` |
-| CAI (pre-fix) | Juice Shop | `../scans/juiceshop/cai/` | `bugstalled-cai-run-{1-5}.log`, `bugstalled-cai-run-{1-5}-tmp.tar.gz` |
-| CAI (pre-fix) | BadStore | `../scans/badstore/cai/` | `bugstalled-cai-run-{1-5}.log`, `bugstalled-cai-run-{1-5}-tmp.tar.gz` |
-| PentestGPT | Juice Shop | `../scans/juiceshop/pentestgpt/` | `pentestgpt-run-{1-5}.log`, `pentestgpt-run-{1,3,4,5}-tmp.tar.gz`, `archive-no-restart.tar.gz` |
-| PentestGPT | BadStore | `../scans/badstore/pentestgpt/` | `pentestgpt-run-{1-5}.log`, `pentestgpt-run-{1-5}-tmp.tar.gz`, `archive-no-restart.tar.gz` |
-| GVM | Juice Shop | `../scans/juiceshop/manual/` | `gvm.txt` |
-| GVM | BadStore | `../scans/badstore/manual/` | `gvm.txt` |
-| Strix | Juice Shop | `../scans/juiceshop/strix/` | `strix-run-{1,2}-output.tar.gz` |
-| Strix | BadStore | `../scans/badstore/strix/` | `strix-run-{1,2}-output.tar.gz` |
+| CAI (post-fix) | Juice Shop | `../scans/` | `juiceshop-cai-run-{1-5}.log`, `juiceshop-cai-run-{1-4}-tmp.tar.gz` |
+| CAI (post-fix) | BadStore | `../scans/` | `badstore-cai-run-{1-5}.log`, `badstore-cai-run-{1-5}-tmp.tar.gz` |
+| CAI (pre-fix) | Juice Shop | `../scans/archive/` | `juiceshop-cai-bug-run-{1-5}.log`, `juiceshop-cai-bug-run-{1-5}-tmp.tar.gz` |
+| CAI (pre-fix) | BadStore | `../scans/archive/` | `badstore-cai-bug-run-{1-5}.log`, `badstore-cai-bug-run-{1-5}-tmp.tar.gz` |
+| PentestGPT | Juice Shop | `../scans/` | `juiceshop-pentestgpt-run-{1-5}.log`, `juiceshop-pentestgpt-run-{1,3,4,5}-tmp.tar.gz`; archive: `../scans/archive/juiceshop-pentestgpt-archive-no-restart.tar.gz` |
+| PentestGPT | BadStore | `../scans/` | `badstore-pentestgpt-run-{1-5}.log`, `badstore-pentestgpt-run-{1-5}-tmp.tar.gz`; archive: `../scans/archive/badstore-pentestgpt-archive-no-restart.tar.gz` |
+| GVM | Juice Shop | — | Removed (manual baseline scans no longer in scan tree) |
+| GVM | BadStore | — | Removed (manual baseline scans no longer in scan tree) |
+| Strix | Juice Shop | `../scans/` | `juiceshop-strix-run-{1,2}-output.tar.gz` |
+| Strix | BadStore | `../scans/` | `badstore-strix-run-{1,2}-output.tar.gz` |
 
 ### A3. Scan Data Not Referenced in This Analysis
+
+The following scan data existed in the previous directory structure but has been **removed**
+from the scan tree during the flat-directory migration. It was never incorporated into any
+results or analysis file.
+
+| Previous Path | Contents | Status |
+|---------------|----------|--------|
+| `../scans/juiceshop/manual/nikto.txt` | Nikto web scanner output | Removed |
+| `../scans/juiceshop/manual/ffuf.json` | ffuf directory fuzzing output | Removed |
+| `../scans/juiceshop/manual/whatweb.txt` | WhatWeb fingerprinting output | Removed |
+| `../scans/juiceshop/manual/nmap.txt` | Nmap port scan output | Removed |
+| `../scans/juiceshop/manual/zap.md` | OWASP ZAP scan report | Removed |
+| `../scans/badstore/manual/nikto.txt` | Nikto web scanner output | Removed |
+| `../scans/badstore/manual/ffuf.json` | ffuf directory fuzzing output | Removed |
+| `../scans/badstore/manual/whatweb.txt` | WhatWeb fingerprinting output | Removed |
+| `../scans/badstore/manual/nmap.txt` | Nmap port scan output | Removed |
+| `../scans/badstore/manual/zap.md` | OWASP ZAP scan report | Removed |
+| `../scans/badstore/manual/sqlmap/` | sqlmap scan results (CSV + logs) | Removed |
+| `../scans/juiceshop/manual/gvm.txt` | GVM scan output | Removed |
+| `../scans/badstore/manual/gvm.txt` | GVM scan output | Removed |
 
 The following scan data exists in the repository but is **not incorporated** into any
 results or analysis file:
 
 | Path | Contents | Reason Not Referenced |
 |------|----------|----------------------|
-| `../scans/juiceshop/manual/nikto.txt` | Nikto web scanner output | Manual baseline scans — out of thesis scope |
-| `../scans/juiceshop/manual/ffuf.json` | ffuf directory fuzzing output | Manual baseline scans — out of thesis scope |
-| `../scans/juiceshop/manual/whatweb.txt` | WhatWeb fingerprinting output | Manual baseline scans — out of thesis scope |
-| `../scans/juiceshop/manual/nmap.txt` | Nmap port scan output | Manual baseline scans — out of thesis scope |
-| `../scans/juiceshop/manual/zap.md` | OWASP ZAP scan report | Manual baseline scans — out of thesis scope |
-| `../scans/badstore/manual/nikto.txt` | Nikto web scanner output | Manual baseline scans — out of thesis scope |
-| `../scans/badstore/manual/ffuf.json` | ffuf directory fuzzing output | Manual baseline scans — out of thesis scope |
-| `../scans/badstore/manual/whatweb.txt` | WhatWeb fingerprinting output | Manual baseline scans — out of thesis scope |
-| `../scans/badstore/manual/nmap.txt` | Nmap port scan output | Manual baseline scans — out of thesis scope |
-| `../scans/badstore/manual/zap.md` | OWASP ZAP scan report | Manual baseline scans — out of thesis scope |
-| `../scans/badstore/manual/sqlmap/` | sqlmap scan results (CSV + logs) | Manual baseline scans — out of thesis scope |
-| `../scans/juiceshop/strix/juiceshop-strix-run-2-output.log` | Strix console log (~221 KB) | Raw terminal output; data captured in tar.gz archives |
-| `../scans/badstore/strix/badstore-strix-run-2-output.log` | Strix console log (~83 KB) | Raw terminal output; data captured in tar.gz archives |
-| `../scans/archive/` | Manual scans for DVWA, WebGoat, bwapp | Archived targets not included in thesis |
+| `../scans/juiceshop-strix-run-2-output.log` | Strix console log (~221 KB) | Raw terminal output; data captured in tar.gz archives |
+| `../scans/badstore-strix-run-2-output.log` | Strix console log (~83 KB) | Raw terminal output; data captured in tar.gz archives |
+| `../scans/archive/` | Archived targets (DVWA, WebGoat, bwapp), pre-fix CAI bug runs, and PentestGPT no-restart archives | Contains both legacy target data and relocated bug/archive files |
 
 ## Appendix B: Aggregate Statistics by Round
 

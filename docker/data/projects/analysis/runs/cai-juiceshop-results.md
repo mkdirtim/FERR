@@ -503,16 +503,16 @@ to passive observation of HTTP responses and directory listings.
 
 ## Data Sources
 
-All scan data is stored under `../scans/juiceshop/cai/`.
+All post-fix scan data is stored under `../scans/`; pre-fix (bugstalled) data is under `../scans/archive/`.
 
 **Post-fix runs (Round 2):**
-- `cai-run-{1-5}.log` — Agent execution logs (5 files)
-- `cai-run-{1-4}-tmp.tar.gz` — `/tmp` directory archives (4 files; Run 5 produced no output due to rate limiting)
+- `juiceshop-cai-run-{1-5}.log` — Agent execution logs (5 files)
+- `juiceshop-cai-run-{1-4}-tmp.tar.gz` — `/tmp` directory archives (4 files; Run 5 produced no output due to rate limiting)
 
 **Pre-fix runs (Round 1, bugstalled):**
-- `bugstalled-cai-run-{1-5}.log` — Agent execution logs (5 files)
-- `bugstalled-cai-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files)
-- `bugstalled-cai-run-1-session.tar.gz` — Session archive (Run 1 only, 45 bytes)
+- `juiceshop-cai-bug-run-{1-5}.log` — Agent execution logs (5 files) (in `../scans/archive/`)
+- `juiceshop-cai-bug-run-{1-5}-tmp.tar.gz` — `/tmp` directory archives (5 files) (in `../scans/archive/`)
+- `juiceshop-cai-bug-run-1-session.tar.gz` — Session archive (Run 1 only, 45 bytes) (in `../scans/archive/`)
 
 **Cross-references:**
 - `stalled-cai-juiceshop-results.md` — Detailed pre-fix analysis (referenced in §1-extra)

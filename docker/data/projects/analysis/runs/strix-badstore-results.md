@@ -492,8 +492,8 @@ known BadStore vulnerability surface, up from ~65–75% estimated from a single 
 
 ## Data Sources
 
-All scan data is stored under `../scans/badstore/strix/`.
+All scan data is stored under `../scans/`.
 
-- `strix-run-1-output.tar.gz` — Run 1 output archive (contains `strix_runs/badstore-80_8e2e/`: `vulnerabilities.csv`, 7 `vuln-*.md` files; also contains cross-target contamination `strix_runs/juiceshop-3000_638d/`)
-- `strix-run-2-output.tar.gz` — Run 2 output archive (contains `strix_runs/badstore-80_aad3/`: `vulnerabilities.csv`, 6 `vuln-*.md` files, `penetration_test_report.md`; no cross-target contamination)
+- `badstore-strix-run-1-output.tar.gz` — Run 1 output archive (contains `strix_runs/badstore-80_8e2e/`: `vulnerabilities.csv`, 7 `vuln-*.md` files; also contains cross-target contamination `strix_runs/juiceshop-3000_638d/`)
+- `badstore-strix-run-2-output.tar.gz` — Run 2 output archive (contains `strix_runs/badstore-80_aad3/`: `vulnerabilities.csv`, 6 `vuln-*.md` files, `penetration_test_report.md`; no cross-target contamination)
 - `badstore-strix-run-2-output.log` — Raw terminal output from `bin/bench-strix` capturing full Strix TUI/agent output for Run 2

@@ -266,4 +266,4 @@ which GVM cannot test.
 
 ## Data Sources
 
-- `data/projects/scans/badstore/manual/gvm.txt` — GVM scan output (raw text report)
+- GVM scan output (raw text report) — originally at `data/projects/scans/badstore/manual/gvm.txt`; raw manual scan files were removed during the flat-structure migration. Findings are preserved in this analysis file.

@@ -563,8 +563,8 @@ quality, but PentestGPT achieves deeper exploitation depth on specific targets.
 
 | Target | Path | Files |
 |--------|------|-------|
-| Juice Shop | `../scans/juiceshop/strix/` | `strix-run-1-output.tar.gz`, `strix-run-2-output.tar.gz`, `juiceshop-strix-run-2-output.log` |
-| BadStore | `../scans/badstore/strix/` | `strix-run-1-output.tar.gz`, `strix-run-2-output.tar.gz`, `badstore-strix-run-2-output.log` |
+| Juice Shop | `../scans/` | `juiceshop-strix-run-1-output.tar.gz`, `juiceshop-strix-run-2-output.tar.gz`, `juiceshop-strix-run-2-output.log` |
+| BadStore | `../scans/` | `badstore-strix-run-1-output.tar.gz`, `badstore-strix-run-2-output.tar.gz`, `badstore-strix-run-2-output.log` |
 
 ### A3. Cross-Agent Comparison Data
 

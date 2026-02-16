@@ -58,16 +58,18 @@ configuration. No changes between runs.
 
 **Cost-limited sample size.** The n=2 per target sample was originally constrained by an
 estimated cost of $15–30/run. Actual costs recovered from TUI logs are significantly lower:
-$4.42/run (Juice Shop Run 2) and $3.73/run (BadStore Run 2), mean ~$4.08/run. GPT-5 prompt
-caching (~87% cache hit rate) substantially reduced effective cost. This limits statistical
-power for variance estimates but provides meaningful cross-run overlap data.
+$4.4152/run (Juice Shop Run 2) and $3.7267/run (BadStore Run 2), mean ~$4.07/run. GPT-5
+prompt caching (~87% cache hit rate) substantially reduced effective cost. This limits
+statistical power for variance estimates but provides meaningful cross-run overlap data.
 
 **Metric availability.** Strix persists vulnerability reports (`vuln-*.md`),
 a CSV index (`vulnerabilities.csv`), and executive reports (`penetration_test_report.md`)
 to its output archive. It does **not** persist raw tool execution logs, cost data,
 or command breakdowns. Cost and tool call counts are computed at runtime but not
 saved to disk. Run 2 costs were recovered from terminal log captures (`strix-juiceshop.txt`,
-`strix-badstore.txt`) which preserved the TUI summary panels. Run 1 costs were not captured.
+`strix-badstore.txt`) which preserved the TUI summary panels, and cross-checked against
+`costs.md` §3.1 (source lines: `strix-juiceshop.txt:2570`, `strix-badstore.txt:956`).
+Run 1 costs were not captured.
 Duration is estimated from vulnerability timestamps.
 
 ---
@@ -147,7 +149,8 @@ were demonstrably used:
 | GVM combined (n=2) | $0.00 | $0.00 | 1 (ICMP) | $0.00 |
 
 **Actual cost data recovered from TUI logs reveals Strix is far cheaper than estimated.**
-At ~$4.08/run (mean of Run 2 actuals: $4.42 Juice Shop, $3.73 BadStore), Strix's
+At ~$4.07/run (mean of Run 2 actuals: $4.4152 Juice Shop, $3.7267 BadStore; documented
+total $8.1419 in `costs.md` §1), Strix's
 cost-per-validated-vulnerability is ~$0.68 — substantially cheaper than PentestGPT's
 cost-per-category (~$2.50) while producing higher quality output (structured PoCs with
 CVSS scoring vs. narrative walkthroughs). GPT-5 prompt caching (~87% cache hit rate)
@@ -177,9 +180,10 @@ PentestGPT and CAI) that directly impacts statistical power.
 | Mass Assignment | Yes (Run 2: admin self-registration) | No | Yes |
 | Business Logic | No | Yes (Run 2: cart total tampering) | Yes |
 
-**Combined coverage: 13 of ~16 vulnerability categories across both targets.**
-This is the broadest coverage of any agent tested. The only unaddressed
-categories are CSRF, non-SQL injection, and one additional target-specific gap.
+**Combined coverage: 12 of 14 standard vulnerability categories across both targets**
+(13/15 on the expanded rubric, which adds Mass Assignment and Business Logic
+beyond the standard 14). This is the broadest coverage of any agent tested.
+The only unaddressed standard categories are CSRF and non-SQL injection.
 Strix's browser capability enables the XSS categories that all other agents
 miss entirely.
 
@@ -235,7 +239,7 @@ in one run; PentestGPT exploited it as a side effect of SQLi).
 | Total Runs | 2 | 10 (post-fix) | 10 | 4 |
 | Mean Cost/Run | $0.00 | $0.095 | $2.75 | ~$4.08 (partial data) |
 | Total Cost | $0.00 | $0.95 | $27.45 | ~$16.30 (est.) |
-| Mean Duration | ~15 min | ~5 min | 8m 48s | ~50 min |
+| Mean Duration | 22m 17s | ~5 min | 8m 48s | ~50 min |
 | Browser | No | No | No | Yes (Playwright) |
 | Proxy | No | No | No | Yes (Caido) |
 | Report Format | Template | `/tmp/report.md` | Markdown walkthrough | CVSS + PoC |
@@ -243,6 +247,11 @@ in one run; PentestGPT exploited it as a side effect of SQLi).
 | Completion Rate | 100% | 80% (1 rate limited) | 100% | 100% |
 | Mean Vulns/Run | 0 | 2.8 | N/A (category-based) | 8.5 |
 | Total Unique Vulns | 1 (ICMP) | 15 | ~11 categories | 24 |
+
+> **Comparability note:** Finding counts are not directly comparable across agents.
+> GVM reports NVT signatures, CAI self-reports passive findings, PentestGPT counts
+> exploited vulnerability categories, and Strix produces CVSS-scored vulnerabilities
+> with validated PoCs. See §5d for cost-per-finding discussion.
 
 ### 5b. Per-Target Agent Rankings
 
@@ -311,15 +320,15 @@ Strix produced findings and capabilities not demonstrated by any other agent:
 | GVM | $0.00 | 1 (ICMP) | Template | Network only |
 | CAI (post-fix) | $0.95 | 15 unique | Passive report | Surface recon |
 | PentestGPT | $27.45 | ~11 categories | Walkthrough | OS shell, DB dump |
-| Strix | est. $60–120 | 24 unique vulns | CVSS + PoC | Validated vulns, browser |
+| Strix | ~$16.30 (est.) | 24 unique vulns | CVSS + PoC | Validated vulns, browser |
 
-Strix occupies the **highest-cost, highest-quality** position. Without exact
-cost data, the cost-per-finding cannot be precisely computed, but the estimated
-~$2.50–5.00/validated-vulnerability is competitive with PentestGPT's
-~$2.50/category — while producing substantially better output quality. The key
-question for cost-effectiveness is whether the additional investment in CVSS
-scoring and executable PoCs justifies the ~2–4× higher total cost compared to
-PentestGPT.
+Strix occupies the **highest-cost, highest-quality** position. At ~$4.08/run
+(mean of Run 2 actuals recovered from TUI logs), the cost-per-validated-vulnerability
+is ~$0.68 — substantially cheaper than PentestGPT's ~$2.50/category while producing
+higher output quality (structured PoCs with CVSS scoring). GPT-5 prompt caching
+(~87% cache hit rate) is the key cost reducer. The total cost (~$16.30 for 4 runs)
+is only ~60% of PentestGPT's total ($27.45 for 10 runs), making Strix competitive
+on both cost-effectiveness and quality axes.
 
 ---
 
@@ -446,9 +455,13 @@ quality, but PentestGPT achieves deeper exploitation depth on specific targets.
 
 ### 7b. Strix-Specific
 
-- **No cost data.** Cannot compute cost-per-finding for the most thorough agent.
-  Cost must be estimated from model pricing and estimated token usage. This is
-  the single most impactful missing metric for cross-agent comparison.
+- **Partial cost data (recovered).** Cost data was recovered from TUI terminal
+  logs for Run 2 on each target ($3.7267 BadStore, $4.4152 Juice Shop; documented
+  total $8.1419 in `costs.md` §1). Run 1 costs remain unavailable. The mean
+  ~$4.07/run is based on Run 2 only; total cost
+  (~$16.30) is estimated by extrapolation. This partial data enables
+  cost-per-finding calculation (~$0.68/vuln) but with lower confidence than
+  agents with complete cost records.
 - **Cross-target archive contamination (BadStore Run 1).** The Run 1 archive
   included Juice Shop data from a prior run, indicating the `bench-strix`
   harness did not fully clean up between targets. Resolved in Run 2.
@@ -531,8 +544,9 @@ quality, but PentestGPT achieves deeper exploitation depth on specific targets.
    sqlmap `--os-shell` or equivalent and failed, or never attempted it. This
    would clarify whether the gap is a capability limitation or a strategy choice.
 
-6. **Normalize scoring.** Define a 14–16 category OWASP-based scoring rubric
-   that applies uniformly to all agents and targets.
+6. **Normalize scoring.** Define a consistent OWASP-based scoring rubric
+   (14 standard categories, with optional extensions for Mass Assignment and
+   Business Logic) that applies uniformly to all agents and targets.
 
 ---
 
@@ -542,8 +556,8 @@ quality, but PentestGPT achieves deeper exploitation depth on specific targets.
 
 | File | Description | Runs |
 |------|-------------|------|
-| `strix-juiceshop-results.md` | Strix × Juice Shop | 2 |
-| `strix-badstore-results.md` | Strix × BadStore | 2 |
+| `runs/strix-juiceshop-results.md` | Strix × Juice Shop | 2 |
+| `runs/strix-badstore-results.md` | Strix × BadStore | 2 |
 
 ### A2. Underlying Scan Data
 
@@ -556,12 +570,12 @@ quality, but PentestGPT achieves deeper exploitation depth on specific targets.
 
 | File | Description | Runs |
 |------|-------------|------|
-| `cai-juiceshop-results.md` | CAI × Juice Shop (post-fix + pre-fix) | 5+5 |
-| `cai-badstore-results.md` | CAI × BadStore (post-fix + pre-fix) | 5+5 |
-| `pentestgpt-juiceshop-results.md` | PentestGPT × Juice Shop | 5 |
-| `pentestgpt-badstore-results.md` | PentestGPT × BadStore | 5 |
-| `gvm-juiceshop-results.md` | GVM baseline × Juice Shop | 1 |
-| `gvm-badstore-results.md` | GVM baseline × BadStore | 1 |
+| `runs/cai-juiceshop-results.md` | CAI × Juice Shop (post-fix + pre-fix) | 5+5 |
+| `runs/cai-badstore-results.md` | CAI × BadStore (post-fix + pre-fix) | 5+5 |
+| `runs/pentestgpt-juiceshop-results.md` | PentestGPT × Juice Shop | 5 |
+| `runs/pentestgpt-badstore-results.md` | PentestGPT × BadStore | 5 |
+| `manual/gvm-juiceshop-results.md` | GVM baseline × Juice Shop | 1 |
+| `manual/gvm-badstore-results.md` | GVM baseline × BadStore | 1 |
 
 ### A4. Scan Data Not Referenced in This Analysis
 

@@ -399,7 +399,7 @@ to passive observation of HTTP responses and directory listings.
 | Mean Tool Calls | N/A (plugin-based) | 94.8 | 5.4 | N/A (not logged) |
 | Mean Flags Submitted | N/A | 3.4 | 0 (no flag mechanism) | N/A (reports instead) |
 | Mean Cost (USD) | $0.00 | $2.49 | $0.057 | ~$4.08 (partial data) |
-| Total Cost | $0.00 | $12.45 | $0.28 | ~$16.30 (est.) |
+| Total Cost | $0.00 | $12.46 | $0.28 | ~$16.30 (est.) |
 | Mean Duration | 37m 50s | 7m 17s | ~6 min (incl. stall) | ~45–60 min (est.) |
 | % curl | N/A | 80.0% | 63.0% | N/A (multi-tool) |
 | % specialized tools | N/A | 1.1% | 11.1% | N/A |

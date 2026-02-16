@@ -22,7 +22,7 @@ $0.133 mean cost. Run 3 on BadStore represents the CAI capability ceiling — a
 17-step exploitation chain discovering privilege escalation and session forgery
 that no other agent found through the same methodology.
 
-Across all 20 runs, CAI is the cheapest agent tested ($0.89 total) while producing
+Across all 20 runs, CAI is the cheapest agent tested ($1.28 total) while producing
 the narrowest coverage per run. Its cost-per-finding ratio ($0.04 on BadStore) is
 7.5x better than PentestGPT's, but it never approaches the depth of PentestGPT's
 sqlmap-driven exploitation or Strix's browser-validated findings.
@@ -94,7 +94,7 @@ sqlmap-driven exploitation or Strix's browser-validated findings.
 | Metric | Value |
 |--------|-------|
 | Total Runs | 20 (10 pre-fix + 10 post-fix) |
-| Total Cost | $0.89 |
+| Total Cost | $1.28 (pre-fix: $0.33, post-fix: $0.95) |
 | Total Tool Calls | 148 (pre-fix: 66, post-fix: 82) |
 | Total Findings | 28 (pre-fix: 3, post-fix: 25+) |
 | Overall Exploitation Rate | 20% (4/20) |
@@ -147,13 +147,13 @@ sqlmap-driven exploitation or Strix's browser-validated findings.
 | CAI combined (post-fix) | $0.095 | $0.95 | 2.8 | $0.034 |
 | PentestGPT × Juice Shop | $2.49 | $12.46 | 0 verified | undefined |
 | PentestGPT × BadStore | $3.00 | $14.99 | ~10 categories | ~$0.30/cat |
-| Strix × Juice Shop (n=2) | N/A | N/A | 15 unique (mean 10.5/run) | N/A |
-| Strix × BadStore (n=2) | N/A | N/A | 9 unique (mean 6.5/run) | N/A |
+| Strix × Juice Shop (n=2) | ~$4.42 (Run 2) | ~$8.84 (est.) | 15 unique (mean 10.5/run) | ~$0.59/vuln |
+| Strix × BadStore (n=2) | ~$3.73 (Run 2) | ~$7.46 (est.) | 9 unique (mean 6.5/run) | ~$0.83/vuln |
 | GVM × either | $0.00 | $0.00 | 0 app-layer | N/A |
 
 **CAI is the cheapest productive agent by a wide margin.** Total cost for all
 10 post-fix runs ($0.95) is less than a single PentestGPT run ($2.27-$3.50).
-CAI's entire 20-run benchmark ($0.89) costs less than 30% of a single
+CAI's entire 20-run benchmark ($1.28) costs less than half of a single
 PentestGPT run on BadStore.
 
 However, cost efficiency must be weighed against coverage. CAI's $0.04/finding
@@ -269,6 +269,10 @@ than interrupted reconnaissance.
 | Report Format | Template | `/tmp/report.md` | Markdown walkthrough | CVSS + PoC |
 | Target Reset | N/A | Yes | No | Yes |
 
+> **Comparability note:** Finding counts are not directly comparable across agents
+> due to different output formats (NVT signatures, self-reported findings,
+> exploited categories, CVSS-scored PoCs). See §6d for detailed discussion.
+
 ### 6b. Per-Target Agent Rankings
 
 **Juice Shop — Vulnerability Categories Exploited:**
@@ -319,9 +323,15 @@ Despite ranking third on both targets, CAI produced findings not found by other 
 |-------|--------------------------|----------------------|-----------------|
 | GVM | $0.00 | 1 (ICMP, network-level) | $0.00 |
 | CAI (post-fix) | $0.95 | 15 unique | ~$0.06 |
-| CAI (all 20 runs) | $0.89 | 17 unique | ~$0.05 |
+| CAI (all 20 runs) | $1.28 | 17 unique | ~$0.08 |
 | PentestGPT | $27.45 | ~15 categories | ~$1.83/cat |
-| Strix | N/A | 24 unique vulns (15 JS + 9 BS) | N/A |
+| Strix | ~$16.30 (est.) | 24 unique vulns (15 JS + 9 BS) | ~$0.68/vuln |
+
+> **Comparability note:** "Findings" are not directly comparable across agents.
+> GVM reports NVT signatures, CAI self-reports passive findings, PentestGPT
+> counts exploited vulnerability categories, and Strix produces CVSS-scored
+> vulnerabilities with validated PoCs. Cost-per-finding ratios should be
+> interpreted within each agent's output paradigm, not across agents.
 
 CAI occupies a unique position: **cheapest agent with non-trivial findings.**
 It cannot match PentestGPT's exploitation depth or Strix's validated PoC quality,
@@ -512,16 +522,16 @@ pure recall.
 
 | File | Description | Runs |
 |------|-------------|------|
-| `cai-juiceshop-results.md` | Post-fix CAI × Juice Shop (primary) + pre-fix historical | 5+5 |
-| `cai-badstore-results.md` | Post-fix CAI × BadStore (primary) + pre-fix historical | 5+5 |
-| `stalled-cai-juiceshop-results.md` | Pre-fix CAI × Juice Shop (detailed) | 5 |
-| `stalled-cai-badstore-results.md` | Pre-fix CAI × BadStore (detailed) | 5 |
-| `pentestgpt-juiceshop-results.md` | PentestGPT × Juice Shop | 5 |
-| `pentestgpt-badstore-results.md` | PentestGPT × BadStore | 5 |
-| `gvm-juiceshop-results.md` | GVM baseline × Juice Shop | 1 |
-| `gvm-badstore-results.md` | GVM baseline × BadStore | 1 |
-| `strix-juiceshop-results.md` | Strix × Juice Shop (final) | 2 |
-| `strix-badstore-results.md` | Strix × BadStore (final) | 2 |
+| `runs/cai-juiceshop-results.md` | Post-fix CAI × Juice Shop (primary) + pre-fix historical | 5+5 |
+| `runs/cai-badstore-results.md` | Post-fix CAI × BadStore (primary) + pre-fix historical | 5+5 |
+| `runs/archive/stalled-cai-juiceshop-results.md` | Pre-fix CAI × Juice Shop (detailed) | 5 |
+| `runs/archive/stalled-cai-badstore-results.md` | Pre-fix CAI × BadStore (detailed) | 5 |
+| `runs/pentestgpt-juiceshop-results.md` | PentestGPT × Juice Shop | 5 |
+| `runs/pentestgpt-badstore-results.md` | PentestGPT × BadStore | 5 |
+| `manual/gvm-juiceshop-results.md` | GVM baseline × Juice Shop | 1 |
+| `manual/gvm-badstore-results.md` | GVM baseline × BadStore | 1 |
+| `runs/strix-juiceshop-results.md` | Strix × Juice Shop (final) | 2 |
+| `runs/strix-badstore-results.md` | Strix × BadStore (final) | 2 |
 
 ### A2. Underlying Scan Data
 

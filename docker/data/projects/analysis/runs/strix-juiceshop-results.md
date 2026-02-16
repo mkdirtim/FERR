@@ -45,7 +45,8 @@
 >   vector validation, duplicate rejection) before persistence.
 > - **Cost:** Partially available. LiteLLM's `completion_cost()` computes this at runtime;
 >   the value is displayed in the TUI summary panel but not saved to the output archive.
->   Run 2 cost ($4.42) was recovered from the terminal log (`strix-juiceshop.txt`):
+>   Run 2 cost ($4.4152) was recovered from the terminal log (`strix-juiceshop.txt`);
+>   cross-checked against `costs.md` §3.1 (`strix-juiceshop.txt:2570`).
 >   Input 9.1M tokens, Cached 7.9M, Output 71.7K. Run 1 cost was not captured (no terminal log).
 > - **Duration:** Estimated from vulnerability timestamps.
 >   - Run 1: First vuln at 23:21:01, report generated at 23:58:59 (~38 min span).
@@ -490,18 +491,18 @@ mapping to an estimated ~15–25 individual Juice Shop challenges.
 
 ### Cross-Target (same agent: Strix)
 
-| Metric | Juice Shop (n=2) | BadStore (n=1) |
+| Metric | Juice Shop (n=2) | BadStore (n=2) |
 |--------|-----------------|----------------|
-| Vulnerabilities Reported | 7, 14 (mean 10.5) | 7 |
-| Critical / High / Medium | 4–5 / 3–5 / 0–4 | 5 / 2 / 0 |
-| Mean CVSS | 8.86, 7.76 | 9.14 |
+| Vulnerabilities Reported | 7, 14 (mean 10.5) | 7, 6 (mean 6.5) |
+| Critical / High / Medium | 4–5 / 3–5 / 0–4 | 5 / 1–2 / 0 |
+| Mean CVSS | 8.86, 7.76 | 9.14, 9.27 |
 | Duration (estimated) | ~45–55 min | ~39–59 min |
-| Proxy Requests | ≥1203, ≥3362 | ≥530 |
-| SQLi Findings | 2 per run | 2 |
-| XSS Findings | 1 per run (DOM) | 2 (reflected + stored) |
+| Proxy Requests | ≥1203, ≥3362 | ≥530 (Run 1) |
+| SQLi Findings | 2 per run | 2–3 per run |
+| XSS Findings | 1 per run (DOM) | 1–2 (reflected + stored) |
 | Auth Bypass Findings | 2–3 per run (SQLi + JWT + mass assign) | 2 (cookie forgery + SQLi) |
-| File-Related Findings | 1 per run (info disclosure) | 1 (path traversal + file write) |
-| Browser Vulns Found | 1 per run | 2 |
+| File-Related Findings | 1 per run (info disclosure) | 0–1 (path traversal, Run 1 only) |
+| Browser Vulns Found | 1 per run | 1–2 per run |
 | PoC Lines (approx) | 25–90 per vuln | 30–90 per vuln |
 
 > **Strix produces remarkably consistent core findings across targets.** Both targets

@@ -225,19 +225,19 @@ The only finding (ICMP timestamp) is a network-level issue unrelated to the appl
 
 ### Cross-Tool (same target: Juice Shop)
 
-| Metric | GVM (baseline) | PentestGPT (5 runs) | CAI (5 runs) | Strix (n=2) |
-|--------|----------------|----------------------|--------------|-------------|
+| Metric | GVM (baseline) | PentestGPT (5 runs) | CAI (post-fix, 5 runs) | Strix (n=2) |
+|--------|----------------|----------------------|------------------------|-------------|
 | Type | Signature scanner | AI agent (LLM) | AI agent (LLM) | AI agent (LLM) |
-| Vulnerabilities Found | 0 (app-layer) | 0 verified flags; ~9 categories exploited | 0 (100% stall rate) | 15 unique (mean 10.5/run) |
-| Max CVSS | 2.1 (ICMP timestamp) | N/A (no CVSS scoring) | N/A (stalled before exploitation) | 10.0 (SQLi search) |
-| Duration | 37m 50s | 7m 17s (mean) | ~4 min (mean, pre-stall) | ~45–60 min (est.) |
-| Cost | $0.00 | $2.49/run ($12.45 total) | $0.022/run ($0.11 total) | ~$4.08/run (~$16.30 est. total) |
+| Vulnerabilities Found | 0 (app-layer) | 0 verified flags; ~9 categories exploited | 5 unique findings (passive) | 15 unique (mean 10.5/run) |
+| Max CVSS | 2.1 (ICMP timestamp) | N/A (no CVSS scoring) | N/A (no CVSS scoring) | 10.0 (SQLi search) |
+| Duration | 37m 50s | 7m 17s (mean) | ~6 min | ~45–60 min (est.) |
+| Cost | $0.00 | $2.49/run ($12.46 total) | $0.057/run ($0.28 total) | ~$4.08/run (~$16.30 est. total) |
 | Browser Capability | No | No | No | Yes |
-| Dynamic Testing | No | Yes (curl-based) | Stalled before testing | Yes (browser + proxy + terminal) |
-| Injection Testing | No | Yes (manual payloads) | Stalled before testing | Yes (validated PoCs) |
-| Auth Testing | No | Yes (SQLi login bypass) | Stalled before testing | Yes (SQLi + JWT bypass + mass assignment) |
-| Report Quality | Template-based, informational | Agent-written markdown | N/A (no report) | Structured CVSS + PoC |
-| False Negative Risk | Very High (for app-logic vulns) | Medium (limited tool use) | Total (software bug) | Low (broad tool surface) |
+| Dynamic Testing | No | Yes (curl-based) | Yes (curl-based recon) | Yes (browser + proxy + terminal) |
+| Injection Testing | No | Yes (manual payloads) | No | Yes (validated PoCs) |
+| Auth Testing | No | Yes (SQLi login bypass) | No | Yes (SQLi + JWT bypass + mass assignment) |
+| Report Quality | Template-based, informational | Agent-written markdown | `/tmp/report.md` | Structured CVSS + PoC |
+| False Negative Risk | Very High (for app-logic vulns) | Medium (limited tool use) | High (recon-only, no exploitation) | Low (broad tool surface) |
 
 **Key insight:** GVM and the AI agents test fundamentally different things. GVM checks for
 known CVEs in detected software versions; AI agents test application logic and behavior.

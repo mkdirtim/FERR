@@ -212,17 +212,17 @@ which GVM cannot test.
 
 ### Cross-Tool (same target: BadStore)
 
-| Metric | GVM (baseline) | PentestGPT (5 runs) | CAI (5 runs) | Strix (n=2) |
-|--------|----------------|----------------------|--------------|-------------|
+| Metric | GVM (baseline) | PentestGPT (5 runs) | CAI (post-fix, 5 runs) | Strix (n=2) |
+|--------|----------------|----------------------|------------------------|-------------|
 | Type | Signature scanner | AI agent (LLM) | AI agent (LLM) | AI agent (LLM) |
-| Findings (actionable) | 0 | 10/14 vuln categories exploited | 3 (Run 1 only; 100% stall rate) | 9 unique (mean 6.5/run) |
+| Findings (actionable) | 0 | 10/14 vuln categories exploited | 10 unique findings (mean 2.2/run) | 9 unique (mean 6.5/run) |
 | Max CVSS | 0.0 | N/A (no CVSS scoring) | N/A (no CVSS scoring) | 10.0 (SQLi search + cart add) |
-| Duration | 6m 44s | 10m 19s (mean) | ~4 min (mean, pre-stall) | ~45–60 min (est.) |
-| Cost | $0.00 | $3.00/run ($15.00 total) | $0.045/run ($0.22 total) | ~$4.08/run (~$16.30 est. total) |
-| SQLi Detected | No | Yes (all 5 runs) | Yes (Run 1 only) | Yes (3: search + login + cart add) |
+| Duration | 6m 44s | 10m 19s (mean) | ~4 min | ~45–60 min (est.) |
+| Cost | $0.00 | $3.00/run ($15.00 total) | $0.133/run ($0.67 total) | ~$4.08/run (~$16.30 est. total) |
+| SQLi Detected | No | Yes (all 5 runs) | Yes (2/5 runs) | Yes (3: search + login + cart add) |
 | Webshell Upload | No | Yes (4/5 runs via sqlmap) | No | Not reported |
 | Password Extraction | No | Yes (MD5 hashes via SQLi) | No | No |
-| Report Quality | Template informational | Agent-written markdown | `/tmp/report.md` (Run 1 only) | Structured CVSS + PoC |
+| Report Quality | Template informational | Agent-written markdown | `/tmp/report.md` | Structured CVSS + PoC |
 
 ### Cross-Target (same scanner: GVM)
 

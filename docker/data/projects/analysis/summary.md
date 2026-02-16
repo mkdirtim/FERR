@@ -1,28 +1,37 @@
-# Benchmark Summary — LLM-Driven Penetration Testing Agents
+# Benchmark Summary — Comparative Evaluation of LLM-Driven Penetration Testing Agents
 
-> **Scope:** Comprehensive cross-agent, cross-target synthesis of all benchmark
-> data. Consolidates findings from `cai-analysis.md`, `pentestgpt-analysis.md`,
-> and `strix-analysis.md` into a single reference document for thesis
-> writing.
+> **Scope:** Cross-agent, cross-target synthesis of all benchmark data from
+> the empirical evaluation of four penetration testing agents on two
+> deliberately vulnerable web applications. Consolidates findings from
+> `cai-analysis.md`, `pentestgpt-analysis.md`, and `strix-analysis.md` into
+> a single reference document for thesis integration.
+>
+> **Research context:** This benchmark evaluates whether LLM-driven autonomous
+> agents can perform application-layer security assessments that traditional
+> signature-based scanners cannot, and characterizes the cost–quality–depth
+> tradeoff space across different agent architectures. The evaluation uses a
+> multi-agent, multi-target design to control for target-dependent effects.
 
 ---
 
 ## 1. Benchmark Overview
 
-Four agents were benchmarked against two deliberately vulnerable web
-applications, producing 36 total runs and generating the data for this thesis.
+Four agents — one traditional signature-based scanner (GVM, serving as
+baseline) and three LLM-driven autonomous agents (CAI, PentestGPT, Strix) —
+were benchmarked against two deliberately vulnerable web applications,
+producing 36 total runs across a controlled Docker network environment.
 
 | Agent | Model | Runs (JS + BS) | Total Cost | Output Format |
 |-------|-------|---------------|------------|---------------|
 | GVM (baseline) | N/A (signature scanner) | 2 (1+1) | $0.00 | Template report |
-| CAI | GPT-5.2 | 20 (10+10) | $0.89 | `/tmp/report.md` |
+| CAI | GPT-5.2 | 20 (10+10) | $1.28 | `/tmp/report.md` |
 | PentestGPT | Sonnet 4.5 | 10 (5+5) | $27.45 | `[FLAG]` + walkthrough |
 | Strix | GPT-5 | 4 (2+2) | ~$16.30 (est. from partial data) | CVSS + executable PoC |
-| **Total** | — | **36** | **~$44.64** | — |
+| **Total** | — | **36** | **~$45.03** | — |
 
-**Targets:**
-- **OWASP Juice Shop v19.1.1** — Modern Node.js SPA with 110 CTF challenges, SQLite backend, Angular frontend
-- **BadStore v1.2.3s** — Legacy Apache/CGI application (~2004), MySQL backend, ~16 known vulnerability categories, no CTF system
+**Targets (selected to maximize architectural diversity):**
+- **OWASP Juice Shop v19.1.1** — Modern Node.js SPA with 110 CTF challenges, SQLite backend, Angular frontend. Extensively documented; high training data contamination risk.
+- **BadStore v1.2.3s** — Legacy Apache/CGI application (~2004), MySQL backend, 14+ known vulnerability categories, no CTF system. Less extensively documented; moderate contamination risk.
 
 ---
 
@@ -35,12 +44,19 @@ applications, producing 36 total runs and generating the data for this thesis.
 | **Architecture** | Plugin-based scanner | Single-agent + sub-agents | Single-agent (Claude Code SDK) | Multi-agent + browser + proxy |
 | **Model** | N/A | GPT-5.2 | Sonnet 4.5 | GPT-5 |
 | **Mean Cost/Run** | $0.00 | $0.095 | $2.75 | ~$4.08 (partial data) |
-| **Mean Duration** | ~15 min | ~5 min | 8m 48s | ~50 min |
+| **Mean Duration** | 22m 17s | ~5 min | 8m 48s | ~50 min |
 | **Browser** | No | No | No | Yes (Playwright) |
 | **Proxy** | No | No | No | Yes (Caido) |
 | **Kali Tools Used** | N/A | None | sqlmap, gobuster, nmap, hashcat, mysql | Terminal (full Kali) |
 | **Target Reset** | N/A | Yes | No | Yes |
 | **Completion Rate** | 100% | 80% (post-fix) | 100% | 100% |
+| **Runs per Target** | 1 | 5 | 5 | 2 |
+
+> **Sample size and design notes:** GVM (n=1) and Strix (n=2) have limited
+> statistical power; aggregate statistics for these agents carry wider confidence
+> intervals. PentestGPT did not reset targets between runs (cumulative state),
+> while CAI and Strix did — this design difference limits direct comparison of
+> run-to-run consistency metrics. See §6 for full methodology assessment.
 
 ### 2b. Quantitative Performance Summary
 
@@ -50,11 +66,17 @@ applications, producing 36 total runs and generating the data for this thesis.
 | Mean Findings/Run | 0 | 2.8 | N/A (category) | 8.5 |
 | Juice Shop Categories | 0/14 | 2/14 | 9/14 | 10/14 |
 | BadStore Categories | 0/14 | 6/14 | 10/14 | 12+/14 |
-| Combined Categories | 0/14 | 7/14 | ~11/14 | 13/16 |
+| Combined Categories | 0/14 | 7/14 | ~11/14 | 12/14 |
 | XSS Findings | 0 | 0 | 0 (verified) | 5 |
 | OS-Level Access | No | No | Yes (4/5 BS runs) | No |
 | Mean CVSS | N/A | N/A | N/A | ~8.7 |
 | Cost/Finding | $0.00 | ~$0.06 | ~$2.50/cat | ~$0.68/vuln |
+
+> **Comparability note:** Finding counts and cost-per-finding ratios are not
+> directly comparable across agents due to different output formats: GVM reports
+> NVT signatures, CAI self-reports passive findings, PentestGPT counts exploited
+> vulnerability categories, and Strix produces CVSS-scored PoCs. See §6 for
+> detailed methodology assessment.
 
 ### 2c. Per-Target Rankings
 
@@ -128,7 +150,7 @@ on all axes.
 
 ---
 
-## 4. Cross-Cutting Thesis Findings
+## 4. Principal Findings
 
 ### Finding 1: Target architecture determines agent effectiveness more than agent capability
 
@@ -294,10 +316,13 @@ Coverage across all agents and all runs:
 | Business Logic | — | — | — | BS (cart tampering) | **Strix only** |
 | OS-Level Access | — | — | BS (sqlmap --os-shell) | — | **PentestGPT only** |
 
-**13 of ~16 categories were covered by at least one agent.** CSRF is the only
-major OWASP category that no agent tested. Stored/DOM XSS and business logic
-flaws were exclusively discovered by Strix (browser required). OS-level access
-was exclusively achieved by PentestGPT (sqlmap `--os-shell`).
+**13 of 15 expanded categories (12/14 on the standard rubric) were covered by
+at least one agent.** CSRF and non-SQL injection are the only standard
+categories that no agent tested. Stored/DOM XSS and business logic flaws
+were exclusively discovered by Strix (browser required). OS-level access
+was exclusively achieved by PentestGPT (sqlmap `--os-shell`). The expanded
+rubric adds Mass Assignment and Business Logic beyond the standard 14
+categories used in per-target comparison tables.
 
 ### 5b. Unique Contributions per Agent
 
@@ -328,93 +353,155 @@ Each agent made findings that no other agent produced:
 |---------------|---------|-------|
 | Target diversity | Good | Modern SPA (JS) vs. legacy CGI (BS) — reveals architecture-dependent behavior |
 | Agent diversity | Good | 4 agents across 3 models, 3 architectures, varying tool access |
-| Sample size | Mixed | CAI n=10 (good), PentestGPT n=5 (adequate), Strix n=2 (limited) |
-| State management | Mixed | CAI/Strix restart; PentestGPT does not — introduces systematic bias |
+| Sample size | Mixed | CAI n=10 (good), PentestGPT n=5 (adequate), Strix n=2 (limited), GVM n=1 (baseline) |
+| State management | Mixed | CAI/Strix restart between runs; PentestGPT does not — introduces systematic bias |
 | Scoring | Weak | No common metric; CTF flags, categories, CVSS, narratives are incommensurable |
-| Cost tracking | Good | CAI/PentestGPT tracked; Strix partially recovered from TUI logs (~$4.08/run) |
-| Tool logging | Mixed | CAI/PentestGPT have detailed logs; Strix persists only reports |
+| Cost tracking | Good | CAI/PentestGPT tracked natively; Strix partially recovered from TUI logs (~$4.08/run) |
+| Tool logging | Mixed | CAI/PentestGPT have detailed execution logs; Strix persists only vulnerability reports |
 
-### 6b. Key Limitations
+### 6b. Threats to Validity
 
-1. **No common scoring rubric.** CAI writes reports, PentestGPT submits flags,
-   Strix registers CVSS vulnerabilities. Vulnerability category coverage is
-   the best available common metric but loses depth information.
+**Internal validity:**
 
-2. **Strix cost data partially available.** Run 2 costs recovered from TUI logs
-   ($4.42 Juice Shop, $3.73 BadStore). Run 1 costs remain uncaptured.
-   Cost-per-finding (~$0.68/vuln) is now computable from partial data.
+1. **State contamination (PentestGPT).** PentestGPT did not reset targets
+   between runs, introducing cumulative state that inflates later runs'
+   findings and reduces measurement independence. Evidence: monotonically
+   decreasing duration (12m 56s → 7m 24s on BadStore), increasing self-reported
+   challenges (13 → 14 on Juice Shop), and cross-target `/tmp` artifact leakage.
+   CAI and Strix reset targets between runs, producing more independent measurements.
 
-3. **PentestGPT state contamination.** No target restart inflates later runs
-   and reduces measurement independence.
+2. **Stochastic exploitation (CAI).** CAI's 60% BadStore exploitation rate
+   (3/5 runs) means a 3-run sample could observe 0–100% exploitation. With
+   n=5, the 95% confidence interval for the true exploitation rate is wide
+   (15–95% by Clopper-Pearson exact method). Results are sensitive to sample size.
 
-4. **Strix sample size.** n=2 per target limits statistical power. Juice Shop
-   SD=4.9 from 2 data points is unreliable.
+3. **Framework reliability confound (CAI).** The pre-fix/post-fix split means
+   CAI's 20-run dataset conflates framework bug effects with agent capability.
+   Post-fix results (n=10) should be treated as the primary dataset.
 
-5. **Training data bias uncontrolled.** Both targets are well-documented. A
-   novel, undocumented target would better isolate genuine discovery capability.
+**External validity:**
 
-6. **No PoC verification.** Strix's 34 PoC scripts have not been executed
-   against fresh target instances.
+4. **Training data contamination.** Both targets are well-documented in LLM
+   training corpora. Juice Shop is the most widely documented deliberately
+   vulnerable web application. Results may not generalize to novel, undocumented
+   targets where agents cannot rely on memorized attack sequences.
 
-### 6c. What the Benchmark Does Well
+5. **Two-target limitation.** The cross-target design improves on single-target
+   benchmarks but two targets cannot establish general claims about agent
+   behavior across the full diversity of web application architectures.
 
-1. **Demonstrates target-dependent behavior.** The cross-target design reveals
-   that agent effectiveness is non-transferable — the central thesis finding.
+6. **Model-specific results.** Each agent uses a fixed model (GPT-5.2, Sonnet
+   4.5, GPT-5). Results reflect the specific model–agent combination and may
+   not generalize to other model versions or providers.
 
-2. **Reveals the cost-quality tradeoff.** Three distinct cost tiers (CAI
-   $0.10, PentestGPT $2.75, Strix ~$4.08) with correspondingly different
-   quality levels. The gap between PentestGPT and Strix (~1.5×) is far
-   narrower than originally estimated (~5–11×), strengthening the case that
-   Strix's higher quality is cost-effective.
+**Construct validity:**
 
-3. **Identifies the browser threshold.** The binary capability split (with
-   vs. without browser) is clearly observable from the data.
+7. **No common scoring rubric.** CAI writes reports, PentestGPT submits CTF
+   flags, Strix registers CVSS-scored vulnerabilities. Vulnerability category
+   coverage (14-category OWASP-derived rubric) is the best available common
+   metric but compresses depth and quality information. Cost-per-finding ratios
+   are incommensurable across agents due to different finding granularity.
 
-4. **Captures failure modes.** Flag fabrication (PentestGPT), stochastic
-   exploitation (CAI), framework bugs (CAI pre-fix), and premature
-   self-termination (at least CAI/PentestGPT) are all documented.
+8. **Measurement approach differences.** Per-run tables use "Self-Reported
+   Findings" for CAI and PentestGPT (agent's own summary) vs. "Vulnerabilities
+   Reported" for Strix (count of persisted vuln-*.md files). This naming
+   difference reflects a real methodological distinction: Strix findings are
+   externally countable artifacts, while CAI/PentestGPT counts depend on the
+   agent's self-assessment and may include inflation or fabrication.
+
+**Statistical power:**
+
+9. **Unequal and small sample sizes.** GVM n=1 (baseline only), Strix n=2 per
+   target (cost-constrained), PentestGPT n=5, CAI n=5 (post-fix). Standard
+   deviations for Strix (e.g., SD=4.9 from 2 Juice Shop data points) are
+   unreliable. Aggregate statistics for Strix carry wider confidence intervals
+   than those for CAI or PentestGPT.
+
+10. **Strix cost data partial.** Run 2 costs recovered from TUI terminal logs
+    ($4.42 Juice Shop, $3.73 BadStore); Run 1 costs remain uncaptured.
+    Cost-per-finding (~$0.68/vuln) is computed from partial data and should be
+    treated as an estimate. The extrapolated total (~$16.30 for 4 runs) assumes
+    Run 1 costs are similar to Run 2.
+
+11. **No independent PoC verification.** Strix's 34 Python PoC scripts have
+    not been executed against fresh target instances. Finding counts assume
+    PoC validity based on structural review, not empirical verification.
+
+### 6c. Strengths of the Evaluation Design
+
+1. **Cross-target design reveals non-transferability.** The dual-target
+   architecture is the single most important design decision: every agent
+   performs differently on each target, demonstrating that single-target
+   benchmarks produce non-generalizable results.
+
+2. **Reveals the cost–quality–depth tradeoff empirically.** Three distinct
+   cost tiers ($0.10, $2.75, ~$4.08/run) with measurably different quality
+   levels. The PentestGPT–Strix gap (~1.5×) is far narrower than originally
+   estimated (~5–11×), an empirical finding that was only possible with
+   recovered cost data.
+
+3. **Identifies the browser capability threshold.** The binary capability
+   split (0 verified XSS without browser vs. 5 with browser) is unambiguous.
+
+4. **Documents failure modes systematically.** Flag fabrication (PentestGPT
+   Run 5), stochastic exploitation (CAI), framework bugs (CAI pre-fix),
+   and premature self-termination (CAI/PentestGPT) are documented with
+   specific evidence, contributing to the broader understanding of LLM
+   agent reliability.
+
+5. **Includes a traditional scanner baseline.** GVM's 0% application-layer
+   detection rate across both targets provides a clear quantitative baseline
+   that contextualizes the LLM agents' contributions.
 
 ---
 
-## 7. Consolidated Recommendations for Thesis
+## 7. Discussion and Future Work
 
-### 7a. Presentation Strategy
+### 7a. Implications for Thesis Presentation
 
-1. **Lead with the target architecture finding (Finding 1).** The fact that
-   the same agent produces 0% vs. 60% exploitation (CAI) or 80% vs. 51% curl
-   (PentestGPT) depending on the target is the single most important result.
+1. **The target architecture finding (Finding 1) is the central contribution.**
+   The observation that the same agent produces 0% vs. 60% exploitation (CAI)
+   or shifts from 80% curl to 51% curl + 23% sqlmap (PentestGPT) depending
+   on target architecture challenges the validity of single-target benchmarks
+   prevalent in the literature.
 
-2. **Use the cost-depth-quality tradeoff as the organizational framework.**
-   Position agents not as a ranked list but as points in a tradeoff space
-   where each occupies a distinct niche.
+2. **The cost–depth–quality tradeoff provides a novel analytical framework.**
+   Rather than ranking agents linearly, this evaluation positions them in a
+   multi-dimensional tradeoff space where no agent dominates on all axes.
+   This framing better captures the practical considerations for deploying
+   LLM-driven security assessment tools.
 
-3. **Present the browser threshold as a binary finding (Finding 2).** 5 XSS
-   vulnerabilities found exclusively by the browser-equipped agent vs. 0 by
-   all others.
+3. **The browser capability threshold is a binary architectural finding.**
+   The 0 vs. 5 XSS split between CLI-only and browser-equipped agents is
+   unambiguous and has direct implications for agent architecture design.
 
-4. **Highlight methodological convergence (Finding 3).** Three agents finding
-   the same vulns through different methods validates both the vulnerabilities
-   and the agents' capabilities.
+4. **Methodological convergence validates findings independently.** Three
+   agents discovering the same vulnerabilities through different methods
+   provides triangulation that strengthens confidence in both the vulnerability
+   assessments and the agents' genuine capabilities.
 
-5. **Frame flag fabrication as a safety finding (Finding 6).** This connects
-   the benchmark to the broader LLM hallucination literature and has
-   implications for real-world deployment of AI security tools.
+5. **Flag fabrication connects to the LLM hallucination literature.**
+   PentestGPT's fabrication of 10 flag values using an incorrect algorithm
+   represents a domain-specific manifestation of hallucination with
+   implications for the trustworthiness of autonomous security tools.
 
-6. **Present the CAI pre-fix/post-fix story as a software reliability case
-   study (Finding 7).** The 733% finding increase from a single bug fix
-   illustrates framework quality as a first-order variable.
+6. **The CAI pre-fix/post-fix comparison isolates framework reliability.**
+   The 733% finding increase from a single bug fix, with no changes to model,
+   prompt, or tools, provides clean evidence that framework quality is a
+   first-order variable in agent performance — a confound that most existing
+   benchmarks do not control for.
 
-### 7b. Priority Future Work
+### 7b. Limitations and Future Work
 
-| Priority | Action | Rationale |
-|----------|--------|-----------|
-| 1 | Capture remaining Strix Run 1 costs | Run 2 costs recovered; Run 1 costs complete the dataset |
-| 2 | Normalize scoring rubric | Enables direct cross-agent comparison |
-| 3 | Restart PentestGPT targets | Eliminates state contamination bias |
-| 4 | Verify Strix PoCs | Validates the highest-count finding set |
-| 5 | Increase Strix sample size to n=5 | ~$24 for 6 more runs at ~$4/run; now feasible |
-| 6 | Test against undocumented target | Controls for training data contamination |
-| 7 | Prompt engineering for exploration | Tests whether agents can exceed recall-driven ceilings |
+| Priority | Action | Rationale | Threat Addressed |
+|----------|--------|-----------|------------------|
+| 1 | Normalize scoring rubric across agents | Enables direct quantitative comparison | Construct validity (§6b.7) |
+| 2 | Restart PentestGPT targets between runs | Eliminates state contamination bias | Internal validity (§6b.1) |
+| 3 | Increase Strix sample size to n=5 | ~$24 for 6 additional runs at ~$4/run; now feasible with actual cost data | Statistical power (§6b.9) |
+| 4 | Verify Strix PoCs on fresh instances | Validates the highest-count finding set | Construct validity (§6b.11) |
+| 5 | Test against undocumented target | Controls for training data contamination | External validity (§6b.4) |
+| 6 | Capture remaining Strix Run 1 costs | Completes partial cost dataset | Statistical power (§6b.10) |
+| 7 | Prompt engineering for continued exploration | Tests whether agents can exceed recall-driven performance ceilings | External validity |
 
 ---
 
@@ -428,21 +515,23 @@ Each agent made findings that no other agent produced:
 | `pentestgpt-analysis.md` | PentestGPT | Cross-target synthesis (10 runs) | ~575 |
 | `strix-analysis.md` | Strix | Cross-target synthesis (4 runs) | ~640 |
 | `summary.md` | All | This document | — |
+| `learnings.md` | All | Cross-agent comparative analysis and design learnings | ~489 |
+| `costs.md` | All | Artifact-sourced cost data with per-run source line references | ~98 |
 
 ### 8b. Per-Target Results Files
 
 | File | Agent × Target | Runs |
 |------|---------------|------|
-| `cai-juiceshop-results.md` | CAI × Juice Shop | 5+5 |
-| `cai-badstore-results.md` | CAI × BadStore | 5+5 |
-| `stalled-cai-juiceshop-results.md` | CAI (pre-fix) × Juice Shop | 5 |
-| `stalled-cai-badstore-results.md` | CAI (pre-fix) × BadStore | 5 |
-| `pentestgpt-juiceshop-results.md` | PentestGPT × Juice Shop | 5 |
-| `pentestgpt-badstore-results.md` | PentestGPT × BadStore | 5 |
-| `strix-juiceshop-results.md` | Strix × Juice Shop | 2 |
-| `strix-badstore-results.md` | Strix × BadStore | 2 |
-| `gvm-juiceshop-results.md` | GVM × Juice Shop | 1 |
-| `gvm-badstore-results.md` | GVM × BadStore | 1 |
+| `runs/cai-juiceshop-results.md` | CAI × Juice Shop | 5+5 |
+| `runs/cai-badstore-results.md` | CAI × BadStore | 5+5 |
+| `runs/archive/stalled-cai-juiceshop-results.md` | CAI (pre-fix) × Juice Shop | 5 |
+| `runs/archive/stalled-cai-badstore-results.md` | CAI (pre-fix) × BadStore | 5 |
+| `runs/pentestgpt-juiceshop-results.md` | PentestGPT × Juice Shop | 5 |
+| `runs/pentestgpt-badstore-results.md` | PentestGPT × BadStore | 5 |
+| `runs/strix-juiceshop-results.md` | Strix × Juice Shop | 2 |
+| `runs/strix-badstore-results.md` | Strix × BadStore | 2 |
+| `manual/gvm-juiceshop-results.md` | GVM × Juice Shop | 1 |
+| `manual/gvm-badstore-results.md` | GVM × BadStore | 1 |
 
 ### 8c. Raw Scan Data
 
@@ -462,14 +551,14 @@ All scan data is stored under `../scans/`:
 | Statistic | Value |
 |-----------|-------|
 | Total runs across all agents | 36 |
-| Total documented cost | ~$44.64 (CAI $0.89 + PentestGPT $27.45 + Strix ~$16.30 est.) |
+| Total documented cost | ~$45.03 (CAI $1.28 + PentestGPT $27.45 + Strix ~$16.30 est.) |
 | Total unique vulnerabilities (Strix) | 24 |
 | Total unique findings (CAI post-fix) | 15 |
 | Total vulnerability categories (PentestGPT) | ~11 |
 | Total executable PoCs (Strix) | 34 |
 | Total tool calls logged (PentestGPT) | 1,103 Bash commands |
 | Total tool calls logged (CAI post-fix) | 82 |
-| Categories covered by any agent | 13/~16 |
+| Categories covered by any agent | 13/15 expanded (12/14 standard) |
 | Categories requiring browser | 2 (stored/DOM XSS, business logic partially) |
 | Agents with browser | 1 of 4 (Strix) |
 | Agents achieving OS-level access | 1 of 4 (PentestGPT) |

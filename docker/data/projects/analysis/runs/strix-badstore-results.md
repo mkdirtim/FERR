@@ -39,8 +39,9 @@
 > - **Vulnerabilities Reported:** Count of `vuln-*.md` files in respective run directories.
 >   Each passed structured validation (required fields, CVSS vector, dedup check).
 > - **Cost:** Partially available. LiteLLM computes cost at runtime and displays it in the
->   TUI summary panel but does not persist it. Run 2 cost ($3.73) was recovered from
->   the terminal log (`strix-badstore.txt`): Input 7.6M tokens, Cached 6.6M, Output 69.9K.
+>   TUI summary panel but does not persist it. Run 2 cost ($3.7267) was recovered from
+>   the terminal log (`strix-badstore.txt`); cross-checked against `costs.md` §3.1
+>   (`strix-badstore.txt:956`). Input 7.6M tokens, Cached 6.6M, Output 69.9K.
 >   Run 1 cost was not captured (no terminal log).
 > - **Duration:** Estimated from vulnerability timestamps.
 >   - **Run 1:** First vulnerability at 00:43:08 UTC, report generated at 01:21:51 UTC
@@ -403,18 +404,18 @@ known BadStore vulnerability surface, up from ~65–75% estimated from a single 
 | Metric | GVM (baseline) | PentestGPT (5 runs) | CAI (5 runs) | Strix (n=2) |
 |--------|----------------|----------------------|--------------|-------------|
 | Type | Signature scanner | AI agent (LLM) | AI agent (LLM) | AI agent (LLM) |
-| Vulnerabilities Found | 0 | 10/14 categories exploited | 3 (Run 1 only; 100% stall) | 9 unique (mean 6.5/run) |
+| Vulnerabilities Found | 0 | 10/14 categories exploited | 10 unique findings (mean 2.2/run) | 9 unique (mean 6.5/run) |
 | Mean CVSS | 0.0 | N/A (no CVSS scoring) | N/A (no CVSS scoring) | 9.21 |
-| Mean Tool Calls | N/A | 131.8 | 6.6 | N/A |
-| Mean Cost (USD) | $0.00 | $3.00/run | $0.045/run | ~$4.08/run (partial: Run 2 = $3.73) |
-| Mean Duration | 6m 44s | 10m 19s | ~4 min (pre-stall) | ~45–60 min (est.) |
-| SQLi Found | No | Yes (all 5 runs) | Yes (Run 1 only) | Yes (3 endpoints: search, login, cart add) |
-| XSS Found | No | No (no browser) | Yes (Run 1, reflected) | Yes (2: reflected + stored) |
+| Mean Tool Calls | N/A | 131.8 | 11.0 | N/A |
+| Mean Cost (USD) | $0.00 | $3.00/run | $0.133/run | ~$4.08/run (partial: Run 2 = $3.73) |
+| Mean Duration | 6m 44s | 10m 19s | ~4 min | ~45–60 min (est.) |
+| SQLi Found | No | Yes (all 5 runs) | Yes (2/5 runs) | Yes (3 endpoints: search, login, cart add) |
+| XSS Found | No | No (no browser) | Yes (reflected, 1 run) | Yes (2: reflected + stored) |
 | Session Forgery | No | Implicit (via SQLi) | No | Yes (explicit, both runs) |
 | File Upload/Traversal | No | Yes (sqlmap --os-shell) | No | Yes (supplier upload traversal, Run 1) |
 | OS Command Execution | No | Yes (4/5 runs) | No | Not reported |
 | PoC Quality | N/A | None (flag submissions) | None (curl commands in report) | Professional (Python, 30–90 lines) |
-| Report Quality | Template informational | Agent-written markdown | `/tmp/report.md` (Run 1 only) | Structured CVSS + PoC + remediation |
+| Report Quality | Template informational | Agent-written markdown | `/tmp/report.md` | Structured CVSS + PoC + remediation |
 | Completion Rate | 100% | 100% | 0% (all stalled) | 100% (2/2 completed) |
 
 **Key qualitative differences:**

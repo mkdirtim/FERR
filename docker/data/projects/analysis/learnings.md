@@ -1,8 +1,8 @@
-# Cross-Agent Learnings for OpenHack
+# Cross-Agent Comparative Analysis and Design Learnings for OpenHack
 
 > **Context:** This document synthesizes findings from three project analyses
-> (`stalled-cai-project-analysis.md`, `pentestgpt-project-analysis.md`,
-> `strix-project-analysis.md`), ten benchmark results files, three cross-target
+> (`code/stalled-cai-project-analysis.md`, `code/pentestgpt-project-analysis.md`,
+> `code/strix-project-analysis.md`), ten benchmark results files, three cross-target
 > analysis files, and the benchmark summary into actionable learnings for
 > OpenHack. It adapts the `learnings-template.md` structure to a comparative
 > multi-agent format, covering all three LLM-driven pentesting agents evaluated
@@ -19,14 +19,14 @@
 
 > **Inputs:**
 >
-> | Input | Template | Status |
-> |-------|----------|--------|
-> | CAI codebase analysis | `stalled-cai-project-analysis.md` | done |
-> | PentestGPT codebase analysis | `pentestgpt-project-analysis.md` | done |
-> | Strix codebase analysis | `strix-project-analysis.md` | done |
-> | Benchmark: CAI × Juice Shop + BadStore | `cai-juiceshop-results.md`, `cai-badstore-results.md` | done |
-> | Benchmark: PentestGPT × Juice Shop + BadStore | `pentestgpt-juiceshop-results.md`, `pentestgpt-badstore-results.md` | done |
-> | Benchmark: Strix × Juice Shop + BadStore | `strix-juiceshop-results.md`, `strix-badstore-results.md` | done |
+> | Input | File | Status |
+> |-------|------|--------|
+> | CAI codebase analysis | `code/stalled-cai-project-analysis.md` | done |
+> | PentestGPT codebase analysis | `code/pentestgpt-project-analysis.md` | done |
+> | Strix codebase analysis | `code/strix-project-analysis.md` | done |
+> | Benchmark: CAI × Juice Shop + BadStore | `runs/cai-juiceshop-results.md`, `runs/cai-badstore-results.md` | done |
+> | Benchmark: PentestGPT × Juice Shop + BadStore | `runs/pentestgpt-juiceshop-results.md`, `runs/pentestgpt-badstore-results.md` | done |
+> | Benchmark: Strix × Juice Shop + BadStore | `runs/strix-juiceshop-results.md`, `runs/strix-badstore-results.md` | done |
 > | Cross-target analyses | `cai-analysis.md`, `pentestgpt-analysis.md`, `strix-analysis.md` | done |
 > | Benchmark summary | `summary.md` | done |
 >
@@ -180,7 +180,7 @@
 | **Categories attempted** | JS: 2/14; BS: 6/14 | JS: 9/14; BS: 10/14 | JS: 10/14; BS: 12+/14 |
 | **Categories exploited** | JS: 0 (info disclosure only); BS: 4 (SQLi, XSS, privesc, session) | JS: 9 (real exploits, 0 flags); BS: 10 | JS: 10 validated; BS: 12+ validated |
 | **False positives** | Low — findings are passive and verifiable from logs | Moderate — Juice Shop self-reports 10–14 "solved" challenges with 0 verified; Run 5 fabricated 10 flags | Low — CVSS vector validation + PoC requirement + deduplicate detection reduce false positives |
-| **False negatives** | High — major categories undetected on both targets (IDOR, file upload, directory traversal, injection) | Moderate — 3 categories missed (XSS, CSRF) due to no browser | Low — 13/~16 categories covered; only CSRF and non-SQL injection missed |
+| **False negatives** | High — major categories undetected on both targets (IDOR, file upload, directory traversal, injection) | Moderate — 3 categories missed (XSS, CSRF) due to no browser | Low — 12/14 standard categories covered; only CSRF and non-SQL injection missed |
 
 ### 4b. Attack Chaining
 
@@ -244,7 +244,7 @@ The `finish_scan` tool enforces required report sections before termination, pre
 *Evidence: `strix/strix/tools/finish/finish_actions.py:86`, `strix/strix/agents/base_agent.py:183`. 3/4 runs produced executive reports in the archive; all 4 runs produced per-vulnerability breakdowns.*
 
 **L6. CAI's cost controls**
-Proactive and streaming-time price limit checks, per-turn cost tracking, and preflight budget validation provide the strongest cost governance tested. CAI's total benchmark cost ($0.89 for 20 runs) reflects both cheap model usage and active budget enforcement.
+Proactive and streaming-time price limit checks, per-turn cost tracking, and preflight budget validation provide the strongest cost governance tested. CAI's total benchmark cost ($1.28 for 20 runs) reflects both cheap model usage and active budget enforcement.
 *Evidence: `cai/src/cai/util.py:416`, `cai/src/cai/sdk/agents/models/openai_chatcompletions.py:686`.*
 
 **L7. Strix's vulnerability deduplication**
@@ -275,9 +275,9 @@ No target restart between runs introduces systematic bias: increasing self-repor
 A bug in `fix_message_list()` (`cai/src/cai/util.py:1250`) caused 100% stall rates in pre-fix runs (10/10). The single-predecessor check entered an infinite loop when the model issued parallel tool calls, consuming 85–96% CPU until timeout. A single framework bug reduced CAI's effective capability to zero.
 *Evidence: `cai-analysis.md` §5. Pre-fix: 3 findings across 10 runs. Post-fix: 25+ findings across 10 runs (+733%).*
 
-**F6. Missing cost data for Strix**
-Strix does not persist cost/token data to its output archive. The most thorough agent's cost-per-finding is unknown, leaving the cost-effectiveness frontier incomplete. This is the most impactful missing metric for cross-agent comparison in the thesis.
-*Evidence: `strix-analysis.md` §4b. Estimate: $15–30/run based on model pricing and session duration.*
+**F6. Strix's incomplete cost instrumentation**
+Strix does not persist cost/token data to its output archive, creating a gap in the cost-effectiveness analysis for the most capable agent. Run 2 costs were partially recovered from TUI terminal logs ($4.42 Juice Shop, $3.73 BadStore, mean ~$4.08/run) — far below the original $15–30/run estimate due to GPT-5 prompt caching (~87% cache hit rate). However, Run 1 costs remain uncaptured, and the recovery method (manual log inspection) is not scalable. The lack of native cost instrumentation is a design limitation that any production agent should address.
+*Evidence: `strix-analysis.md` §4b. Recovered from `strix-juiceshop.txt` and `strix-badstore.txt` TUI logs. Total ~$16.30 est. extrapolated from Run 2 data only.*
 
 **F7. CAI and PentestGPT premature self-termination (Strix utilization unclear)**
 CAI and PentestGPT declare "mission complete" before exhausting configured budgets. Budget utilization ranges from 5% (CAI) to ~56% (PentestGPT). For Strix, iteration utilization is unknown in available archives, so only a directional conclusion is possible there.
@@ -315,12 +315,12 @@ CAI and PentestGPT declare "mission complete" before exhausting configured budge
 | Flow traceability | 4 | 4 | 4 | 4 | 5 | 5 | All agents have traceable flows; Strix's tracer output is most complete |
 | Tool-use transparency | 4 | 3 (**-1**) | 3 | 3 | 4 | 4 | CAI downgraded: tool selection is traceable but the *reason* for ignoring Kali tools is opaque (LLM black box) |
 | Reproducibility | 4 | 3 (**-1**) | 4 | 4 | 4 | 4 | CAI downgraded: stochastic exploitation (0–60% depending on target) and pre-fix infinite loop reduce practical reproducibility |
-| Detection coverage | 4 | 2 (**-2**) | 4 | 4 | 4 | 5 (**+1**) | CAI's 2/14 JS + 6/14 BS is below code-review expectation. Strix's 13/~16 combined exceeds expectation. |
+| Detection coverage | 4 | 2 (**-2**) | 4 | 4 | 4 | 5 (**+1**) | CAI's 2/14 JS + 6/14 BS is below code-review expectation. Strix's 12/14 standard (13/15 expanded) combined exceeds expectation. |
 | False-positive handling | 3 | 3 | 2 | 1 (**-1**) | 4 | 4 | PentestGPT downgraded: Run 5 flag fabrication (10 fabricated flags) demonstrates active false-positive generation |
 | Level of autonomy | 4 | 3 (**-1**) | 4 | 4 | 5 | 5 | CAI downgraded: autonomous but single-pass strategy limits effective autonomy to surface-level recon |
 | Execution safety | 3 | 3 | 2 | 2 | 4 | 4 | No changes; PentestGPT's default bypassPermissions confirmed as concern |
 | Extensibility | 5 | 5 | 4 | 4 | 4 | 4 | No changes; CAI's extensibility confirmed (MCP, agent factory, tool decorators) |
-| Cost awareness | 4 | 4 | 2 | 2 | 3 | 3 | No changes; CAI's budget controls work ($0.89 total); Strix and PentestGPT lack enforcement |
+| Cost awareness | 4 | 4 | 2 | 2 | 3 | 3 | No changes; CAI's budget controls work ($1.28 total); Strix and PentestGPT lack enforcement |
 | Adoptability for OpenHack | 5 | 4 (**-1**) | 4 | 3 (**-1**) | 5 | 5 | CAI downgraded: extensibility is strong but benchmark performance is weak. PentestGPT: strong patterns but no browser/reporting quality. Strix: directly adoptable. |
 
 **Validated overall scores:**
@@ -334,7 +334,7 @@ CAI and PentestGPT declare "mission complete" before exhausting configured budge
 **Key score shifts:**
 - **CAI (-6):** The largest downgrade. Code review suggested a capable framework with broad detection coverage and strong autonomy. Benchmarks revealed that detection coverage (2–6/14), exploitation behavior (0–60% stochastic), and tool selection (0% Kali tools) fall well below the code's potential. The framework is better than the agent behavior it produces.
 - **PentestGPT (-2):** Modest downgrade. False-positive handling (-1) drops due to flag fabrication. Adoptability (-1) decreases because the lack of browser and structured reporting limits OpenHack utility.
-- **Strix (+1):** Slight upgrade. Detection coverage exceeds code-review expectation (13/~16 categories across 4 runs). Overall score reflects that Strix's observed behavior closely matches its architectural design.
+- **Strix (+1):** Slight upgrade. Detection coverage exceeds code-review expectation (12/14 standard categories across 4 runs; 13/15 on the expanded rubric including Mass Assignment and Business Logic). Overall score reflects that Strix's observed behavior closely matches its architectural design.
 
 ---
 
@@ -386,15 +386,45 @@ CAI and PentestGPT declare "mission complete" before exhausting configured budge
 
 ### 11b. Key Comparative Findings
 
-1. **No agent dominates on all axes.** Strix leads in breadth, quality, and browser capability. PentestGPT leads in exploitation depth (OS shell). CAI leads in cost efficiency. OpenHack should combine strengths: Strix's architecture with PentestGPT's depth-oriented exploitation strategy and CAI's cost controls.
+1. **No agent dominates on all evaluation axes.** Strix leads in vulnerability
+   coverage breadth (12/14 standard categories), output quality (CVSS + PoC),
+   and browser-enabled testing. PentestGPT leads in exploitation depth (OS
+   shell access via sqlmap in 4/5 BadStore runs). CAI leads in cost efficiency
+   ($0.095/run). This multi-dimensional landscape implies that composite
+   evaluation frameworks are necessary; single-metric rankings are misleading.
 
-2. **Target architecture is a stronger predictor of results than agent architecture.** The same agent (CAI) produces 0% vs. 60% exploitation depending on the target. PentestGPT shifts from 80% curl to 51% curl + 23% sqlmap. Strix shows SD 4.9 vs. SD 0.7. Agent benchmarks on a single target are non-generalizable.
+2. **Target architecture is a stronger predictor of agent performance than
+   agent architecture.** The same agent (CAI) produces 0% vs. 60% exploitation
+   depending on the target. PentestGPT shifts tool composition from 80% curl
+   to 51% curl + 23% sqlmap. Strix finding variance shifts from SD 4.9 (Juice
+   Shop) to SD 0.7 (BadStore). This finding challenges the validity of
+   single-target benchmarks prevalent in the current literature and suggests
+   that multi-target evaluation designs are methodologically necessary.
 
-3. **Browser capability creates a binary partition.** GVM, CAI, and PentestGPT found 0 verified XSS. Strix found 5. There is no partial browser capability — agents either can or cannot test client-side vulnerabilities. This is the thesis's strongest evidence that tool architecture determines assessment scope.
+3. **Browser capability creates a binary capability threshold.** GVM, CAI,
+   and PentestGPT found 0 verified XSS vulnerabilities across 22 runs. Strix
+   found 5 across 4 runs. There is no partial browser capability — agents
+   either can or cannot test client-side vulnerabilities. This represents
+   the strongest evidence that tool architecture determines assessment scope,
+   with ~15–20% of the web application attack surface entirely inaccessible
+   to CLI-only agents.
 
-4. **Framework reliability is a first-order variable.** CAI's PR #411 bug caused a 733% finding increase from a single fix. Agent benchmarks must control for framework reliability separately from model capability. PentestGPT's 100% completion rate across 10 runs demonstrates the value of simple, reliable architecture.
+4. **Framework reliability is a first-order confounding variable.** CAI's
+   PR #411 bug fix caused a 733% finding increase with no changes to model,
+   prompt, or tools. Agent benchmarks that do not control for framework
+   reliability may attribute capability differences to model quality when
+   the variance is actually in framework implementation. PentestGPT's 100%
+   completion rate across 10 runs demonstrates the practical value of
+   architectural simplicity.
 
-5. **Cost-quality tradeoff is monotonic but non-linear.** $0.10 (CAI) → $2.75 (PentestGPT) = genuine exploitation depth. $2.75 (PentestGPT) → $15–30 (Strix) = validated PoCs + browser capability but not deeper exploitation. The marginal return per dollar decreases at higher spend levels.
+5. **The cost–quality tradeoff is monotonic but non-linear.** $0.10/run (CAI)
+   → $2.75/run (PentestGPT) buys genuine exploitation depth (OS shell, full
+   database dump, webshell deployment). $2.75/run (PentestGPT) → ~$4.08/run
+   (Strix) buys validated PoCs, CVSS scoring, and browser capability but not
+   deeper exploitation. The marginal return per dollar decreases at higher
+   spend levels, suggesting diminishing returns in the cost–quality curve
+   that practitioners should consider when selecting agents for specific
+   assessment contexts.
 
 ### 11c. Synthesis for OpenHack Architecture
 
@@ -425,29 +455,31 @@ Based on comparative analysis, OpenHack should adopt a **Strix-influenced archit
 | `pentestgpt-analysis.md` | PentestGPT cross-target synthesis (10 runs) | ~575 |
 | `strix-analysis.md` | Strix cross-target synthesis (4 runs) | ~640 |
 | `summary.md` | Benchmark summary — all agents | ~472 |
+| `learnings.md` | This document | ~489 |
+| `costs.md` | Artifact-sourced cost data with per-run source line references | ~98 |
 
 ### Project Analysis Files
 
 | File | Agent | Score |
 |------|-------|-------|
-| `stalled-cai-project-analysis.md` | CAI | 40/50 (code review) → 34/50 (validated) |
-| `pentestgpt-project-analysis.md` | PentestGPT | 33/50 (code review) → 31/50 (validated) |
-| `strix-project-analysis.md` | Strix | 42/50 (code review) → 43/50 (validated) |
+| `code/stalled-cai-project-analysis.md` | CAI | 40/50 (code review) → 34/50 (validated) |
+| `code/pentestgpt-project-analysis.md` | PentestGPT | 33/50 (code review) → 31/50 (validated) |
+| `code/strix-project-analysis.md` | Strix | 42/50 (code review) → 43/50 (validated) |
 
 ### Per-Target Results Files
 
 | File | Agent × Target | Runs |
 |------|---------------|------|
-| `cai-juiceshop-results.md` | CAI × Juice Shop | 5+5 |
-| `cai-badstore-results.md` | CAI × BadStore | 5+5 |
-| `stalled-cai-juiceshop-results.md` | CAI (pre-fix) × Juice Shop | 5 |
-| `stalled-cai-badstore-results.md` | CAI (pre-fix) × BadStore | 5 |
-| `pentestgpt-juiceshop-results.md` | PentestGPT × Juice Shop | 5 |
-| `pentestgpt-badstore-results.md` | PentestGPT × BadStore | 5 |
-| `strix-juiceshop-results.md` | Strix × Juice Shop | 2 |
-| `strix-badstore-results.md` | Strix × BadStore | 2 |
-| `gvm-juiceshop-results.md` | GVM × Juice Shop | 1 |
-| `gvm-badstore-results.md` | GVM × BadStore | 1 |
+| `runs/cai-juiceshop-results.md` | CAI × Juice Shop | 5+5 |
+| `runs/cai-badstore-results.md` | CAI × BadStore | 5+5 |
+| `runs/archive/stalled-cai-juiceshop-results.md` | CAI (pre-fix) × Juice Shop | 5 |
+| `runs/archive/stalled-cai-badstore-results.md` | CAI (pre-fix) × BadStore | 5 |
+| `runs/pentestgpt-juiceshop-results.md` | PentestGPT × Juice Shop | 5 |
+| `runs/pentestgpt-badstore-results.md` | PentestGPT × BadStore | 5 |
+| `runs/strix-juiceshop-results.md` | Strix × Juice Shop | 2 |
+| `runs/strix-badstore-results.md` | Strix × BadStore | 2 |
+| `manual/gvm-juiceshop-results.md` | GVM × Juice Shop | 1 |
+| `manual/gvm-badstore-results.md` | GVM × BadStore | 1 |
 
 ### Source Code Directories
 

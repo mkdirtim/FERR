@@ -342,11 +342,29 @@ data/projects/
     │   ├── agent-project-template.md        # project analysis template
     │   ├── results-template.md              # benchmark results template
     │   └── learnings-template.md            # learnings synthesis template
-    ├── pentestgpt-project-analysis.md       # filled project analyses
-    ├── cai-project-analysis.md
-    ├── strix-project-analysis.md
-    ├── pentestgpt-juiceshop-results.md      # filled benchmark results
-    └── pentestgpt-badstore-results.md
+    ├── code/                                # filled project/codebase analyses
+    │   ├── cai-project-analysis.md
+    │   ├── pentestgpt-project-analysis.md
+    │   └── strix-project-analysis.md
+    ├── runs/                                # per-agent × target benchmark results
+    │   ├── cai-juiceshop-results.md
+    │   ├── cai-badstore-results.md
+    │   ├── pentestgpt-juiceshop-results.md
+    │   ├── pentestgpt-badstore-results.md
+    │   ├── strix-juiceshop-results.md
+    │   ├── strix-badstore-results.md
+    │   └── archive/                         # pre-fix (stalled) CAI results
+    │       ├── stalled-cai-juiceshop-results.md
+    │       └── stalled-cai-badstore-results.md
+    ├── manual/                              # manual/baseline scanner results
+    │   ├── gvm-juiceshop-results.md
+    │   └── gvm-badstore-results.md
+    ├── cai-analysis.md                      # cross-target synthesis (per agent)
+    ├── pentestgpt-analysis.md
+    ├── strix-analysis.md
+    ├── summary.md                           # benchmark summary (all agents)
+    ├── learnings.md                         # cross-agent learnings for OpenHack
+    └── costs.md                             # artifact-sourced cost data
 ```
 
 ### XBOW Benchmarks

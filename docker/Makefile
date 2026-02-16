@@ -1,7 +1,7 @@
 # openhackstack Makefile
 # Quick commands for managing the Docker environment
 
-.PHONY: help quickstart quickstart-all start validate build up up-with-targets up-all down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground playground-env kali-scan xbow-list xbow-build xbow-run xbow-stop xbow-flag bench-pentestgpt bench-cai bench-strix
+.PHONY: help quickstart quickstart-all validate build up up-with-targets up-all down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground playground-env kali-scan xbow-list xbow-build xbow-run xbow-stop xbow-flag bench-pentestgpt bench-cai bench-strix
 
 help: ## Show this help message
 	@echo "openhackstack - OpenCode Development Environment"
@@ -19,9 +19,6 @@ quickstart: ## Clone all repos, build, and start (first-time setup)
 quickstart-all: ## Quickstart then start everything (dev + targets + playground)
 	./setup/quickstart
 	$(MAKE) up-all
-
-start: ## Run startup script (builds and starts services)
-	./bin/up
 
 validate: ## Validate configuration and optionally run smoke tests
 	./bin/test

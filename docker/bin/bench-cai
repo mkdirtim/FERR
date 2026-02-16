@@ -15,60 +15,11 @@
 # Each run: clean /tmp → restart target → wait healthy → run CAI → archive /tmp.
 
 set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=bench-common
+source "${SCRIPT_DIR}/bench-common"
 
-RUNS="${1:-5}"
-START="${2:-1}"
-KALI="playground-kali"
 CAI="/playground/projects/source/cai/.venv/bin/cai"
-
-# target-name  container-name       url                      healthcheck-path
-TARGETS=(
-  "juiceshop   targets-juiceshop    http://juiceshop:3000    /rest/admin/application-version"
-  "badstore    targets-badstore     http://badstore:80       /"
-)
-
-log() { printf '\n\033[1;34m>>> %s\033[0m\n' "$*"; }
-warn() { printf '\033[1;33m    %s\033[0m\n' "$*"; }
-
-clean_tmp() {
-  docker exec "$KALI" bash -c \
-    'items=$(find /tmp -mindepth 1 -maxdepth 1 ! -name "hsperfdata_*" 2>/dev/null)
-     if [ -n "$items" ]; then
-       rm -rf $items 2>/dev/null
-       echo "Cleaned $(echo "$items" | wc -l | xargs) items from /tmp"
-     else
-       echo "/tmp already clean"
-     fi'
-}
-
-archive_tmp() {
-  local archive_path="$1"
-  docker exec "$KALI" bash -c \
-    'items=$(find /tmp -mindepth 1 -maxdepth 1 ! -name "hsperfdata_*" 2>/dev/null)
-     if [ -n "$items" ]; then
-       tar czf "'"${archive_path}"'" $items 2>/dev/null && rm -rf $items 2>/dev/null
-       echo "Archived $(echo "$items" | wc -l | xargs) items"
-     else
-       echo "No /tmp artifacts to archive"
-     fi'
-}
-
-wait_for_target() {
-  local url="$1"
-  local path="$2"
-  local max_wait=60
-  local elapsed=0
-
-  while ! docker exec "$KALI" curl -sf "${url}${path}" -o /dev/null 2>/dev/null; do
-    sleep 2
-    elapsed=$((elapsed + 2))
-    if [ "$elapsed" -ge "$max_wait" ]; then
-      warn "Target ${url} not ready after ${max_wait}s — skipping"
-      return 1
-    fi
-  done
-  return 0
-}
 
 for entry in "${TARGETS[@]}"; do
   read -r name container url health_path <<< "$entry"
@@ -78,37 +29,15 @@ for entry in "${TARGETS[@]}"; do
     continue
   fi
 
-  log_dir="/playground/scans/${name}/cai"
-
-  # Ensure output directory exists inside the container
-  docker exec "$KALI" mkdir -p "$log_dir"
-
   for run in $(seq "$START" "$RUNS"); do
-    log "${name} — run ${run}/${RUNS}"
+    bench_prepare "$name" "$container" "$url" "$health_path" "$run" || continue
 
-    # 1. Clean /tmp
-    log "Cleaning /tmp..."
-    clean_tmp
-
-    # 2. Restart the target container for a clean state
-    log "Restarting ${container}..."
-    docker restart "$container" > /dev/null
-    sleep 3
-
-    # 3. Wait until the target responds
-    log "Waiting for ${url}..."
-    if ! wait_for_target "$url" "$health_path"; then
-      warn "Skipping ${name} run ${run}"
-      continue
-    fi
-    log "Target ready."
-
-    # 4. Run CAI
-    #    -t allocates a TTY (required by CAI's prompt_toolkit)
-    #    CAI_DEBUG=1 for standard verbosity
-    #    CAI_PRICE_LIMIT=10 to avoid early cost cutoff
-    #    CAI_MAX_TURNS caps LLM round-trips; timeout kills the idle CAI> prompt
-    logfile="${log_dir}/cai-run-${run}.log"
+    # Run CAI
+    #   -t allocates a TTY (required by CAI's prompt_toolkit)
+    #   CAI_DEBUG=1 for standard verbosity
+    #   CAI_PRICE_LIMIT=10 to avoid early cost cutoff
+    #   CAI_MAX_TURNS caps LLM round-trips; timeout kills the idle CAI> prompt
+    logfile="${SCAN_DIR}/${name}-cai-run-${run}.log"
     stall_timeout="${CAI_STALL_TIMEOUT:-120}"  # kill if no output for 2 min
     log "Running CAI → ${logfile}"
     docker exec -t "$KALI" bash -c \
@@ -137,19 +66,19 @@ for entry in "${TARGETS[@]}"; do
     kill "$watchdog_pid" 2>/dev/null || true
     wait "$watchdog_pid" 2>/dev/null || true
 
-    # 5. Archive CAI session logs (JSONL with full LLM transcripts)
+    # Archive CAI session logs (JSONL with full LLM transcripts)
     docker exec "$KALI" bash -c \
       'if [ -d /playground/projects/source/cai/logs ] && ls /playground/projects/source/cai/logs/*.jsonl 1>/dev/null 2>&1; then
-         tar czf "'"${log_dir}/cai-run-${run}-session.tar.gz"'" -C /playground/projects/source/cai logs/*.jsonl 2>/dev/null
+         tar czf "'"${SCAN_DIR}/${name}-cai-run-${run}-session.tar.gz"'" -C /playground/projects/source/cai logs/*.jsonl 2>/dev/null
          rm -f /playground/projects/source/cai/logs/*.jsonl
          echo "Archived CAI session logs"
        else
          echo "No CAI session logs to archive"
        fi'
 
-    # 6. Archive /tmp artifacts from this run
+    # Archive /tmp artifacts from this run
     log "Archiving /tmp artifacts from run ${run}..."
-    archive_tmp "${log_dir}/cai-run-${run}-tmp.tar.gz"
+    archive_tmp "${SCAN_DIR}/${name}-cai-run-${run}-tmp.tar.gz"
 
     log "${name} — run ${run} complete."
   done

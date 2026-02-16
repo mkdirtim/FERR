@@ -18,6 +18,8 @@ ts-dist
 refs
 Session.vim
 opencode.json
+!.opencode/
+!.opencode/**
 a.out
 target
 .scripts

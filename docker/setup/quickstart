@@ -75,11 +75,11 @@ done
 
 step "Cloning XBOW validation benchmarks"
 
-BENCHMARKS_DIR="$ROOT_DIR/data/benchmarks"
+BENCHMARKS_DIR="$ROOT_DIR/data/projects/xbow"
 if [ -d "$BENCHMARKS_DIR/.git" ]; then
     echo -e "${GREEN}✓ Benchmarks already cloned${NC}"
 else
-    mkdir -p "$ROOT_DIR/data"
+    mkdir -p "$ROOT_DIR/data/projects"
     git clone https://github.com/xbow-engineering/validation-benchmarks.git "$BENCHMARKS_DIR"
     echo -e "${GREEN}✓ Benchmarks cloned${NC}"
 fi

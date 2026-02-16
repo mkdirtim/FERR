@@ -73,9 +73,9 @@ RUN useradd -m -s /bin/bash playground && \
     mkdir -p /work /playground && \
     chown -R playground:playground /work /playground
 
-COPY bin/entrypoint-playground /usr/local/bin/playground
-COPY bin/kali-scan /usr/local/bin/kali-scan
-RUN chmod +x /usr/local/bin/playground /usr/local/bin/kali-scan
+COPY bin/playground-entrypoint /usr/local/bin/playground
+COPY bin/benchmark-kali /usr/local/bin/benchmark-kali
+RUN chmod +x /usr/local/bin/playground /usr/local/bin/benchmark-kali
 
 USER playground
 WORKDIR /work

@@ -1,7 +1,7 @@
 # openhackstack Makefile
 # Quick commands for managing the Docker environment
 
-.PHONY: help quickstart quickstart-all validate build up up-with-targets up-all down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground playground-env kali-scan xbow-list xbow-build xbow-run xbow-stop xbow-flag bench-pentestgpt bench-cai bench-strix
+.PHONY: help quickstart quickstart-all validate build up up-with-targets up-all down restart logs shell dev app web serve install test clean status rebuild targets scan docs playground playground-env benchmark-kali xbow-list xbow-build xbow-run xbow-stop xbow-flag benchmark-pentestgpt benchmark-cai benchmark-strix
 
 help: ## Show this help message
 	@echo "openhackstack - OpenCode Development Environment"
@@ -21,7 +21,7 @@ quickstart-all: ## Quickstart then start everything (dev + targets + playground)
 	$(MAKE) up-all
 
 validate: ## Validate configuration and optionally run smoke tests
-	./bin/test
+	./bin/docker-test
 
 build: ## Build container image
 	docker compose build
@@ -107,8 +107,8 @@ playground-env: ## Create ./data/projects/playground.env (gitignored) from examp
 	@test -f ./data/projects/playground.env || cp ./data/projects/playground.env.example ./data/projects/playground.env
 	@echo "Edit: ./data/projects/playground.env"
 
-kali-scan: ## Scan targets from playground-kali (nmap, whatweb, nikto, ZAP, ffuf, sqlmap)
-	docker compose --profile playground exec playground kali-scan
+benchmark-kali: ## Scan targets from playground-kali (nmap, whatweb, nikto, ZAP, ffuf, sqlmap)
+	docker compose --profile playground exec playground benchmark-kali
 
 xbow-list: ## List available XBOW benchmarks
 	./bin/benchmark-xbow list
@@ -129,13 +129,13 @@ xbow-flag: ## Show flag for an XBOW benchmark (BENCH=XBEN-001-24)
 	@test -n "$(BENCH)" || (echo "Usage: make xbow-flag BENCH=XBEN-001-24" && exit 1)
 	./bin/benchmark-xbow flag $(BENCH)
 
-bench-pentestgpt: ## Run PentestGPT benchmark (RUNS=5)
-	./bin/bench-pentestgpt $(RUNS)
+benchmark-pentestgpt: ## Run PentestGPT benchmark (RUNS=5)
+	./bin/benchmark-pentestgpt $(RUNS)
 
-bench-cai: ## Run CAI benchmark (RUNS=5)
-	./bin/bench-cai $(RUNS)
+benchmark-cai: ## Run CAI benchmark (RUNS=5)
+	./bin/benchmark-cai $(RUNS)
 
-bench-strix: ## Run Strix benchmark (RUNS=5)
-	./bin/bench-strix $(RUNS)
+benchmark-strix: ## Run Strix benchmark (RUNS=5)
+	./bin/benchmark-strix $(RUNS)
 
 .DEFAULT_GOAL := help

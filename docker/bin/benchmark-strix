@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# bench-strix — Run N Strix benchmark runs per target with clean restarts.
+# benchmark-strix — Run N Strix benchmark runs per target with clean restarts.
 #
-# Usage:  ./bin/bench-strix [RUNS] [START]
+# Usage:  ./bin/benchmark-strix [RUNS] [START]
 #         RUNS defaults to 5, START defaults to 1.
 #         TARGET=name to run a single target (default: all).
 #
 #         Examples:
-#           ./bin/bench-strix 5 3                  — runs 3-5 on all targets
-#           TARGET=badstore ./bin/bench-strix 5    — all 5 runs, badstore only
-#           TARGET=juiceshop ./bin/bench-strix 3 3 — just run 3, juiceshop only
+#           ./bin/benchmark-strix 5 3                  — runs 3-5 on all targets
+#           TARGET=badstore ./bin/benchmark-strix 5    — all 5 runs, badstore only
+#           TARGET=juiceshop ./bin/benchmark-strix 3 3 — just run 3, juiceshop only
 #
 # Requires: STRIX_LLM and LLM_API_KEY set in data/projects/playground.env
 # Each run: clean /tmp → restart target → wait healthy → run Strix → archive /tmp + strix_runs.
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=bench-common
-source "${SCRIPT_DIR}/bench-common"
+# shellcheck source=benchmark-common
+source "${SCRIPT_DIR}/benchmark-common"
 
 STRIX="/playground/projects/source/strix/.venv/bin/strix"
 

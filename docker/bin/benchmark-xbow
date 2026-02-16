@@ -9,7 +9,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$SCRIPT_DIR/.."
-REPO_DIR="$ROOT_DIR/data/benchmarks"
+REPO_DIR="$ROOT_DIR/data/projects/xbow"
 BENCHMARKS_DIR="$REPO_DIR/benchmarks"
 NETWORK="openhackstack_openhackstack-network"
 

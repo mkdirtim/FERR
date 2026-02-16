@@ -83,10 +83,10 @@ make app            # web app dev server (port 3000)
 make web            # opencode web (port 4096)
 make serve          # opencode HTTP server (port 4096)
 make playground     # start playground container
-make kali-scan      # scan all targets (nmap, nikto, whatweb, ZAP, ffuf, sqlmap)
-make bench-pentestgpt  # run PentestGPT benchmark (RUNS=5)
-make bench-cai         # run CAI benchmark (RUNS=5)
-make bench-strix       # run Strix benchmark (RUNS=5)
+make benchmark-kali     # scan all targets (nmap, nikto, whatweb, ZAP, ffuf, sqlmap)
+make benchmark-pentestgpt  # run PentestGPT benchmark (RUNS=5)
+make benchmark-cai         # run CAI benchmark (RUNS=5)
+make benchmark-strix       # run Strix benchmark (RUNS=5)
 make status         # show service status
 make down           # stop everything
 make validate       # run smoke tests
@@ -131,13 +131,13 @@ docker compose exec playground bash
 
 ### Scanning
 
-The `kali-scan` script runs automated scans against all Docker-internal targets using their real hostnames and ports. Tools: nmap, whatweb, nikto, ZAP, ffuf, sqlmap, and optionally GVM/OpenVAS.
+The `benchmark-kali` script runs automated scans against all Docker-internal targets using their real hostnames and ports. Tools: nmap, whatweb, nikto, ZAP, ffuf, sqlmap, and optionally GVM/OpenVAS.
 
 ```bash
-make kali-scan                 # scan all targets
-docker compose exec playground kali-scan juiceshop   # scan one target
-docker compose exec playground kali-scan dvwa bwapp  # scan specific targets
-docker compose exec playground kali-scan --gvm       # include GVM/OpenVAS (slow)
+make benchmark-kali                 # scan all targets
+docker compose exec playground benchmark-kali juiceshop   # scan one target
+docker compose exec playground benchmark-kali dvwa bwapp  # scan specific targets
+docker compose exec playground benchmark-kali --gvm       # include GVM/OpenVAS (slow)
 ```
 
 | Target | Hostname | Port |
@@ -148,7 +148,7 @@ docker compose exec playground kali-scan --gvm       # include GVM/OpenVAS (slow
 | BadStore | `badstore` | 80 |
 | WebGoat | `webgoat` | 8080 |
 
-Scan output is saved to `/playground/scans/<hostname>/` inside the container (for kali-scan) and to `data/projects/scans/` on the host using the flat naming convention `{target}-{agent}-run-{N}.*`. SecLists wordlists are available at `/usr/share/wordlists/seclists/`.
+Scan output is saved to `/playground/scans/<hostname>/` inside the container (for benchmark-kali) and to `data/projects/scans/` on the host using the flat naming convention `{target}-{agent}-run-{N}.*`. SecLists wordlists are available at `/usr/share/wordlists/seclists/`.
 
 GVM (Greenbone Vulnerability Management / OpenVAS) runs as a separate container (`playground-gvm`) in the `playground` profile. `make playground` starts only the playground container; use `make up-all` or `docker compose --profile playground up -d` to start both playground and GVM. First startup takes 5-10 minutes to sync vulnerability feeds. The `--gvm` flag connects to it via GMP on port 9390. GVM scans are significantly slower (30-60 min per target).
 
@@ -177,7 +177,7 @@ Inside the container they appear at `/playground/projects/source/`. Supported:
 - **PentestGPT** / **CAI** — installed via `uv sync`
 - **Strix** — installed via `poetry install`
 
-The entrypoint (`bin/entrypoint-playground`) auto-installs dependencies on first boot. It checks for each CLI binary in `.venv/bin/` and skips if present. Virtualenvs persist on the host via bind mount.
+The entrypoint (`bin/playground-entrypoint`) auto-installs dependencies on first boot. It checks for each CLI binary in `.venv/bin/` and skips if present. Virtualenvs persist on the host via bind mount.
 
 To force reinstall: delete the project's `.venv` on the host and restart the container.
 
@@ -285,27 +285,27 @@ From inside containers, use Docker hostnames instead (e.g. `http://juiceshop:300
 Automated benchmark scripts run N runs per target with clean container restarts and `/tmp` archival between runs. Results are saved to `data/projects/scans/` using the flat naming convention `{target}-{agent}-run-{N}.*`.
 
 ```bash
-make bench-pentestgpt RUNS=5     # PentestGPT: 5 runs on all targets
-make bench-cai RUNS=5            # CAI: 5 runs on all targets
-make bench-strix RUNS=5          # Strix: 5 runs on all targets
+make benchmark-pentestgpt RUNS=5     # PentestGPT: 5 runs on all targets
+make benchmark-cai RUNS=5            # CAI: 5 runs on all targets
+make benchmark-strix RUNS=5          # Strix: 5 runs on all targets
 ```
 
 Or run the scripts directly:
 
 ```bash
-bin/bench-pentestgpt 5              # default: 5 runs
-bin/bench-cai 3                     # override run count
-bin/bench-strix 5
+bin/benchmark-pentestgpt 5              # default: 5 runs
+bin/benchmark-cai 3                     # override run count
+bin/benchmark-strix 5
 
 # Single target, single run
-TARGET=juiceshop bin/bench-strix 1 1
-TARGET=badstore bin/bench-pentestgpt 1 1
+TARGET=juiceshop bin/benchmark-strix 1 1
+TARGET=badstore bin/benchmark-pentestgpt 1 1
 
 # Resume from run 3
-TARGET=juiceshop bin/bench-cai 5 3
+TARGET=juiceshop bin/benchmark-cai 5 3
 
 # CAI tuning (env vars)
-CAI_MAX_TURNS=50 CAI_TIMEOUT=900 bin/bench-cai 1 1
+CAI_MAX_TURNS=50 CAI_TIMEOUT=900 bin/benchmark-cai 1 1
 ```
 
 Each run: clean `/tmp`, restart target container, wait for healthcheck, run the agent, archive results. After all runs, use the analysis templates to evaluate results:
@@ -318,6 +318,8 @@ Scan data structure:
 
 ```
 data/projects/
+├── xbow/                                      # XBOW validation-benchmarks clone (git-ignored)
+│   └── benchmarks/                            # XBEN-001-24 ... XBEN-104-24
 ├── source/                                    # third-party agent repos (git-ignored)
 │   ├── cai/
 │   ├── strix/
@@ -369,6 +371,8 @@ data/projects/
 ### XBOW Benchmarks
 
 [XBOW validation-benchmarks](https://github.com/xbow-engineering/validation-benchmarks): 104 CTF-style security challenges. Each benchmark is an independent Docker Compose stack that gets dynamically connected to the openhackstack network.
+
+Local clone path: `data/projects/xbow/`.
 
 One-time setup:
 

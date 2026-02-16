@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# bench-common — Shared utilities for agent benchmark scripts.
-# Source this file from bench-cai, bench-pentestgpt, bench-strix.
+# benchmark-common — Shared utilities for agent benchmark scripts.
+# Source this file from benchmark-cai, benchmark-pentestgpt, benchmark-strix.
 #
 # Provides: RUNS, START, KALI, SCAN_DIR, TARGETS[], log(), warn(),
 #           clean_tmp(), archive_tmp(), wait_for_target()

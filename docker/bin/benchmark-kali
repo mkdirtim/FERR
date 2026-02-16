@@ -6,11 +6,11 @@
 # Output: /playground/scans/<hostname>/
 #
 # Usage:
-#   kali-scan                      # scan all targets
-#   kali-scan juiceshop            # scan one target
-#   kali-scan dvwa webgoat         # scan specific targets
-#   kali-scan --gvm                # include GVM/OpenVAS scans
-#   kali-scan --gvm juiceshop      # GVM scan on one target
+#   benchmark-kali                      # scan all targets
+#   benchmark-kali juiceshop            # scan one target
+#   benchmark-kali dvwa webgoat         # scan specific targets
+#   benchmark-kali --gvm                # include GVM/OpenVAS scans
+#   benchmark-kali --gvm juiceshop      # GVM scan on one target
 #
 # Environment:
 #   SCAN_DIR   output directory (default: /playground/scans)

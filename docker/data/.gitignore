@@ -5,7 +5,4 @@ seclists/
 projects/*
 !projects/.gitignore
 
-# XBOW validation benchmarks (use docker/setup/benchmarks)
-benchmarks/
-
-# Playground environment moved to projects/ (see projects/.gitignore)
+# XBOW validation benchmarks now live in data/projects/xbow (see projects/.gitignore)

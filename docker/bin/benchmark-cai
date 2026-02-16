@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# bench-cai — Run N CAI benchmark runs per target with clean restarts.
+# benchmark-cai — Run N CAI benchmark runs per target with clean restarts.
 #
-# Usage:  ./bin/bench-cai [RUNS] [START]
+# Usage:  ./bin/benchmark-cai [RUNS] [START]
 #         RUNS defaults to 5, START defaults to 1.
 #         TARGET=name to run a single target (default: all).
 #
 #         Examples:
-#           ./bin/bench-cai 5 3                  — runs 3-5 on all targets
-#           TARGET=badstore ./bin/bench-cai 5    — all 5 runs, badstore only
-#           TARGET=juiceshop ./bin/bench-cai 3 3 — just run 3, juiceshop only
+#           ./bin/benchmark-cai 5 3                  — runs 3-5 on all targets
+#           TARGET=badstore ./bin/benchmark-cai 5    — all 5 runs, badstore only
+#           TARGET=juiceshop ./bin/benchmark-cai 3 3 — just run 3, juiceshop only
 #
 # Requires: OPENAI_API_KEY and CAI_MODEL set in data/projects/playground.env
 # Note: CAI requires a TTY. This script allocates one via docker exec -t.
@@ -16,8 +16,8 @@
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=bench-common
-source "${SCRIPT_DIR}/bench-common"
+# shellcheck source=benchmark-common
+source "${SCRIPT_DIR}/benchmark-common"
 
 CAI="/playground/projects/source/cai/.venv/bin/cai"
 

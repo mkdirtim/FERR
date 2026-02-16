@@ -29,8 +29,8 @@
 
 | Run | Tool Calls | Flags Submitted | Vulnerabilities Reported | Cost (USD) | Duration |
 |-----|------------|-----------------|--------------------------|------------|----------|
-| 1 | N/A | N/A | 7 (4 Critical, 3 High) | N/A | ~38 min (estimated) |
-| 2 | N/A | N/A | 14 (5 Critical, 5 High, 4 Medium) | N/A | ~38 min (estimated) |
+| 1 | N/A | N/A | 7 (4 Critical, 3 High) | N/A (not captured) | ~38 min (estimated) |
+| 2 | N/A | N/A | 14 (5 Critical, 5 High, 4 Medium) | $4.42 | ~38 min (estimated) |
 
 > **Metric availability:**
 >
@@ -43,8 +43,10 @@
 > - **Vulnerabilities Reported:** Count of `vuln-*.md` files in the archive (also listed
 >   in `vulnerabilities.csv`). Each underwent structured validation (required fields, CVSS
 >   vector validation, duplicate rejection) before persistence.
-> - **Cost:** Not available. LiteLLM's `completion_cost()` computes this at runtime; the
->   value is displayed in the CLI summary panel but not saved to the output archive.
+> - **Cost:** Partially available. LiteLLM's `completion_cost()` computes this at runtime;
+>   the value is displayed in the TUI summary panel but not saved to the output archive.
+>   Run 2 cost ($4.42) was recovered from the terminal log (`strix-juiceshop.txt`):
+>   Input 9.1M tokens, Cached 7.9M, Output 71.7K. Run 1 cost was not captured (no terminal log).
 > - **Duration:** Estimated from vulnerability timestamps.
 >   - Run 1: First vuln at 23:21:01, report generated at 23:58:59 (~38 min span).
 >   - Run 2: First vuln at 13:57:20, last vuln at 14:35:46 (~38 min span).
@@ -192,7 +194,7 @@ Estimated from vulnerability report timestamps (not tool-level data):
 | High Findings | 3 | 5 | 4.0 | |
 | Medium Findings | 0 | 4 | 2.0 | Run 2 expanded to medium-severity findings |
 | Tool Calls | N/A | N/A | N/A | Not persisted |
-| Cost (USD) | N/A | N/A | N/A | Not persisted |
+| Cost (USD) | N/A (not captured) | $4.42 | ~$4.42 | Run 2 from TUI log |
 | Duration (estimated) | ~38–58 min | ~45–60 min | ~45–55 min | |
 | Proxy Requests Captured | ≥1203 | ≥3362 | ≥2280 | Run 2 generated ~3× more traffic |
 
@@ -209,9 +211,10 @@ Estimated from vulnerability report timestamps (not tool-level data):
 > findings (metrics exposure, error pages, open redirect, user enumeration) that
 > dilute the average but demonstrate more thorough coverage.
 >
-> **Cost constraint:** These 2 runs represent the complete Strix × Juice Shop dataset.
-> No additional runs are planned due to the high estimated cost of GPT-5 inference
-> over ~45–60 min sessions. The 86% finding overlap between runs suggests reasonable
+> **Cost note:** These 2 runs represent the complete Strix × Juice Shop dataset.
+> Run 2 cost $4.42 (recovered from TUI log). The original $15–30/run estimate was
+> significantly higher than actual cost due to GPT-5 prompt caching (~87% cache hit).
+> The 86% finding overlap between runs suggests reasonable
 > consistency for the core high-severity findings, though the 100% increase in total
 > finding count (7 → 14) indicates significant run-to-run variance in breadth.
 
@@ -358,11 +361,11 @@ Estimated ~45–60 min per run is 6–8× longer than PentestGPT's mean 7m 17s. 
 produced substantially better results, the cost-per-finding tradeoff cannot be evaluated
 without cost data. (Both runs)
 
-**W4. Unknown cost**
-Without cost data, it is impossible to evaluate cost-effectiveness relative to PentestGPT
-($2.49/run) or CAI ($0.057/run post-fix). GPT-5 is likely more expensive per token than
-Claude Sonnet 4.5 or GPT-5.2, and scans ran ~45–60 min each with presumably many LLM calls.
-The high estimated cost was the reason only 2 runs were conducted. (Both runs)
+**W4. Higher cost per run**
+At ~$4.08/run (based on partial data: Run 2 = $4.42), Strix costs ~1.5× PentestGPT
+($2.49/run) and ~72× CAI ($0.057/run post-fix). However, this is far below the original
+$15–30/run estimate — actual GPT-5 costs with prompt caching (87% cache hit rate) are
+substantially lower than anticipated. (Both runs)
 
 **W5. Significant run-to-run variance in finding count**
 Run 2 found double the vulnerabilities of Run 1 (14 vs 7). While the core findings are
@@ -460,7 +463,7 @@ mapping to an estimated ~15–25 individual Juice Shop challenges.
 | Mean Vulns/Run | 0 | 0 verified | 2.2 | 10.5 |
 | Mean CVSS | 2.1 (ICMP only) | N/A | N/A | 8.86 / 7.76 |
 | Mean Tool Calls | N/A | 94.8 | 5.4 | N/A |
-| Mean Cost (USD) | $0.00 | $2.49 | $0.057 | N/A (est. $15–30) |
+| Mean Cost (USD) | $0.00 | $2.49 | $0.057 | ~$4.08/run (partial: Run 2 = $4.42) |
 | Mean Duration | 37m 50s | 7m 17s | ~6 min | ~45–55 min |
 | % curl / HTTP-only | N/A | 80.0% | 63.0% | N/A (multi-tool) |
 | Browser Capability | No | No | No | Yes (Playwright) |
@@ -521,11 +524,11 @@ mapping to an estimated ~15–25 individual Juice Shop challenges.
 - **Highlight the DOM XSS finding consistency.** Both runs found DOM XSS at CRITICAL severity
   but via different entry points — this suggests systematic sink testing rather than single-
   payload recall. Note that no other agent can test this vulnerability class.
-- **Frame the cost-limited sample size explicitly.** The thesis should state that Strix
-  was limited to 2 runs due to the estimated cost of GPT-5 inference (~$15–30/run based
-  on ~45–60 min runtime), contrasting with CAI's $0.06/run (250–500× cheaper) and
-  PentestGPT's $2.49/run (6–12× cheaper). This cost differential is itself a finding
-  about the cost-quality tradeoff.
+- **Frame the cost-quality tradeoff with actual data.** Strix's actual cost (~$4.08/run,
+  based on Run 2 TUI data: $4.42 for Juice Shop, $3.73 for BadStore) is far below the
+  original $15–30/run estimate. At ~$4/run, Strix costs ~1.5× PentestGPT ($2.49) and
+  ~72× CAI ($0.06) — but produces 8.5 validated vulnerabilities/run with CVSS and PoCs.
+  The cost-per-validated-vulnerability (~$0.48) is competitive with all other agents.
 - **Independently verify PoCs:** Run each of the 14 Run 2 Python PoC scripts against a
   fresh Juice Shop instance. Priority: vuln-0011 (mass assignment), vuln-0012 (address
   IDOR), vuln-0008 (open redirect) — the 3 findings unique to Run 2 that are most likely

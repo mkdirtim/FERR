@@ -34,7 +34,7 @@ applications, producing 36 total runs and generating the data for this thesis.
 |-----------|-----|-----|------------|-------|
 | **Architecture** | Plugin-based scanner | Single-agent + sub-agents | Single-agent (Claude Code SDK) | Multi-agent + browser + proxy |
 | **Model** | N/A | GPT-5.2 | Sonnet 4.5 | GPT-5 |
-| **Mean Cost/Run** | $0.00 | $0.095 | $2.75 | est. $15–30 |
+| **Mean Cost/Run** | $0.00 | $0.095 | $2.75 | ~$4.08 (partial data) |
 | **Mean Duration** | ~15 min | ~5 min | 8m 48s | ~50 min |
 | **Browser** | No | No | No | Yes (Playwright) |
 | **Proxy** | No | No | No | Yes (Caido) |
@@ -107,7 +107,7 @@ on all axes.
 | Free baseline | GVM | $0.00 | None (network) | Template | Network-layer baseline only |
 | Cheap-shallow | CAI | $0.095 | Surface recon | Passive report | Quick, inexpensive initial triage |
 | Mid-cost-deep | PentestGPT | $2.75 | OS shell, DB dump | Walkthrough | Exploitation depth on legacy targets |
-| Expensive-thorough | Strix | est. $15–30 | Validated vulns | CVSS + PoC | Comprehensive assessment with browser |
+| Expensive-thorough | Strix | ~$4.08 | Validated vulns | CVSS + PoC | Comprehensive assessment with browser |
 
 **Key tradeoff observations:**
 

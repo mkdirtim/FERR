@@ -455,8 +455,8 @@ upload.
 | Unique Findings | 0 (app-layer) | 10 (across 5 runs) | 10/14 categories | 9 unique (mean 6.5/run) |
 | Exploitation Runs | N/A | 3/5 (60%) | 5/5 (100%) | 2/2 (100%) |
 | Mean Tool Calls | N/A | 11.0 | 131.8 | N/A |
-| Mean Cost (USD) | $0.00 | $0.133 | $3.00 | N/A |
-| Total Cost | $0.00 | $0.67 | $14.99 | N/A |
+| Mean Cost (USD) | $0.00 | $0.133 | $3.00 | ~$4.08 (partial data) |
+| Total Cost | $0.00 | $0.67 | $14.99 | ~$16.30 (est.) |
 | Mean Duration | 6m 44s | ~4 min (active) | 10m 19s | ~45–60 min (est.) |
 | % curl/HTTP | N/A | 72.7% | 50.9% | N/A |
 | SQLi Found | No | Yes (search, Runs 2, 5) | Yes (search + login) | Yes (3: search + login + cart add) |

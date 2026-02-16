@@ -56,16 +56,19 @@ how application architecture influences agent consistency.
 **Single round.** All 4 runs used the same agent version, model, and
 configuration. No changes between runs.
 
-**Cost-limited sample size.** The n=2 per target sample was constrained by the
-estimated cost of GPT-5 inference over ~45–60 minute sessions (est. $15–30/run).
-This limits statistical power for variance estimates but provides meaningful
-cross-run overlap data.
+**Cost-limited sample size.** The n=2 per target sample was originally constrained by an
+estimated cost of $15–30/run. Actual costs recovered from TUI logs are significantly lower:
+$4.42/run (Juice Shop Run 2) and $3.73/run (BadStore Run 2), mean ~$4.08/run. GPT-5 prompt
+caching (~87% cache hit rate) substantially reduced effective cost. This limits statistical
+power for variance estimates but provides meaningful cross-run overlap data.
 
 **Metric availability.** Strix persists vulnerability reports (`vuln-*.md`),
 a CSV index (`vulnerabilities.csv`), and executive reports (`penetration_test_report.md`)
 to its output archive. It does **not** persist raw tool execution logs, cost data,
 or command breakdowns. Cost and tool call counts are computed at runtime but not
-saved to disk. Duration is estimated from vulnerability timestamps.
+saved to disk. Run 2 costs were recovered from terminal log captures (`strix-juiceshop.txt`,
+`strix-badstore.txt`) which preserved the TUI summary panels. Run 1 costs were not captured.
+Duration is estimated from vulnerability timestamps.
 
 ---
 
@@ -82,7 +85,7 @@ saved to disk. Duration is estimated from vulnerability timestamps.
 | High Findings (unique) | 6 | 2 | 8 |
 | Medium Findings (unique) | 4 | 0 | 4 |
 | Tool Calls | N/A | N/A | N/A |
-| Cost | N/A (est. $15–30/run) | N/A (est. $15–30/run) | N/A (est. $60–120 total) |
+| Cost | $4.42 (Run 2; Run 1 N/A) | $3.73 (Run 2; Run 1 N/A) | ~$16.30 (est. from mean $4.08/run) |
 | Duration (estimated) | ~45–55 min | ~45–60 min | ~50 min mean |
 | Cross-Run Overlap | 40% (6/15) | 44% (4/9) | ~42% |
 | Browser Vulns Found | 2 (DOM XSS) | 3 (reflected + stored XSS) | 5 |
@@ -136,22 +139,21 @@ were demonstrably used:
 
 | Agent × Target | Mean Cost | Total Cost | Unique Findings | Cost/Finding |
 |----------------|-----------|------------|-----------------|--------------|
-| Strix × Juice Shop (n=2) | N/A | N/A | 15 unique vulns | N/A |
-| Strix × BadStore (n=2) | N/A | N/A | 9 unique vulns | N/A |
-| Strix combined (n=4) | N/A (est. $15–30/run) | N/A (est. $60–120) | 24 unique vulns | est. ~$2.50–5.00/vuln |
+| Strix × Juice Shop (n=2) | ~$4.42 (Run 2 actual) | ~$8.84 (est.) | 15 unique vulns | ~$0.59/vuln |
+| Strix × BadStore (n=2) | ~$3.73 (Run 2 actual) | ~$7.46 (est.) | 9 unique vulns | ~$0.83/vuln |
+| Strix combined (n=4) | ~$4.08/run | ~$16.30 (est.) | 24 unique vulns | ~$0.68/vuln |
 | PentestGPT combined (n=10) | $2.75 | $27.45 | ~11 categories | ~$2.50/cat |
 | CAI combined (post-fix, n=10) | $0.095 | $0.95 | 15 unique | ~$0.06/finding |
 | GVM combined (n=2) | $0.00 | $0.00 | 1 (ICMP) | $0.00 |
 
-**Cost data is unavailable but the cost-quality tradeoff is inferable.**
-Strix's estimated $15–30/run produces 8.5 validated vulnerabilities per run
-with CVSS scoring and executable PoCs — output quality that no other agent
-approaches. If the estimate holds, Strix's cost-per-validated-vulnerability
-(~$2.50–5.00) is comparable to PentestGPT's cost-per-category (~$2.50) but
-with substantially higher output quality (structured PoCs vs. narrative
-walkthroughs).
+**Actual cost data recovered from TUI logs reveals Strix is far cheaper than estimated.**
+At ~$4.08/run (mean of Run 2 actuals: $4.42 Juice Shop, $3.73 BadStore), Strix's
+cost-per-validated-vulnerability is ~$0.68 — substantially cheaper than PentestGPT's
+cost-per-category (~$2.50) while producing higher quality output (structured PoCs with
+CVSS scoring vs. narrative walkthroughs). GPT-5 prompt caching (~87% cache hit rate)
+is the key cost reducer: 7.9–6.6M of 9.1–7.6M input tokens were cached.
 
-The cost constraint is itself a thesis finding: the most capable agent is also
+The cost positioning is a thesis finding: the most capable agent is also
 the most expensive, creating a practical limit on sample size (n=2 vs. n=5 for
 PentestGPT and CAI) that directly impacts statistical power.
 
@@ -231,8 +233,8 @@ in one run; PentestGPT exploited it as a side effect of SQLi).
 | Model | N/A | GPT-5.2 | Sonnet 4.5 | GPT-5 |
 | Runs (per target) | 1 | 5 | 5 | 2 |
 | Total Runs | 2 | 10 (post-fix) | 10 | 4 |
-| Mean Cost/Run | $0.00 | $0.095 | $2.75 | N/A (est. $15–30) |
-| Total Cost | $0.00 | $0.95 | $27.45 | N/A (est. $60–120) |
+| Mean Cost/Run | $0.00 | $0.095 | $2.75 | ~$4.08 (partial data) |
+| Total Cost | $0.00 | $0.95 | $27.45 | ~$16.30 (est.) |
 | Mean Duration | ~15 min | ~5 min | 8m 48s | ~50 min |
 | Browser | No | No | No | Yes (Playwright) |
 | Proxy | No | No | No | Yes (Caido) |
@@ -506,13 +508,14 @@ quality, but PentestGPT achieves deeper exploitation depth on specific targets.
 
 ### 8b. Future Work
 
-1. **Capture cost data.** Re-run with LiteLLM cost logging enabled or estimate
-   from OpenAI billing data. This is the highest-priority missing metric.
+1. **Capture remaining cost data.** Run 2 costs were recovered from TUI terminal
+   logs ($4.42 Juice Shop, $3.73 BadStore). Run 1 costs remain uncaptured. Check
+   OpenAI billing data or re-run with terminal logging to complete the dataset.
 
 2. **Increase sample size.** 5 runs per target would enable meaningful aggregate
-   statistics. This requires either lower-cost model alternatives (e.g., GPT-5
-   mini if available) or budget allocation for ~$150–300 in additional inference
-   cost.
+   statistics. At ~$4.08/run (actual, not the original $15–30 estimate), this
+   requires ~$24 in additional inference cost (6 more runs) — far more feasible
+   than originally anticipated.
 
 3. **Verify PoCs independently.** Execute all 34 Python PoC scripts against
    fresh target instances. Priority: mass assignment (JS vuln-0011), address

@@ -27,8 +27,8 @@
 
 | Run | Tool Calls | Flags Submitted | Vulnerabilities Reported | Cost (USD) | Duration |
 |-----|------------|-----------------|--------------------------|------------|----------|
-| 1 | N/A | N/A | 7 (5 Critical, 2 High) | N/A | ~39 min (estimated) |
-| 2 | N/A | N/A | 6 (5 Critical, 1 High) | N/A | ~40 min (estimated) |
+| 1 | N/A | N/A | 7 (5 Critical, 2 High) | N/A (not captured) | ~39 min (estimated) |
+| 2 | N/A | N/A | 6 (5 Critical, 1 High) | $3.73 | ~40 min (estimated) |
 
 > **Metric availability:**
 >
@@ -38,7 +38,10 @@
 >   of a `[FLAG]` mechanism. BadStore has no CTF flag system regardless.
 > - **Vulnerabilities Reported:** Count of `vuln-*.md` files in respective run directories.
 >   Each passed structured validation (required fields, CVSS vector, dedup check).
-> - **Cost:** Not available. Computed at runtime by LiteLLM but not persisted.
+> - **Cost:** Partially available. LiteLLM computes cost at runtime and displays it in the
+>   TUI summary panel but does not persist it. Run 2 cost ($3.73) was recovered from
+>   the terminal log (`strix-badstore.txt`): Input 7.6M tokens, Cached 6.6M, Output 69.9K.
+>   Run 1 cost was not captured (no terminal log).
 > - **Duration:** Estimated from vulnerability timestamps.
 >   - **Run 1:** First vulnerability at 00:43:08 UTC, report generated at 01:21:51 UTC
 >     (~39 min vuln span). Actual scan includes pre-vuln reconnaissance, so total
@@ -178,7 +181,7 @@ Not available from the output archives. Based on vulnerability report evidence:
 | Vulnerabilities Reported | 7 | 6 | 6.5 | 0.7 | 9 unique across both |
 | Mean CVSS Score | 9.14 | 9.27 | 9.21 | — | Range: 7.1 – 10.0 |
 | Tool Calls | N/A | N/A | — | — | Not persisted |
-| Cost (USD) | N/A | N/A | — | — | Not persisted |
+| Cost (USD) | N/A (not captured) | $3.73 | ~$3.73 | — | Run 2 from TUI log |
 | Duration (estimated) | ~45–60 min | ~45–60 min | ~50 min | — | Consistent across runs |
 | Proxy Requests Captured | ≥530 | N/R | — | — | Run 2 reports lack request IDs |
 | Completion Rate | 100% | 100% | 100% | — | 2/2 completed |
@@ -403,7 +406,7 @@ known BadStore vulnerability surface, up from ~65–75% estimated from a single 
 | Vulnerabilities Found | 0 | 10/14 categories exploited | 3 (Run 1 only; 100% stall) | 9 unique (mean 6.5/run) |
 | Mean CVSS | 0.0 | N/A (no CVSS scoring) | N/A (no CVSS scoring) | 9.21 |
 | Mean Tool Calls | N/A | 131.8 | 6.6 | N/A |
-| Mean Cost (USD) | $0.00 | $3.00/run | $0.045/run | N/A |
+| Mean Cost (USD) | $0.00 | $3.00/run | $0.045/run | ~$4.08/run (partial: Run 2 = $3.73) |
 | Mean Duration | 6m 44s | 10m 19s | ~4 min (pre-stall) | ~45–60 min (est.) |
 | SQLi Found | No | Yes (all 5 runs) | Yes (Run 1 only) | Yes (3 endpoints: search, login, cart add) |
 | XSS Found | No | No (no browser) | Yes (Run 1, reflected) | Yes (2: reflected + stored) |

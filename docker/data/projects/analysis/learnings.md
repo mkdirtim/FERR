@@ -345,7 +345,7 @@ CAI and PentestGPT declare "mission complete" before exhausting configured budge
 - [ ] **Implement browser integration (Playwright headless).** 5 XSS findings exclusively from Strix prove that ~15–20% of web application attack surface is unreachable without a browser. Reference: `strix/strix/tools/browser/browser_instance.py`.
 - [ ] **Adopt structured vulnerability reporting with CVSS and PoC requirement.** Strix's `create_vulnerability_report` with field validation and deduplication is the benchmark gold standard. Eliminates unverifiable claims (0% PentestGPT flag verification, CAI passive-only reports). Reference: `strix/strix/tools/reporting/reporting_actions.py`.
 - [ ] **Implement sandbox isolation via tool-server architecture.** Strix's authenticated HTTP tool-server between orchestrator and Kali container provides reproducibility, security, and clean separation of concerns. Reference: `strix/strix/runtime/tool_server.py`, `strix/strix/runtime/docker_runtime.py`.
-- [ ] **Add cost-aware budget enforcement.** CAI's preflight and streaming price limit checks prevent cost overruns during autonomous sessions. Critical for expensive models (Strix est. $15–30/run). Reference: `cai/src/cai/util.py:416`, `cai/src/cai/sdk/agents/models/openai_chatcompletions.py:686`.
+- [ ] **Add cost-aware budget enforcement.** CAI's preflight and streaming price limit checks prevent cost overruns during autonomous sessions. Useful even at moderate costs (Strix ~$4.08/run actual). Reference: `cai/src/cai/util.py:416`, `cai/src/cai/sdk/agents/models/openai_chatcompletions.py:686`.
 - [ ] **Enforce structured termination contracts.** Strix's `finish_scan` tool prevents premature self-termination. Without this, agents use only 5–56% of their configured budgets. Reference: `strix/strix/tools/finish/finish_actions.py`.
 
 ### Should Have
@@ -380,7 +380,7 @@ CAI and PentestGPT declare "mission complete" before exhausting configured budge
 | Exploit effectiveness | 0–60% stochastic; 1 sophisticated chain in 20 runs | High on BadStore (OS shell 4/5); moderate on JS | Consistent 6–14 vulns/run; no OS-level | **PentestGPT** for depth; **Strix** for breadth and consistency |
 | Browser support | No (designed for CLI-only) | No (by design) | Yes (Playwright headless, per-agent contexts) | **Strix** — binary capability threshold |
 | Reporting quality | Plaintext report, informal severity | Walkthrough narrative, no severity | CVSS + PoC + CSV index, professional grade | **Strix** — only actionable output format |
-| Cost efficiency | $0.095/run (cheapest productive) | $2.75/run (mid-range) | est. $15–30/run (most expensive) | **CAI** for triage; **PentestGPT** for cost-depth balance |
+| Cost efficiency | $0.095/run (cheapest productive) | $2.75/run (mid-range) | ~$4.08/run (most expensive) | **CAI** for triage; **PentestGPT** for cost-depth balance |
 | Code quality | Clean SDK architecture; complex CLI path | Clean separation; weak safety defaults | Well-structured; sequential tool execution limitation | **CAI** for framework reuse; **Strix** for pentest runtime |
 | Scorecard (validated) | 34 / 50 | 31 / 50 | 43 / 50 | **Strix** (43/50) |
 

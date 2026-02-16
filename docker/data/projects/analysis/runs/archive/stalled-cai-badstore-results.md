@@ -354,7 +354,7 @@ injection, file upload.
 | Vulnerabilities Found | 0 | 3 (Run 1 only) | 10/14 categories | 9 unique (mean 6.5/run) |
 | Exploitation Runs | N/A | 1/5 (20%) | 5/5 (100%) | 2/2 (100%) |
 | Mean Tool Calls | N/A | 6.6 (before stall) | 131.8 | N/A |
-| Mean Cost (USD) | $0.00 | $0.045 | $3.00 | N/A |
+| Mean Cost (USD) | $0.00 | $0.045 | $3.00 | ~$4.08 (partial data) |
 | Mean Duration | 6m 44s | ~4 min (before stall) | 10m 19s | ~45–60 min (est.) |
 | % curl/HTTP | N/A | 81.8% | 50.9% | N/A |
 | SQLi Found | No | Yes (Run 1, search) | Yes (all 5, search + login) | Yes (3: search + login + cart add) |

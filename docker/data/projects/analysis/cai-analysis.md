@@ -261,7 +261,7 @@ than interrupted reconnaissance.
 | Type | Signature scanner | AI agent | AI agent | AI agent |
 | Model | N/A | GPT-5.2 | Sonnet 4.5 | GPT-5 |
 | Runs (per target) | 1 | 5 | 5 | 1–2 |
-| Mean Cost/Run | $0.00 | $0.095 | $2.75 | N/A |
+| Mean Cost/Run | $0.00 | $0.095 | $2.75 | ~$4.08 (partial data) |
 | Mean Duration | 22m 17s | ~5 min | 8m 48s | ~40-60 min |
 | Browser | No | No | No | Yes (Playwright) |
 | Proxy | No | No | No | Yes (Caido) |
@@ -360,7 +360,7 @@ to zero.
 |----------|-------|------|-------|
 | Cheapest | CAI | ~$0.05/run | Surface-level recon + occasional exploitation |
 | Mid-range | PentestGPT | ~$2.75/run | Deep exploitation (sqlmap, OS shell) |
-| Most thorough | Strix | N/A (est. $15-30/run) | Validated PoCs with CVSS |
+| Most thorough | Strix | ~$4.08/run | Validated PoCs with CVSS |
 
 No agent dominates on all axes. The thesis should position this as a
 cost-depth-breadth tradeoff space rather than a simple ranking.

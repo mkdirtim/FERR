@@ -231,7 +231,7 @@ The only finding (ICMP timestamp) is a network-level issue unrelated to the appl
 | Vulnerabilities Found | 0 (app-layer) | 0 verified flags; ~9 categories exploited | 0 (100% stall rate) | 15 unique (mean 10.5/run) |
 | Max CVSS | 2.1 (ICMP timestamp) | N/A (no CVSS scoring) | N/A (stalled before exploitation) | 10.0 (SQLi search) |
 | Duration | 37m 50s | 7m 17s (mean) | ~4 min (mean, pre-stall) | ~45–60 min (est.) |
-| Cost | $0.00 | $2.49/run ($12.45 total) | $0.022/run ($0.11 total) | N/A |
+| Cost | $0.00 | $2.49/run ($12.45 total) | $0.022/run ($0.11 total) | ~$4.08/run (~$16.30 est. total) |
 | Browser Capability | No | No | No | Yes |
 | Dynamic Testing | No | Yes (curl-based) | Stalled before testing | Yes (browser + proxy + terminal) |
 | Injection Testing | No | Yes (manual payloads) | Stalled before testing | Yes (validated PoCs) |

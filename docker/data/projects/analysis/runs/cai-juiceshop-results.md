@@ -398,8 +398,8 @@ to passive observation of HTTP responses and directory listings.
 | Vulnerabilities Found | 0 (app-layer) | 0 verified flags; ~9 categories exploited | 5 unique findings (passive) | 15 unique (mean 10.5/run) |
 | Mean Tool Calls | N/A (plugin-based) | 94.8 | 5.4 | N/A (not logged) |
 | Mean Flags Submitted | N/A | 3.4 | 0 (no flag mechanism) | N/A (reports instead) |
-| Mean Cost (USD) | $0.00 | $2.49 | $0.057 | N/A (not logged) |
-| Total Cost | $0.00 | $12.45 | $0.28 | N/A |
+| Mean Cost (USD) | $0.00 | $2.49 | $0.057 | ~$4.08 (partial data) |
+| Total Cost | $0.00 | $12.45 | $0.28 | ~$16.30 (est.) |
 | Mean Duration | 37m 50s | 7m 17s | ~6 min (incl. stall) | ~45–60 min (est.) |
 | % curl | N/A | 80.0% | 63.0% | N/A (multi-tool) |
 | % specialized tools | N/A | 1.1% | 11.1% | N/A |

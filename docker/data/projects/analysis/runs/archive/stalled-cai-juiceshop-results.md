@@ -286,7 +286,7 @@ endpoints).
 | Completion Rate | 100% (scan) | 0% (all stalled) | 100% | 100% (2/2 completed) |
 | Vulnerabilities Found | 0 (app-layer) | 0 (stalled) | 0 verified flags | 15 unique (mean 10.5/run) |
 | Mean Tool Calls | N/A | 6.6 (before stall) | 94.8 | N/A |
-| Mean Cost (USD) | $0.00 | $0.022 | $2.49 | N/A |
+| Mean Cost (USD) | $0.00 | $0.022 | $2.49 | ~$4.08 (partial data) |
 | Mean Duration | 37m 50s | ~4 min (before stall) | 7m 17s | ~45–60 min (est.) |
 | % curl/HTTP | N/A | 60.6% | 80.0% | N/A |
 | Exploitation Attempted | No | No (stalled) | Yes (SQLi, auth bypass) | Yes (SQLi, XSS, JWT, IDOR, mass assignment) |

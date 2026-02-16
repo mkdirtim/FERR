@@ -110,14 +110,14 @@ flowchart TD
     PREP --> TARGETS[infer_target_type + assign_workspace_subdirs + rewrite_localhost_targets]
     TARGETS --> MODE{--non-interactive?}
 
-    MODE -- yes --> CLI[run_cli(args)]
-    MODE -- no --> TUI[run_tui(args)]
+    MODE -- yes --> CLI[run_cli]
+    MODE -- no --> TUI[run_tui]
 
-    CLI --> AGENT
-    TUI --> AGENT
+    CLI --> SCAN
+    TUI --> SCAN
 
-    subgraph AGENT [StrixAgent/BaseAgent Loop]
-      AGENT[StrixAgent.execute_scan builds task] --> INIT[_initialize_sandbox_and_state]
+    subgraph AGENT_LOOP [StrixAgent/BaseAgent Loop]
+      SCAN[StrixAgent.execute_scan builds task] --> INIT[_initialize_sandbox_and_state]
       INIT --> ITER[while loop: increment iteration]
       ITER --> LLM[LLM.generate stream]
       LLM --> PARSETOOLS[parse_tool_invocations XML]

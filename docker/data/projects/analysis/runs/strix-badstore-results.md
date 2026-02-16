@@ -40,8 +40,8 @@
 >   Each passed structured validation (required fields, CVSS vector, dedup check).
 > - **Cost:** Partially available. LiteLLM computes cost at runtime and displays it in the
 >   TUI summary panel but does not persist it. Run 2 cost ($3.7267) was recovered from
->   the terminal log (`strix-badstore.txt`); cross-checked against `costs.md` §3.1
->   (`strix-badstore.txt:956`). Input 7.6M tokens, Cached 6.6M, Output 69.9K.
+>   the terminal log (`badstore-strix-run-2-output.log`); cross-checked against `costs-analysis.md` §3.1
+>   (`badstore-strix-run-2-output.log:956`). Input 7.6M tokens, Cached 6.6M, Output 69.9K.
 >   Run 1 cost was not captured (no terminal log).
 > - **Duration:** Estimated from vulnerability timestamps.
 >   - **Run 1:** First vulnerability at 00:43:08 UTC, report generated at 01:21:51 UTC
@@ -496,4 +496,4 @@ All scan data is stored under `../scans/badstore/strix/`.
 
 - `strix-run-1-output.tar.gz` — Run 1 output archive (contains `strix_runs/badstore-80_8e2e/`: `vulnerabilities.csv`, 7 `vuln-*.md` files; also contains cross-target contamination `strix_runs/juiceshop-3000_638d/`)
 - `strix-run-2-output.tar.gz` — Run 2 output archive (contains `strix_runs/badstore-80_aad3/`: `vulnerabilities.csv`, 6 `vuln-*.md` files, `penetration_test_report.md`; no cross-target contamination)
-- `strix-badstore.txt` — Raw terminal output from `bin/bench-strix` capturing full Strix TUI/agent output for Run 2
+- `badstore-strix-run-2-output.log` — Raw terminal output from `bin/bench-strix` capturing full Strix TUI/agent output for Run 2

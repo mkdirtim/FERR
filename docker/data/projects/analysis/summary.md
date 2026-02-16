@@ -516,7 +516,7 @@ Each agent made findings that no other agent produced:
 | `strix-analysis.md` | Strix | Cross-target synthesis (4 runs) | ~640 |
 | `summary.md` | All | This document | — |
 | `learnings.md` | All | Cross-agent comparative analysis and design learnings | ~489 |
-| `costs.md` | All | Artifact-sourced cost data with per-run source line references | ~98 |
+| `costs-analysis.md` | All | Artifact-sourced cost data with per-run source line references | ~98 |
 
 ### 8b. Per-Target Results Files
 

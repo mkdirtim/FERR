@@ -32,8 +32,8 @@ This file consolidates all **documented** costs found in benchmark artifacts und
 
 ### 3.1 Strix (primary logs)
 
-- `/playground/scans/badstore/strix/strix-badstore.txt:956` -> `$3.7267`
-- `/playground/scans/juiceshop/strix/strix-juiceshop.txt:2570` -> `$4.4152`
+- `/playground/scans/badstore/strix/badstore-strix-run-2-output.log:956` -> `$3.7267`
+- `/playground/scans/juiceshop/strix/juiceshop-strix-run-2-output.log:2570` -> `$4.4152`
 
 ### 3.2 PentestGPT (primary logs)
 

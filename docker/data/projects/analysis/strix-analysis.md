@@ -66,9 +66,9 @@ statistical power for variance estimates but provides meaningful cross-run overl
 a CSV index (`vulnerabilities.csv`), and executive reports (`penetration_test_report.md`)
 to its output archive. It does **not** persist raw tool execution logs, cost data,
 or command breakdowns. Cost and tool call counts are computed at runtime but not
-saved to disk. Run 2 costs were recovered from terminal log captures (`strix-juiceshop.txt`,
-`strix-badstore.txt`) which preserved the TUI summary panels, and cross-checked against
-`costs.md` §3.1 (source lines: `strix-juiceshop.txt:2570`, `strix-badstore.txt:956`).
+saved to disk. Run 2 costs were recovered from terminal log captures (`juiceshop-strix-run-2-output.log`,
+`badstore-strix-run-2-output.log`) which preserved the TUI summary panels, and cross-checked against
+`costs-analysis.md` §3.1 (source lines: `juiceshop-strix-run-2-output.log:2570`, `badstore-strix-run-2-output.log:956`).
 Run 1 costs were not captured.
 Duration is estimated from vulnerability timestamps.
 
@@ -150,7 +150,7 @@ were demonstrably used:
 
 **Actual cost data recovered from TUI logs reveals Strix is far cheaper than estimated.**
 At ~$4.07/run (mean of Run 2 actuals: $4.4152 Juice Shop, $3.7267 BadStore; documented
-total $8.1419 in `costs.md` §1), Strix's
+total $8.1419 in `costs-analysis.md` §1), Strix's
 cost-per-validated-vulnerability is ~$0.68 — substantially cheaper than PentestGPT's
 cost-per-category (~$2.50) while producing higher quality output (structured PoCs with
 CVSS scoring vs. narrative walkthroughs). GPT-5 prompt caching (~87% cache hit rate)
@@ -457,7 +457,7 @@ quality, but PentestGPT achieves deeper exploitation depth on specific targets.
 
 - **Partial cost data (recovered).** Cost data was recovered from TUI terminal
   logs for Run 2 on each target ($3.7267 BadStore, $4.4152 Juice Shop; documented
-  total $8.1419 in `costs.md` §1). Run 1 costs remain unavailable. The mean
+  total $8.1419 in `costs-analysis.md` §1). Run 1 costs remain unavailable. The mean
   ~$4.07/run is based on Run 2 only; total cost
   (~$16.30) is estimated by extrapolation. This partial data enables
   cost-per-finding calculation (~$0.68/vuln) but with lower confidence than
@@ -537,7 +537,7 @@ quality, but PentestGPT achieves deeper exploitation depth on specific targets.
 
 4. **Enhance logging.** Modify `bench-strix` to capture console output via
    `tee`, persist timing data, and record tool call counts. The existing
-   `strix-juiceshop.txt` and `strix-badstore.txt` terminal captures for Run 2
+   `juiceshop-strix-run-2-output.log` and `badstore-strix-run-2-output.log` terminal captures for Run 2
    demonstrate the feasibility of this approach.
 
 5. **Investigate OS-level exploitation gap.** Determine whether Strix attempted
@@ -563,8 +563,8 @@ quality, but PentestGPT achieves deeper exploitation depth on specific targets.
 
 | Target | Path | Files |
 |--------|------|-------|
-| Juice Shop | `../scans/juiceshop/strix/` | `strix-run-1-output.tar.gz`, `strix-run-2-output.tar.gz`, `strix-juiceshop.txt` |
-| BadStore | `../scans/badstore/strix/` | `strix-run-1-output.tar.gz`, `strix-run-2-output.tar.gz`, `strix-badstore.txt` |
+| Juice Shop | `../scans/juiceshop/strix/` | `strix-run-1-output.tar.gz`, `strix-run-2-output.tar.gz`, `juiceshop-strix-run-2-output.log` |
+| BadStore | `../scans/badstore/strix/` | `strix-run-1-output.tar.gz`, `strix-run-2-output.tar.gz`, `badstore-strix-run-2-output.log` |
 
 ### A3. Cross-Agent Comparison Data
 

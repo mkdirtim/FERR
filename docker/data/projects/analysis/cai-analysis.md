@@ -568,8 +568,8 @@ results or analysis file:
 | `../scans/badstore/manual/nmap.txt` | Nmap port scan output | Manual baseline scans — out of thesis scope |
 | `../scans/badstore/manual/zap.md` | OWASP ZAP scan report | Manual baseline scans — out of thesis scope |
 | `../scans/badstore/manual/sqlmap/` | sqlmap scan results (CSV + logs) | Manual baseline scans — out of thesis scope |
-| `../scans/juiceshop/strix/strix-juiceshop.txt` | Strix console log (~221 KB) | Raw terminal output; data captured in tar.gz archives |
-| `../scans/badstore/strix/strix-badstore.txt` | Strix console log (~83 KB) | Raw terminal output; data captured in tar.gz archives |
+| `../scans/juiceshop/strix/juiceshop-strix-run-2-output.log` | Strix console log (~221 KB) | Raw terminal output; data captured in tar.gz archives |
+| `../scans/badstore/strix/badstore-strix-run-2-output.log` | Strix console log (~83 KB) | Raw terminal output; data captured in tar.gz archives |
 | `../scans/archive/` | Manual scans for DVWA, WebGoat, bwapp | Archived targets not included in thesis |
 
 ## Appendix B: Aggregate Statistics by Round

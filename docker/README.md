@@ -364,7 +364,7 @@ data/projects/
     ├── strix-analysis.md
     ├── summary.md                           # benchmark summary (all agents)
     ├── learnings.md                         # cross-agent learnings for OpenHack
-    └── costs.md                             # artifact-sourced cost data
+    └── costs-analysis.md                             # artifact-sourced cost data
 ```
 
 ### XBOW Benchmarks

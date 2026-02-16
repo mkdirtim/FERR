@@ -277,7 +277,7 @@ A bug in `fix_message_list()` (`cai/src/cai/util.py:1250`) caused 100% stall rat
 
 **F6. Strix's incomplete cost instrumentation**
 Strix does not persist cost/token data to its output archive, creating a gap in the cost-effectiveness analysis for the most capable agent. Run 2 costs were partially recovered from TUI terminal logs ($4.42 Juice Shop, $3.73 BadStore, mean ~$4.08/run) — far below the original $15–30/run estimate due to GPT-5 prompt caching (~87% cache hit rate). However, Run 1 costs remain uncaptured, and the recovery method (manual log inspection) is not scalable. The lack of native cost instrumentation is a design limitation that any production agent should address.
-*Evidence: `strix-analysis.md` §4b. Recovered from `strix-juiceshop.txt` and `strix-badstore.txt` TUI logs. Total ~$16.30 est. extrapolated from Run 2 data only.*
+*Evidence: `strix-analysis.md` §4b. Recovered from `juiceshop-strix-run-2-output.log` and `badstore-strix-run-2-output.log` TUI logs. Total ~$16.30 est. extrapolated from Run 2 data only.*
 
 **F7. CAI and PentestGPT premature self-termination (Strix utilization unclear)**
 CAI and PentestGPT declare "mission complete" before exhausting configured budgets. Budget utilization ranges from 5% (CAI) to ~56% (PentestGPT). For Strix, iteration utilization is unknown in available archives, so only a directional conclusion is possible there.
@@ -456,7 +456,7 @@ Based on comparative analysis, OpenHack should adopt a **Strix-influenced archit
 | `strix-analysis.md` | Strix cross-target synthesis (4 runs) | ~640 |
 | `summary.md` | Benchmark summary — all agents | ~472 |
 | `learnings.md` | This document | ~489 |
-| `costs.md` | Artifact-sourced cost data with per-run source line references | ~98 |
+| `costs-analysis.md` | Artifact-sourced cost data with per-run source line references | ~98 |
 
 ### Project Analysis Files
 

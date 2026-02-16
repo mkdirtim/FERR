@@ -45,8 +45,8 @@
 >   vector validation, duplicate rejection) before persistence.
 > - **Cost:** Partially available. LiteLLM's `completion_cost()` computes this at runtime;
 >   the value is displayed in the TUI summary panel but not saved to the output archive.
->   Run 2 cost ($4.4152) was recovered from the terminal log (`strix-juiceshop.txt`);
->   cross-checked against `costs.md` §3.1 (`strix-juiceshop.txt:2570`).
+>   Run 2 cost ($4.4152) was recovered from the terminal log (`juiceshop-strix-run-2-output.log`);
+>   cross-checked against `costs-analysis.md` §3.1 (`juiceshop-strix-run-2-output.log:2570`).
 >   Input 9.1M tokens, Cached 7.9M, Output 71.7K. Run 1 cost was not captured (no terminal log).
 > - **Duration:** Estimated from vulnerability timestamps.
 >   - Run 1: First vuln at 23:21:01, report generated at 23:58:59 (~38 min span).
@@ -548,4 +548,4 @@ All scan data is stored under `../scans/juiceshop/strix/`.
 
 - `strix-run-1-output.tar.gz` — Run 1 output archive (contains `strix_runs/juiceshop-3000_6518/`: `vulnerabilities.csv`, 7 `vuln-*.md` files, `penetration_test_report.md`)
 - `strix-run-2-output.tar.gz` — Run 2 output archive (contains `strix_runs/juiceshop-3000_0986/`: `vulnerabilities.csv`, 14 `vuln-*.md` files; no executive report)
-- `strix-juiceshop.txt` — Raw terminal output from `bin/bench-strix` capturing full Strix TUI/agent output for Run 2
+- `juiceshop-strix-run-2-output.log` — Raw terminal output from `bin/bench-strix` capturing full Strix TUI/agent output for Run 2

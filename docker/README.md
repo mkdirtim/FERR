@@ -327,6 +327,9 @@ data/projects/
 │   ├── {target}-{agent}-run-{N}-tmp.tar.gz    # /tmp artifacts
 │   ├── {target}-strix-run-{N}-output.tar.gz   # Strix output archives
 │   ├── {target}-strix-run-2-output.log        # Strix TUI terminal logs (Run 2)
+│   ├── enhancements/                          # manual baseline scans
+│   │   ├── juiceshop/                         # {target}-{tool}.{ext}
+│   │   └── badstore/
 │   └── archive/                               # pre-fix runs, no-restart archives, other targets
 │       ├── {target}-cai-bug-run-{N}.*         # CAI pre-fix (bugstalled) runs
 │       ├── {target}-pentestgpt-archive-no-restart.tar.gz

@@ -543,8 +543,8 @@ All scan data is stored under `../scans/`:
 | CAI (pre-fix) | `archive/juiceshop-cai-bug-run-{1-5}.*` | `archive/badstore-cai-bug-run-{1-5}.*` |
 | PentestGPT | `juiceshop-pentestgpt-run-{1-5}.*` | `badstore-pentestgpt-run-{1-5}.*` |
 | Strix | `juiceshop-strix-run-{1,2}-output.*` | `badstore-strix-run-{1,2}-output.*` |
-| GVM | *(removed from disk)* | *(removed from disk)* |
-| Manual baselines | *(removed from disk)* | *(removed from disk)* |
+| GVM | `enhancements/juiceshop/juiceshop-gvm.txt` | `enhancements/badstore/badstore-gvm.txt` |
+| Manual baselines | `enhancements/juiceshop/{nikto,ffuf,whatweb,nmap,zap}.*` | `enhancements/badstore/{nikto,ffuf,whatweb,nmap,zap}.*` |
 
 ### 8d. Key Numbers at a Glance
 

@@ -545,32 +545,33 @@ Each results file references its raw scan data. All paths are relative to this a
 | CAI (pre-fix) | BadStore | `../scans/archive/` | `badstore-cai-bug-run-{1-5}.log`, `badstore-cai-bug-run-{1-5}-tmp.tar.gz` |
 | PentestGPT | Juice Shop | `../scans/` | `juiceshop-pentestgpt-run-{1-5}.log`, `juiceshop-pentestgpt-run-{1,3,4,5}-tmp.tar.gz`; archive: `../scans/archive/juiceshop-pentestgpt-archive-no-restart.tar.gz` |
 | PentestGPT | BadStore | `../scans/` | `badstore-pentestgpt-run-{1-5}.log`, `badstore-pentestgpt-run-{1-5}-tmp.tar.gz`; archive: `../scans/archive/badstore-pentestgpt-archive-no-restart.tar.gz` |
-| GVM | Juice Shop | — | Removed (manual baseline scans no longer in scan tree) |
-| GVM | BadStore | — | Removed (manual baseline scans no longer in scan tree) |
+| GVM | Juice Shop | `../scans/enhancements/juiceshop/` | `juiceshop-gvm.txt` |
+| GVM | BadStore | `../scans/enhancements/badstore/` | `badstore-gvm.txt` |
 | Strix | Juice Shop | `../scans/` | `juiceshop-strix-run-{1,2}-output.tar.gz` |
 | Strix | BadStore | `../scans/` | `badstore-strix-run-{1,2}-output.tar.gz` |
 
 ### A3. Scan Data Not Referenced in This Analysis
 
-The following scan data existed in the previous directory structure but has been **removed**
-from the scan tree during the flat-directory migration. It was never incorporated into any
-results or analysis file.
+Manual baseline scans have been relocated to `../scans/enhancements/{target}/` using
+target-prefixed filenames. They are not incorporated into the main agent analysis but
+provide reference baselines.
 
-| Previous Path | Contents | Status |
-|---------------|----------|--------|
-| `../scans/juiceshop/manual/nikto.txt` | Nikto web scanner output | Removed |
-| `../scans/juiceshop/manual/ffuf.json` | ffuf directory fuzzing output | Removed |
-| `../scans/juiceshop/manual/whatweb.txt` | WhatWeb fingerprinting output | Removed |
-| `../scans/juiceshop/manual/nmap.txt` | Nmap port scan output | Removed |
-| `../scans/juiceshop/manual/zap.md` | OWASP ZAP scan report | Removed |
-| `../scans/badstore/manual/nikto.txt` | Nikto web scanner output | Removed |
-| `../scans/badstore/manual/ffuf.json` | ffuf directory fuzzing output | Removed |
-| `../scans/badstore/manual/whatweb.txt` | WhatWeb fingerprinting output | Removed |
-| `../scans/badstore/manual/nmap.txt` | Nmap port scan output | Removed |
-| `../scans/badstore/manual/zap.md` | OWASP ZAP scan report | Removed |
-| `../scans/badstore/manual/sqlmap/` | sqlmap scan results (CSV + logs) | Removed |
-| `../scans/juiceshop/manual/gvm.txt` | GVM scan output | Removed |
-| `../scans/badstore/manual/gvm.txt` | GVM scan output | Removed |
+| Current Path | Contents |
+|--------------|----------|
+| `../scans/enhancements/juiceshop/juiceshop-nikto.txt` | Nikto web scanner output |
+| `../scans/enhancements/juiceshop/juiceshop-ffuf.json` | ffuf directory fuzzing output |
+| `../scans/enhancements/juiceshop/juiceshop-whatweb.txt` | WhatWeb fingerprinting output |
+| `../scans/enhancements/juiceshop/juiceshop-nmap.txt` | Nmap port scan output |
+| `../scans/enhancements/juiceshop/juiceshop-zap.md` | OWASP ZAP scan report |
+| `../scans/enhancements/juiceshop/juiceshop-gvm.txt` | GVM scan output |
+| `../scans/enhancements/badstore/badstore-nikto.txt` | Nikto web scanner output |
+| `../scans/enhancements/badstore/badstore-ffuf.json` | ffuf directory fuzzing output |
+| `../scans/enhancements/badstore/badstore-whatweb.txt` | WhatWeb fingerprinting output |
+| `../scans/enhancements/badstore/badstore-nmap.txt` | Nmap port scan output |
+| `../scans/enhancements/badstore/badstore-zap.md` | OWASP ZAP scan report |
+| `../scans/enhancements/badstore/badstore-gvm.txt` | GVM scan output |
+
+Note: `sqlmap/` results (previously at `../scans/badstore/manual/sqlmap/`) were not migrated.
 
 The following scan data exists in the repository but is **not incorporated** into any
 results or analysis file:

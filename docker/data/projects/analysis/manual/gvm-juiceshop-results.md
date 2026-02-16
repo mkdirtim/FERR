@@ -263,4 +263,4 @@ GVM is essentially blind while AI agents can discover and exploit the intended v
 
 ## Data Sources
 
-- GVM scan output (raw text report) — originally at `data/projects/scans/juiceshop/manual/gvm.txt`; raw manual scan files were removed during the flat-structure migration. Findings are preserved in this analysis file.
+- `../scans/enhancements/juiceshop/juiceshop-gvm.txt` — GVM scan output (raw text report)

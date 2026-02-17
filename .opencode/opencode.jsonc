@@ -46,6 +46,20 @@
       "timeout": 60000,
     },
   },
+  "agent": {
+    "recon": {
+      "disable": true,
+    },
+    "analysis": {
+      "disable": true,
+    },
+    "exploitation": {
+      "disable": true,
+    },
+    "reporting": {
+      "disable": true,
+    },
+  },
   "tools": {
     "github-triage": false,
     "github-pr-search": false,

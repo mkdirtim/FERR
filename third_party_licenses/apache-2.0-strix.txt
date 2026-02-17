@@ -199,3 +199,40 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+================================================================================
+
+NOTICE — Derived Files in This Project
+
+Source: https://github.com/usestrix/strix
+Copyright 2025 OmniSecure Inc.
+Licensed under the Apache License, Version 2.0
+
+Parts of this project are derived from the Strix project.
+These files remain licensed under the Apache License 2.0.
+The original copyright is retained by the Strix authors.
+Modifications Copyright 2026 OPENHACK.
+
+Derived files:
+  .opencode/agents/root.md
+  .opencode/skill/authentication-jwt/SKILL.md
+  .opencode/skill/broken-function-level-authorization/SKILL.md
+  .opencode/skill/business-logic/SKILL.md
+  .opencode/skill/csrf/SKILL.md
+  .opencode/skill/idor/SKILL.md
+  .opencode/skill/information-disclosure/SKILL.md
+  .opencode/skill/insecure-file-uploads/SKILL.md
+  .opencode/skill/mass-assignment/SKILL.md
+  .opencode/skill/open-redirect/SKILL.md
+  .opencode/skill/path-traversal-lfi-rfi/SKILL.md
+  .opencode/skill/race-conditions/SKILL.md
+  .opencode/skill/rce/SKILL.md
+  .opencode/skill/root-agent/SKILL.md
+  .opencode/skill/scanmode-deep/SKILL.md
+  .opencode/skill/scanmode-quick/SKILL.md
+  .opencode/skill/scanmode-standard/SKILL.md
+  .opencode/skill/sql-injection/SKILL.md
+  .opencode/skill/ssrf/SKILL.md
+  .opencode/skill/subdomain-takeover/SKILL.md
+  .opencode/skill/xss/SKILL.md
+  .opencode/skill/xxe/SKILL.md

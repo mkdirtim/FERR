@@ -21,7 +21,7 @@
     // Privacy knobs:
     // - Add: "--no-usage-statistics" to opt out of Chrome DevTools MCP usage metrics
     // - Add: "--no-performance-crux" to stop sending trace URLs to the CrUX API
-    "chrome-devtools": {
+    "devtools": {
       "type": "local",
       "command": ["npx", "-y", "chrome-devtools-mcp@0.16.0"],
       "enabled": true,

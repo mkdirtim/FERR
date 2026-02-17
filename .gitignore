@@ -20,6 +20,8 @@ Session.vim
 opencode.json
 !.opencode/
 !.opencode/**
+.opencode/node_modules/
+.opencode/.DS_Store
 a.out
 target
 .scripts

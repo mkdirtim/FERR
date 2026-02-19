@@ -41,7 +41,7 @@
     // Profile location: ~/Library/Caches/ms-playwright/mcp-chrome-profile
     "playwright": {
       "type": "local",
-      "command": ["npx", "-y", "@playwright/mcp@0.0.64", "--headless"],
+      "command": ["npx", "-y", "@playwright/mcp@0.0.68", "--headless"],
       "enabled": true,
       "timeout": 60000,
     },

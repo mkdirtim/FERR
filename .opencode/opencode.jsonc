@@ -60,6 +60,9 @@
       "disable": true,
     },
   },
+  "permission": {
+    "websearch": "allow",
+  },
   "tools": {
     "github-triage": false,
     "github-pr-search": false,

@@ -1,0 +1,144 @@
+{
+  "report_metadata": {
+    "report_id": "550e8400-e29b-41d4-a716-446655440000",
+    "client_name": "OWASP Juice Shop",
+    "engagement_name": "Security Assessment",
+    "date_generated": "2026-02-18T00:00:00Z",
+    "date_of_testing": {
+      "start": "2026-02-18T00:00:00Z",
+      "end": "2026-02-18T00:00:00Z"
+    },
+    "tester_info": {
+      "name": "Security Tester",
+      "role": "Penetration Tester",
+      "email": "tester@example.com",
+      "company": "Security Team",
+      "team": [
+        {
+          "name": "Penetration Testing",
+          "role": "Security Testing",
+          "email": "team@example.com"
+        }
+      ]
+    },
+    "recipient": {
+      "name": "Development Team",
+      "role": "Application Developers",
+      "company": "OWASP",
+      "contacts": [
+        {
+          "name": "Dev Lead",
+          "email": "dev-team@example.com",
+          "role": "Lead Developer"
+        }
+      ]
+    },
+    "report_version": "1.0"
+  },
+  "scope": {
+    "in_scope": [
+      {
+        "target": "http://localhost:3333",
+        "type": "web_application",
+        "description": "OWASP Juice Shop web application",
+        "testing_type": "black-box",
+        "methodologies": [
+          "OWASP Testing Guide"
+        ]
+      }
+    ],
+    "out_of_scope": []
+  },
+  "executive_summary": {
+    "risk_rating": "high",
+    "business_impact": "The application contains critical vulnerabilities that could lead to data breaches and unauthorized access.",
+    "strengths": [
+      "Modern web application framework",
+      "Well-known intentionally vulnerable application for training"
+    ],
+    "challenges": [
+      "SQL injection vulnerabilities",
+      "Information disclosure issues",
+      "Insufficient input validation"
+    ],
+    "strategic_recommendations": [
+      "Implement parameterized queries",
+      "Review access controls on administrative endpoints",
+      "Implement proper input validation"
+    ]
+  },
+  "findings": [
+    {
+      "id": "F-0001",
+      "title": "Information Disclosure in Application Configuration Endpoint",
+      "severity": "high",
+      "cvss_score": 7.5,
+      "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+      "summary": "The application exposes sensitive configuration data through an unprotected administrative endpoint.",
+      "description": "The /rest/admin/application-configuration endpoint exposes sensitive configuration information without proper authentication. This includes Google OAuth client IDs, server configuration details, product information, and other sensitive application settings.",
+      "affected_assets": [
+        "http://localhost:3333/rest/admin/application-configuration"
+      ],
+      "technical_details": {
+        "vulnerability_type": "Information Disclosure",
+        "affected_component": "Application Configuration API",
+        "attack_vector": "Direct access to endpoint without authentication",
+        "impact": "High - Exposes sensitive credentials and configuration",
+        "testing_process": "Accessed the endpoint directly via browser without authentication",
+        "details": "The endpoint returns the full application configuration including: Google OAuth client ID, server configuration, product details, chatbot configuration, and security settings. No authentication is required to access this endpoint."
+      },
+      "impact": "An attacker can access sensitive configuration data including OAuth credentials, server details, and application internals. This information can be used to craft further attacks against the application.",
+      "recommendations": [
+        "Implement proper authentication and access controls on administrative endpoints",
+        "Ensure sensitive configuration data is not exposed to unauthenticated users",
+        "Review and restrict access to all administrative endpoints",
+        "Consider implementing API keys or tokens for administrative access"
+      ],
+      "status": "unresolved",
+      "x_openhack": {
+        "validation": {
+          "state": "validated",
+          "updated_at": "2026-02-18T00:37:20.766Z"
+        }
+      },
+      "media": []
+    },
+    {
+      "id": "F-0002",
+      "title": "SQL Injection in Product Search",
+      "severity": "critical",
+      "cvss_score": 9.1,
+      "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+      "summary": "The product search functionality is vulnerable to SQL injection attacks, allowing arbitrary SQL code execution.",
+      "description": "The /rest/products/search endpoint is vulnerable to SQL injection attacks. The 'q' parameter does not properly sanitize user input, allowing an attacker to inject arbitrary SQL code. The payload '\\'' OR '\\''1'\\''='\\''1' successfully returns all products from the database.",
+      "affected_assets": [
+        "http://localhost:3333/rest/products/search"
+      ],
+      "technical_details": {
+        "vulnerability_type": "SQL Injection",
+        "affected_component": "Product Search API",
+        "attack_vector": "User-controlled 'q' parameter in search query",
+        "impact": "Critical - Allows full database access and manipulation",
+        "testing_process": "Tested search endpoint with SQL injection payloads including '\\'' OR '\\''1'\\''='\\''1' which returned all products and '\\'' UNION SELECT which generated SQLite error revealing database type",
+        "details": "The search endpoint concatenates user input directly into SQL queries without parameterization. Error messages reveal SQLite database information. The vulnerability allows attackers to manipulate the WHERE clause and potentially execute arbitrary SQL commands using UNION-based or boolean-based blind SQL injection techniques."
+      },
+      "impact": "An attacker can extract, modify, or delete data from the database. This could lead to complete data compromise, authentication bypass, and potential server compromise.",
+      "recommendations": [
+        "Implement parameterized queries or prepared statements for all database queries",
+        "Validate and sanitize all user inputs",
+        "Use an ORM that provides automatic escaping of SQL queries",
+        "Implement proper error handling that does not expose database details",
+        "Conduct regular security code reviews"
+      ],
+      "status": "unresolved",
+      "x_openhack": {
+        "validation": {
+          "state": "validated",
+          "updated_at": "2026-02-18T00:37:27.211Z"
+        }
+      },
+      "media": []
+    }
+  ],
+  "artefacts": {}
+}

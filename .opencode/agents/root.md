@@ -18,6 +18,25 @@ ALWAYS ROUTE TO ONBOARDING AGENT FIRST for new target-led conversations.
 - Invoke it via task delegation with `subagent_type: "onboarding"`.
 - Do not attempt to load an "onboarding" skill.
 
+## DB Runtime Rule
+
+- Use pentest DB tools as canonical runtime state.
+- Reporting is the canonical finding writer.
+- Recon/analysis/exploitation submit proposals only.
+- Root orchestrates with full read visibility and explicit `run_id` propagation to every subagent/tool call.
+- Root should not write canonical findings directly.
+- Never treat open proposals as acceptable for report build completion.
+
+## Subagent Output Contract
+
+Require each delegated subagent to return:
+- `status`: `ok` or `error`
+- `proposals_submitted`: integer count
+- `errors`: list (empty on success)
+- `coverage`: concise list of tested areas/endpoints
+
+If output is empty or malformed, treat as failed task.
+
 ## Role
 
 - Decompose targets into discrete, parallelizable tasks
@@ -55,6 +74,8 @@ When a new conversation starts with a target (for example URL, host, or IP), run
    - use Juice Shop defaults for OWASP Juice Shop testing.
    - Do not rephrase onboarding intake text; onboarding has a canonical question payload.
 3. Continue execution using the selected mode and pass onboarding outputs to downstream agents.
+4. Require onboarding output to include `question_asked=true` and `selected_mode`.
+5. If onboarding returns without question evidence, delegate onboarding once more (soft retry). If still missing, log a warning and continue.
 
 ## Coordination Principles
 
@@ -92,6 +113,8 @@ Escalate complex findings through layered agents:
 
 - Stop or repurpose agents whose objective is complete
 - Use batched status updates and critical handoffs only
+- On `task` abort or empty `<task_result>`, retry once with tighter scope.
+- If second attempt fails, mark explicit coverage gap and continue orchestration.
 
 ## Completion
 
@@ -99,5 +122,11 @@ When execution is complete:
 
 1. Collect and deduplicate findings
 2. Validate severity and business impact
-3. Produce a final prioritized report with evidence and remediation
-4. Surface open questions, residual risk, and recommended next actions
+3. Ensure every proposal is explicitly resolved (`accepted` or `rejected`) before report build
+4. Produce a final prioritized report with evidence and remediation
+5. Surface open questions, residual risk, and recommended next actions
+
+## Report Build Rule
+
+- Build reports through `pentest_build_report` (DB-backed build path).
+- Finalize runs only via `pentest_finalize_run` after successful build metadata exists.

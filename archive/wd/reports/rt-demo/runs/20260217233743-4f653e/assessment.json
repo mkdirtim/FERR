@@ -1,0 +1,75 @@
+{
+  "report_metadata": {
+    "report_id": "4104e730-95c7-4e49-96f9-024860082394",
+    "client_name": "Client",
+    "engagement_name": "rt-demo",
+    "engagement_id": "rt-demo",
+    "date_generated": "2026-02-17T23:37:43.103Z",
+    "date_of_testing": {
+      "start": "2026-02-17T23:37:43.103Z",
+      "end": "2026-02-17T23:37:43.103Z"
+    },
+    "tester_info": {
+      "company": "OpenHack",
+      "team": [
+        {
+          "name": "Lead Tester",
+          "email": "security@example.com",
+          "role": "Lead"
+        }
+      ]
+    },
+    "recipient": {
+      "company": "Client",
+      "contacts": [
+        {
+          "name": "Security Contact",
+          "email": "contact@example.com",
+          "role": "Security"
+        }
+      ]
+    },
+    "report_version": "1.0"
+  },
+  "scope": {
+    "in_scope": [
+      {
+        "target": "https://target.example",
+        "description": "Primary target",
+        "testing_type": "black-box",
+        "methodologies": [
+          "OWASP WSTG"
+        ]
+      }
+    ]
+  },
+  "executive_summary": {
+    "risk_rating": "medium",
+    "business_impact": "Business impact summary.",
+    "strengths": [
+      "Initial baseline"
+    ],
+    "challenges": [
+      "Initial baseline"
+    ],
+    "strategic_recommendations": [
+      "Prioritize remediation"
+    ]
+  },
+  "artefacts": {
+    "tools_used": [
+      {
+        "tool_name": "Manual",
+        "version": "n/a"
+      }
+    ]
+  },
+  "x_openhack": {
+    "test_environment": "staging",
+    "information_base": "black-box",
+    "subject_description": "Target application",
+    "methodology_details": "Manual testing",
+    "events": "N/A",
+    "appendix_a": "N/A"
+  }
+}

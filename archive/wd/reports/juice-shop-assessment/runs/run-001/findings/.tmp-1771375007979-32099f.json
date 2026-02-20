@@ -1,0 +1,13 @@
+{
+  "id": "finding-002",
+  "title": "SQL Injection in Product Search",
+  "severity": "critical",
+  "cvss_score": 9.1,
+  "description": "The /rest/products/search endpoint is vulnerable to SQL injection attacks. The 'q' parameter does not properly sanitize user input, allowing an attacker to inject arbitrary SQL code. The payload '\\'' OR '\\''1'\\''='\\''1' successfully returns all products from the database.",
+  "impact": "An attacker can extract, modify, or delete data from the database. This could lead to complete data compromise, authentication bypass, and potential server compromise.",
+  "remediation": "Implement parameterized queries or prepared statements for all database queries. Validate and sanitize all user inputs. Use an ORM that provides automatic escaping of SQL queries.",
+  "affected_endpoints": [
+    "/rest/products/search?q="
+  ],
+  "status": "validated"
+}

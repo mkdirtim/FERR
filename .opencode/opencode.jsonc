@@ -9,25 +9,6 @@
     },
   },
   "mcp": {
-    // Chrome DevTools MCP (https://github.com/ChromeDevTools/chrome-devtools-mcp)
-    //
-    // Enable when you want DevTools-grade automation/debugging (network, console, traces).
-    //
-    // Typical local setup if you want to connect to an existing Chrome instance:
-    // Start Chrome with: --remote-debugging-port=9222
-    // Then add: "--browser-url=http://127.0.0.1:9222" to the command args below
-    // (In Docker, use: "--browser-url=http://host.docker.internal:9222")
-    //
-    // Privacy knobs:
-    // - Add: "--no-usage-statistics" to opt out of Chrome DevTools MCP usage metrics
-    // - Add: "--no-performance-crux" to stop sending trace URLs to the CrUX API
-    "devtools": {
-      "type": "local",
-      "command": ["npx", "-y", "chrome-devtools-mcp@0.16.0"],
-      "enabled": true,
-      "timeout": 60000,
-    },
-
     // Playwright MCP (https://github.com/microsoft/playwright-mcp)
     // Fast, LLM-friendly browser automation using accessibility tree (no screenshots needed).
     //
@@ -51,20 +32,6 @@
       ],
       "enabled": true,
       "timeout": 60000,
-    },
-  },
-  "agent": {
-    "recon": {
-      "disable": true,
-    },
-    "analysis": {
-      "disable": true,
-    },
-    "exploitation": {
-      "disable": true,
-    },
-    "reporting": {
-      "disable": true,
     },
   },
   "permission": {

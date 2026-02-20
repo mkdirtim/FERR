@@ -1,0 +1,1 @@
+[      51ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/products/search?q=%27%20UNION%20SELECT%20*%20FROM%20users--:0

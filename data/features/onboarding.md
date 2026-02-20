@@ -26,18 +26,18 @@ Requirement:
 - This must be a real `question` tool call, not a plain text prompt that asks for `A/B` input.
 
 Default source:
-- `/Users/mkdirtim/FERR/openhack/data/pentest/assets/default-onboarding.md`
+- `data/pentest/assets/default-onboarding.md`
 
 Juice Shop defaults source:
-- `/Users/mkdirtim/FERR/openhack/data/pentest/assets/default-onboarding-juiceshop.md`
+- `data/pentest/assets/default-onboarding-juiceshop.md`
 
 Manual/custom source:
-- `/Users/mkdirtim/FERR/openhack/data/pentest/assets/custom-onboarding.md`
+- `data/pentest/assets/custom-onboarding.md`
 - Collect each empty value from the user.
 
 For all modes:
 - Set `PH_TARGET_URL` from the initial target input.
-- Set `PH_DATE` from CLI (`date +%F`).
+- Do not set `PH_DATE` during onboarding. Report build sets date automatically.
 
 ## Workflow
 1. If target input is provided, run intake decision question first

@@ -15,10 +15,12 @@ Deliver clear, evidence-backed findings with actionable remediation guidance, an
 - Environment and version context
 
 ## Workflow
-1. Normalize and deduplicate findings
-2. Verify each finding has reproducible evidence
-3. Assign severity with clear rationale
-4. Write remediation and verification guidance
+1. Resolve proposals to canonical findings (accept or reject)
+2. Normalize and deduplicate findings
+3. Verify each finding has reproducible evidence
+4. Assign severity with clear rationale
+5. Run readiness preflight before build
+6. Write remediation and verification guidance
 
 ## Outputs
 - Final findings list with severity and confidence
@@ -48,6 +50,7 @@ This documents:
 ├── references
 │   └── markers.md
 ├── scripts
+│   ├── build-report-db.ts
 │   └── build-report.sh
 └── tests
     ├── openhack-juice-shop-test.md
@@ -78,7 +81,8 @@ This documents:
   - `references/markers.md`: placeholder marker definitions and expected values.
 - `scripts/`
   - Automation entrypoints for report lifecycle operations.
-  - `scripts/build-report.sh`: initialize, fill, validate, and render report outputs.
+  - `scripts/build-report-db.ts`: DB-driven materialize/validate/build entrypoint.
+  - `scripts/build-report.sh`: legacy marker-based renderer (kept for compatibility/debug).
 - `tests/`
   - Fixtures used to validate report content flow and rendering behavior.
   - `tests/openhack-juice-shop-test.md`: sample assessment report input.
@@ -86,12 +90,13 @@ This documents:
 
 ## How Components Work Together
 
-1. Start from `assets/openhack-report-template_v1.md` using `scripts/build-report.sh --init`.
-2. Fill template markers using `--fill` and validate marker resolution.
-3. Render outputs (PDF/HTML/DOCX) with the same script.
+1. Read runtime DB run state and materialize markdown through `scripts/build-report-db.ts`.
+2. Validate strict quality gates with `scripts/build-report-db.ts validate`.
+3. Render outputs (PDF/HTML/DOCX) with `scripts/build-report-db.ts build`.
 4. Use files in `tests/` to smoke-test formatting and image linking behavior.
 
 ## Notes
 
 - Keep marker definitions in sync with `references/markers.md`.
+- Keep proposal payloads aligned with `references/proposal-schema.md`.
 - Keep template and rendering assets aligned with the checklist in `TODO`.

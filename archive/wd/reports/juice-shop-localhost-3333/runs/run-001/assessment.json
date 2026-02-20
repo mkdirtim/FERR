@@ -1,0 +1,82 @@
+{
+  "report_metadata": {
+    "report_id": "43e6086c-b999-4690-b474-d721d96b7f56",
+    "client_name": "OWASP Juice Shop Assessment",
+    "engagement_name": "juice-shop-localhost-3333",
+    "engagement_id": "juice-shop-localhost-3333",
+    "date_generated": "2026-02-18T00:44:45.866Z",
+    "date_of_testing": {
+      "start": "2026-02-18T00:44:45.866Z",
+      "end": "2026-02-18T00:45:30.000Z"
+    },
+    "tester_info": {
+      "company": "OpenHack",
+      "team": [
+        {
+          "name": "Security Scanner",
+          "email": "security@example.com",
+          "role": "Lead"
+        }
+      ]
+    },
+    "recipient": {
+      "company": "OWASP Juice Shop",
+      "contacts": [
+        {
+          "name": "Security Team",
+          "email": "security@owasp-juice.shop",
+          "role": "Security"
+        }
+      ]
+    },
+    "report_version": "1.0"
+  },
+  "scope": {
+    "in_scope": [
+      {
+        "target": "http://localhost:3333",
+        "description": "OWASP Juice Shop web application",
+        "testing_type": "gray-box",
+        "methodologies": [
+          "OWASP WSTG",
+          "OWASP Top 10"
+        ]
+      }
+    ]
+  },
+  "executive_summary": {
+    "risk_rating": "high",
+    "business_impact": "The application exposes sensitive credentials and configuration data that could lead to account takeover and unauthorized access.",
+    "strengths": [
+      "Application uses allowlist for redirect validation"
+    ],
+    "challenges": [
+      "Administrative endpoints lack authentication",
+      "Sensitive credentials exposed in client-side configuration"
+    ],
+    "strategic_recommendations": [
+      "Implement authentication for all admin endpoints",
+      "Remove credentials from client-accessible configuration"
+    ]
+  },
+  "artefacts": {
+    "tools_used": [
+      {
+        "tool_name": "Playwright",
+        "version": "latest"
+      },
+      {
+        "tool_name": "Manual Testing",
+        "version": "n/a"
+      }
+    ]
+  },
+  "x_openhack": {
+    "test_environment": "local",
+    "information_base": "gray-box",
+    "subject_description": "OWASP Juice Shop - intentionally vulnerable web application for security training",
+    "methodology_details": "Quick security assessment focusing on information disclosure and authentication issues",
+    "events": "N/A",
+    "appendix_a": "N/A"
+  }
+}

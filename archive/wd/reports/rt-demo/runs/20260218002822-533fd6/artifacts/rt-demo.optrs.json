@@ -1,0 +1,101 @@
+{
+  "report_metadata": {
+    "report_id": "123e4567-e89b-12d3-a456-426614174000",
+    "client_name": "Acme Corp",
+    "engagement_name": "Acme Web Pentest",
+    "engagement_id": "acme-2026-01",
+    "date_generated": "2026-02-17T10:00:00Z",
+    "date_of_testing": {
+      "start": "2026-02-10T09:00:00Z",
+      "end": "2026-02-15T18:00:00Z"
+    },
+    "tester_info": {
+      "company": "OpenHack",
+      "team": [
+        {
+          "name": "Alex Tester",
+          "email": "alex@example.com",
+          "role": "Lead"
+        }
+      ]
+    },
+    "recipient": {
+      "company": "Acme Corp",
+      "contacts": [
+        {
+          "name": "Pat Client",
+          "email": "pat@acme.example",
+          "role": "CISO"
+        }
+      ]
+    },
+    "report_version": "1.0"
+  },
+  "scope": {
+    "in_scope": [
+      {
+        "target": "https://app.acme.example",
+        "description": "Main application",
+        "testing_type": "gray-box",
+        "methodologies": [
+          "OWASP WSTG"
+        ]
+      }
+    ]
+  },
+  "executive_summary": {
+    "risk_rating": "high",
+    "business_impact": "Business impact summary.",
+    "strengths": [
+      "MFA enabled"
+    ],
+    "challenges": [
+      "Broken access control"
+    ],
+    "strategic_recommendations": [
+      "Fix authz"
+    ]
+  },
+  "findings": [
+    {
+      "id": "F-0001",
+      "title": "Broken Access Control",
+      "severity": "high",
+      "cvss_score": 8.6,
+      "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+      "summary": "Unauthorized record access via IDOR.",
+      "affected_assets": [
+        "https://app.acme.example/orders"
+      ],
+      "technical_details": {
+        "impact": "Access to other users orders.",
+        "testing_process": "Changed order id in request and accessed data."
+      },
+      "recommendations": [
+        "Enforce object-level authorization checks."
+      ],
+      "status": "unresolved",
+      "x_openhack": {
+        "validation": {
+          "state": "validated",
+          "updated_at": "2026-02-18T00:28:23.982Z"
+        }
+      },
+      "media": [
+        {
+          "type": "screenshot",
+          "file_name": "runtime-proof.png",
+          "file_path": "/Users/mkdirtim/FERR/openhack/wd/reports/rt-demo/runs/20260218002822-533fd6/evidence/screenshots/runtime-proof.png"
+        }
+      ]
+    }
+  ],
+  "artefacts": {
+    "tools_used": [
+      {
+        "tool_name": "Burp Suite",
+        "version": "2026.1"
+      }
+    ]
+  }
+}

@@ -16,6 +16,7 @@ permission:
   pentest_attach_artifact: allow
   pentest_check_readiness: allow
   pentest_get_report_paths: allow
+  pentest_get_evidence_directory: allow
   pentest_get_audit_log: allow
   pentest_build_report: allow
   pentest_materialize_report: allow
@@ -41,7 +42,9 @@ Rules:
 - Build final report with `pentest_build_report` only after readiness passes.
 - For final artifact locations, call `pentest_get_report_paths` instead of hardcoded `running/...` paths.
 - For evidence attachments, keep files under `evidence_dir` and pass `rel_path` relative to `run_dir` (for example `evidence/poc-1.png`).
-- For browser outputs (for example screenshots/network/snapshots), always write to an absolute path under `evidence_dir`; never use bare filenames.
+- Call `pentest_get_evidence_directory(run_id)` once at task start.
+- For browser outputs, write only to absolute paths under `evidence_dir` with deterministic names: `<kind>-<timestamp>-<rand>.<ext>`.
+- For attachments, use `rel_path = evidence/<filename>`.
 - If only a proposal reference is available, use `proposal_id` in `pentest_attach_artifact`; do not pass proposal IDs as `finding_id`.
 - If proposal is still `proposed`, attach with `proposal_id` to stage evidence first; accepting the proposal will auto-link staged artifacts to the canonical finding.
 - After a successful build, call `pentest_finalize_run` and verify with `pentest_get_report_paths(run_id)` that `run_status=finalized`.

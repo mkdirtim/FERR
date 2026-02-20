@@ -374,6 +374,10 @@ Validation note:
 - `pentest_get_finding` / `pentest_get_findings` -> read finding views
 
 ### Evidence and audit
+- `pentest_get_evidence_directory` -> returns run-scoped evidence write location for active run
+  - requires `run.status='running'`
+  - returns `run_dir`, `evidence_dir`, `evidence_rel_base`
+  - intended flow: get once, write deterministic filenames, attach as `rel_path = evidence/<filename>`
 - `pentest_attach_artifact` -> verifies path and checksum, inserts artifact
   - accepts either `finding_id` or `proposal_id` (both optional for run-level evidence)
   - with `proposal_id` and no canonical finding yet, evidence is staged on proposal and auto-linked when proposal is accepted
@@ -389,7 +393,7 @@ Validation note:
   - header sync is executed before readiness and can update `run.assessor_name`, `run.assessor_email`, `run.client_name` even when build is later blocked
 - `pentest_finalize_run` -> guarded move running -> finished with status transitions (requires successful `report_build`)
 - `pentest_get_report_paths` -> resolves canonical run paths and report artifact absolute paths using actual run state (`running` or `finished`)
-  - includes `run_status`, `run_state`, `run_dir`, `evidence_dir`, `report_dir` for agent-safe reads/writes
+  - includes `run_status`, `run_state`, `run_dir`, `evidence_dir`, `report_dir` for agent-safe report path reads
 
 ## Validation Rules
 
@@ -416,6 +420,7 @@ Finding-level:
 Path-level:
 - artifact paths are validated to remain inside the run directory
 - canonical write root is run-scoped: `data/pentest/running/<run_id>/...`
+- browser-output creation should use run-scoped absolute filenames under `evidence_dir` (from `pentest_get_evidence_directory`) and attach with `rel_path = evidence/<filename>`
 - files outside the run dir are not imported during attach; callers must write evidence to run-scoped paths first
 
 ## Atomicity Guarantees

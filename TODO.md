@@ -12,7 +12,6 @@ Current active subagents: `recon`, `analysis`, `exploitation`, `reporting`.
 
 #### Evidence Path Enforcement
 
-- [ ] [P0] Complete source-level write-root enforcement for browser artifacts: enforce run-aware screenshot/network/snapshot outputs by resolving `evidence_dir` via `pentest_get_report_paths(run_id)` and requiring absolute output paths under that directory so artifacts cannot be created in `packages/opencode/` or other non-run locations before attach.
 - [ ] [P1] Add regression check/script that fails when new runtime evidence files appear in `packages/opencode/` (or other non-run roots) during a run.
 - [ ] [P2] Add evidence relevance checks so attached screenshots/logs must match the claimed exploited state/endpoint (avoid homepage/profile mismatch artifacts).
 
@@ -84,6 +83,8 @@ Current active subagents: `recon`, `analysis`, `exploitation`, `reporting`.
 - [x] [P1] Add proposal-evidence staging support in `pentest_attach_artifact` (`proposal_id`-linked staging before acceptance) and auto-link staged evidence on proposal acceptance.
 - [x] [P1] Improve unresolved-proposal artifact guidance (clear proposal/finding ID usage and fallback path).
 - [x] [P0] Remove legacy artifact auto-import fallback in `pentest_attach_artifact`; missing files outside `run_dir` now fail fast with explicit run-scoped guidance.
+- [x] [P0] Add run-aware evidence directory getter (`pentest_get_evidence_directory`) and enforce deterministic browser artifact paths under `evidence_dir` with `rel_path = evidence/<filename>`.
+- [x] [P0] Add runtime guard for Playwright browser write tools in pentest flows to reject filenames outside run-scoped `data/pentest/running/<run_id>/evidence`.
 - [x] [P1] Prevent non-vulnerability/meta proposals (recon/progress notes) from entering canonical proposal queue.
 - [x] [P2] Add test-mode narrative completeness warnings for empty subject/scope/methodology/events.
 

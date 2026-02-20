@@ -49,6 +49,7 @@ Configured at DB open:
 - `PRAGMA busy_timeout = 5000`
 
 Writes use `BEGIN IMMEDIATE` transactions (`withTx`) to prevent partial state updates.
+Schema migrations also use explicit transactions for table rebuilds.
 
 ## Schema Versioning and Migrations
 
@@ -56,12 +57,18 @@ Migration tracking table:
 - `schema_migrations(version, applied_at, applied_by)`
 
 Current schema version:
-- `2`
+- `3`
 
 Version 2 migration adds:
 - `proposal.resolved_by`
 - `proposal.resolution_reason`
 - Unique index `uq_finding_run_proposal` on `(run_id, proposal_id)`
+
+Version 3 migration changes:
+- `executive_summary` keeps only narrative fields (`information_base`, `summary_text`)
+- Severity counters are no longer persisted in DB
+- Counters are computed from `finding` at read/build time
+- Migration is transactional and recovery-aware for interrupted v3 states (for example leftover `executive_summary_new`)
 
 Migration precheck:
 - Migration fails if duplicate non-null `(run_id, proposal_id)` links already exist in `finding`.
@@ -170,7 +177,7 @@ Key constraints:
 
 ### `executive_summary`
 
-Run summary narrative plus severity counters.
+Run summary narrative fields only.
 
 Key relationship:
 - One-to-one with run (`run_id` as PK and FK)
@@ -313,6 +320,7 @@ In all safety modes, build is blocked when:
 
 Validation note:
 - unvalidated findings generate warnings but do not hard-block build.
+- duplicate proposal fingerprints generate warnings only (no hard block).
 
 `pentest_build_report` runs readiness internally and fails fast if not ready.
 
@@ -323,6 +331,7 @@ Validation note:
 - `pentest_set_onboarding` -> updates run/summary/context/appendix/contacts
 - `pentest_add_contact` -> inserts contact row
 - `pentest_get_run` -> run + related one-to-one sections + contacts + report_build
+  - summary counters are returned as computed fields (`critical_count`, `high_count`, `medium_count`, `low_count`, `info_count`, `total_count`)
 
 ### Proposals
 - `pentest_add_proposal` -> inserts `proposal(status='proposed')`
@@ -331,7 +340,7 @@ Validation note:
 
 ### Findings
 - `pentest_add_finding` -> inserts canonical finding, optionally accepts linked proposal
-- `pentest_update_finding` -> patch finding fields
+- `pentest_update_finding` -> patch finding fields (errors if `finding_id` is not found for `run_id`)
 - `pentest_delete_finding` -> deletes finding and linked artifacts
 - `pentest_get_finding` / `pentest_get_findings` -> read finding views
 
@@ -341,8 +350,9 @@ Validation note:
 
 ### Reporting lifecycle
 - `pentest_check_readiness` -> readiness snapshot
-- `pentest_materialize_report` -> fill markdown only
-- `pentest_build_report` -> render outputs and persist build metadata
+- `pentest_materialize_report` -> fill markdown only (enforces readiness only for `production` safety mode)
+- `pentest_build_report` -> sync run header from contacts, run readiness, render outputs, persist build metadata
+  - header sync is executed before readiness and can update `run.assessor_name`, `run.assessor_email`, `run.client_name` even when build is later blocked
 - `pentest_finalize_run` -> guarded move running -> finished with status transitions
 
 ## Validation Rules
@@ -353,7 +363,9 @@ Run-level:
 Finding-level:
 - `cvss_score` in `0.0..10.0`
 - `cvss_vector` regex: `CVSS:4.0/<metric>:<value>`
+- `cvss_score` and `cvss_vector` are both allowed; score is not auto-recalculated from vector
 - `assets_json` must be JSON array of strings
+- `slug` is generated at create time and remains stable on name updates
 
 Path-level:
 - artifact paths are validated to remain inside the run directory
@@ -368,6 +380,8 @@ Atomic units (single transaction):
 - artifact attach
 - report_build status updates
 
+`pentest_build_report` itself is intentionally multi-step (sync -> readiness -> materialize -> render -> persist status), not one global transaction.
+
 Finalize sequence:
 1. DB tx sets `run.status='finalize_in_progress'`
 2. Filesystem rename `running/<id>` -> `finished/<id>`
@@ -377,7 +391,8 @@ Finalize sequence:
 ## Reporting Data Flow
 
 1. Read DB state and findings
-2. Compute severity counts
+2. Compute severity counts live from `finding`
+  - report mode filter: `status NOT IN ('closed','wontfix')`
 3. Map domain fields to template markers
 4. Replace markers and inject generated finding blocks
 5. Verify unresolved markers = 0
@@ -421,9 +436,15 @@ Migration error about duplicate proposal mapping:
 - Cause: more than one finding linked to the same `(run_id, proposal_id)`
 - Fix: clean duplicates, then reopen DB to apply migration v2
 
-Build blocked in production:
+Migration v3 update:
+- `executive_summary` counter columns were removed
+- if external SQL readers expect `*_count` columns directly from `executive_summary`, migrate them to computed counters from `finding`
+- if a previous upgrade was interrupted and `executive_summary_new` is present, reopening the DB will recover and complete migration
+
+Build blocked:
 - Run `pentest_check_readiness`
 - Resolve `errors[]` first
+- note: pending `proposed` proposals block build in all safety modes
 
 Finalize failed:
 - Run status becomes `failed_finalize`

@@ -15,7 +15,10 @@ Create subagents throughout the testing process, not just at startup. Spawn suba
 - Keep root read-only for pentest DB runtime operations.
 - Reporting is the canonical finding writer and report builder.
 - Pass explicit `run_id` to every delegated subagent.
+- Never call run-scoped DB tools until onboarding returns a valid `run_id`.
+- Until onboarding returns a valid `run_id`, only delegate onboarding (no web/code search or test delegation).
 - On `task` abort or empty `<task_result>`, retry once with tighter scope; if retry fails, mark a coverage gap.
+- Do not run report scripts/skills from root; delegate report build and finalize to Reporting only.
 
 ## Role
 
@@ -98,5 +101,6 @@ When all subagents report completion:
 2. Assess overall security posture
 3. Ensure all proposals are resolved (`accepted` or `rejected`)
 4. Delegate report build to Reporting
-5. Resolve final artifact paths via `pentest_get_report_paths`
-6. Return a final prioritized report in your assistant response
+5. Require Reporting to finalize via `pentest_finalize_run`
+6. Verify final state and artifact paths via `pentest_get_report_paths` (`run_status=finalized`)
+7. Return a final prioritized report in your assistant response

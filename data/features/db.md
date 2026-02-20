@@ -40,6 +40,9 @@ Per-run artifact folders:
 - `data/pentest/running/<run_id>/report`
 - `data/pentest/running/<run_id>/evidence`
 
+After finalize, the entire run directory (including `report/` and `evidence/`) moves to:
+- `data/pentest/finished/<run_id>/...`
+
 ## SQLite Settings and Concurrency
 
 Configured at DB open:
@@ -57,7 +60,7 @@ Migration tracking table:
 - `schema_migrations(version, applied_at, applied_by)`
 
 Current schema version:
-- `3`
+- `4`
 
 Version 2 migration adds:
 - `proposal.resolved_by`
@@ -69,6 +72,11 @@ Version 3 migration changes:
 - Severity counters are no longer persisted in DB
 - Counters are computed from `finding` at read/build time
 - Migration is transactional and recovery-aware for interrupted v3 states (for example leftover `executive_summary_new`)
+
+Version 4 migration changes:
+- `artifact.proposal_id` added for proposal-stage evidence
+- staged artifacts can be attached before proposal acceptance and auto-linked to finding on accept
+- index `idx_artifact_run_proposal` added on `(run_id, proposal_id)`
 
 Migration precheck:
 - Migration fails if duplicate non-null `(run_id, proposal_id)` links already exist in `finding`.
@@ -224,6 +232,7 @@ Evidence attachments and checksums.
 Key relationships:
 - `run_id -> run(id)` cascade
 - optional `finding_id -> finding(id)` set null on finding delete
+- optional `proposal_id -> proposal(id)` for staged evidence before canonical finding exists
 
 ### `audit_log`
 
@@ -241,6 +250,7 @@ Last build/materialization status and artifact paths for each run.
 - `idx_finding_run_seq` on `finding(run_id, seq)`
 - `idx_finding_run_validated` on `finding(run_id, validated)`
 - `idx_artifact_finding` on `artifact(finding_id)`
+- `idx_artifact_run_proposal` on `artifact(run_id, proposal_id)`
 - `idx_proposal_run_status` on `proposal(run_id, status)`
 - `idx_audit_run_time` on `audit_log(run_id, time_created)`
 - `idx_run_status` on `run(status)`
@@ -322,6 +332,7 @@ In `production` safety mode, build is blocked when:
 - one or more findings are in `draft`
 - one or more findings are missing CVSS (`cvss_score` or `cvss_vector`)
 - one or more findings have empty assets (`assets_json` as empty array)
+- one or more validated findings have no attached artifacts
 
 In all safety modes, build is blocked when:
 - one or more proposals remain in `proposed`
@@ -329,6 +340,8 @@ In all safety modes, build is blocked when:
 Validation note:
 - unvalidated findings generate warnings but do not hard-block build.
 - duplicate proposal fingerprints generate warnings only (no hard block).
+- validated findings without attached artifacts always generate warnings and are production blockers.
+- in `test` mode, missing narrative fields (`subject_description`, `scope_targets_markdown`, `methodology_details`, `events`) are warning-level signals.
 
 `pentest_build_report` runs readiness internally and fails fast if not ready.
 
@@ -336,6 +349,7 @@ Validation note:
 
 ### Run and onboarding
 - `pentest_create_run` -> inserts run + summary + context + appendix + contacts
+  - returns `run_id`, `db_path`, `run_dir`, `evidence_dir`, `report_dir`
 - `pentest_set_onboarding` -> updates run/summary/context/appendix/contacts
 - `pentest_add_contact` -> inserts contact row
 - `pentest_get_run` -> run + related one-to-one sections + contacts + report_build
@@ -343,32 +357,54 @@ Validation note:
 
 ### Proposals
 - `pentest_add_proposal` -> inserts `proposal(status='proposed')`
+  - normalizes payload aliases (`title -> name`, `cvss.score -> cvss_score`, `cvss.vector -> cvss_vector`, `affected_endpoint(s) -> assets`)
+  - enforces required fields (`name|title`, `severity`, `description`)
+  - validates severity enum, CVSS score range, CVSS v4 vector format, and asset shapes
+  - rejects recon/progress metadata payloads when they look non-vulnerability and lack concrete vulnerability signals
 - `pentest_get_proposals` -> list proposals (`status` and `agent_name` filters)
 - `pentest_accept_proposal` -> canonical accept path from proposal payload to finding
+  - defaults to `status='open'`, `validated=false` unless overridden
 - `pentest_reject_proposal` -> sets proposal to rejected with reason
 
 ### Findings
 - `pentest_add_finding` -> inserts canonical finding, optionally accepts linked proposal
+  - defaults to `status='draft'`, `validated=false` unless provided
 - `pentest_update_finding` -> patch finding fields (errors if `finding_id` is not found for `run_id`)
 - `pentest_delete_finding` -> deletes finding and linked artifacts
 - `pentest_get_finding` / `pentest_get_findings` -> read finding views
 
 ### Evidence and audit
 - `pentest_attach_artifact` -> verifies path and checksum, inserts artifact
+  - accepts either `finding_id` or `proposal_id` (both optional for run-level evidence)
+  - with `proposal_id` and no canonical finding yet, evidence is staged on proposal and auto-linked when proposal is accepted
+  - with `proposal_id` and existing canonical finding, links directly to that finding
+  - returns explicit error if a proposal ID is passed as `finding_id`
+  - enforces strict run-scoped paths only; missing files outside run dir are rejected (no legacy auto-import fallback)
 - `pentest_get_audit_log` -> paged audit list by run
 
 ### Reporting lifecycle
 - `pentest_check_readiness` -> readiness snapshot
-- `pentest_materialize_report` -> fill markdown only (enforces readiness only for `production` safety mode)
+- `pentest_materialize_report` -> fill markdown only (readiness is enforced only for `production` safety mode)
 - `pentest_build_report` -> sync run header from contacts, run readiness, render outputs, persist build metadata
   - header sync is executed before readiness and can update `run.assessor_name`, `run.assessor_email`, `run.client_name` even when build is later blocked
-- `pentest_finalize_run` -> guarded move running -> finished with status transitions
-- `pentest_get_report_paths` -> resolves report artifact absolute paths using actual run state (`running` or `finished`)
+- `pentest_finalize_run` -> guarded move running -> finished with status transitions (requires successful `report_build`)
+- `pentest_get_report_paths` -> resolves canonical run paths and report artifact absolute paths using actual run state (`running` or `finished`)
+  - includes `run_status`, `run_state`, `run_dir`, `evidence_dir`, `report_dir` for agent-safe reads/writes
 
 ## Validation Rules
 
 Run-level:
 - `target_url` required at creation
+- `target_url` rejects path-traversal-like input (`..`)
+- `run_id` is required and rejects `/`, `\`, and `..`
+
+Proposal-level:
+- payload must be valid JSON object
+- required: `name` (or `title`), `severity`, `description`
+- severity must be one of `critical|high|medium|low|info`
+- `cvss_score` must be in `0.0..10.0` when provided
+- `cvss_vector` must match CVSS v4 format when provided
+- `assets` / `affected_endpoints` must be arrays of non-empty strings; `affected_endpoint` must be non-empty string
 
 Finding-level:
 - `cvss_score` in `0.0..10.0`
@@ -379,6 +415,8 @@ Finding-level:
 
 Path-level:
 - artifact paths are validated to remain inside the run directory
+- canonical write root is run-scoped: `data/pentest/running/<run_id>/...`
+- files outside the run dir are not imported during attach; callers must write evidence to run-scoped paths first
 
 ## Atomicity Guarantees
 
@@ -465,7 +503,7 @@ Finalize failed:
 ## Known Constraints (v1)
 
 - No DB-native phase/checkpoint table yet (root orchestrates phase externally)
-- `proposal.payload_json` is contract-driven by docs, not DB JSON schema constraints
+- `proposal.payload_json` is stored as JSON text without DB-native JSON schema constraints (validation/normalization is enforced in runtime code)
 - Contact parser accepts pipe/semicolon rows and skips malformed rows silently
 
 ## Recommended Developer Workflow

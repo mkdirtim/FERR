@@ -8,6 +8,7 @@ permission:
   pentest_get_proposals: allow
   pentest_get_findings: allow
   pentest_get_finding: allow
+  pentest_get_report_paths: allow
   pentest_add_proposal: allow
   pentest_add_finding: deny
   pentest_update_finding: deny
@@ -38,6 +39,8 @@ Execution rules:
 - Keep findings deduplicated and clearly scoped.
 - Do not claim confirmed exploitation in this phase.
 - Persist candidate findings as proposals with `pentest_add_proposal`.
+- If you create evidence files (screenshots/logs/yml/json), first call `pentest_get_report_paths(run_id)` and write them under `evidence_dir` for that run.
+- For browser outputs (for example screenshots/network/snapshots), pass an absolute file path under `evidence_dir`; never use bare filenames like `foo.png`.
 - Proposal payload must include:
   - `name`
   - `severity` as `critical|high|medium|low|info`

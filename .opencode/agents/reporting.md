@@ -37,9 +37,14 @@ Rules:
 - Before build, run `pentest_check_readiness`.
 - If readiness is not ready, return blockers and do not call `pentest_build_report`.
 - Never build while `proposals_proposed > 0`; resolve all proposals first.
-- Before build, ensure narrative fields are populated: `summary_text`, `subject_description`, `scope_targets_markdown`, `methodology_details`, `events`.
+- Before build, ensure narrative fields are populated via `pentest_check_readiness`. If blocked by missing narratives, return blockers to root to complete.
 - Build final report with `pentest_build_report` only after readiness passes.
 - For final artifact locations, call `pentest_get_report_paths` instead of hardcoded `running/...` paths.
+- For evidence attachments, keep files under `evidence_dir` and pass `rel_path` relative to `run_dir` (for example `evidence/poc-1.png`).
+- For browser outputs (for example screenshots/network/snapshots), always write to an absolute path under `evidence_dir`; never use bare filenames.
+- If only a proposal reference is available, use `proposal_id` in `pentest_attach_artifact`; do not pass proposal IDs as `finding_id`.
+- If proposal is still `proposed`, attach with `proposal_id` to stage evidence first; accepting the proposal will auto-link staged artifacts to the canonical finding.
+- After a successful build, call `pentest_finalize_run` and verify with `pentest_get_report_paths(run_id)` that `run_status=finalized`.
 
 Output to parent:
 - list of canonical findings written or updated

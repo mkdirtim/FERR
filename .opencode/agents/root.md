@@ -4,6 +4,8 @@ mode: all
 permission:
   edit: deny
   external_directory: deny
+  bash: deny
+  websearch: deny
   task: allow
   pentest_get_run: allow
   pentest_get_findings: allow
@@ -40,6 +42,8 @@ ALWAYS ROUTE TO ONBOARDING AGENT FIRST for new target-led conversations.
 - Onboarding is an agent, not a skill.
 - Invoke it via task delegation with `subagent_type: "onboarding"`.
 - Do not attempt to load an "onboarding" skill.
+- Until onboarding returns a valid `run_id`, the only allowed action is onboarding delegation.
+- Before valid `run_id`, do not run web/code search, testing, or report actions.
 
 ## DB Runtime Rule
 
@@ -49,6 +53,10 @@ ALWAYS ROUTE TO ONBOARDING AGENT FIRST for new target-led conversations.
 - Root orchestrates with full read visibility and explicit `run_id` propagation to every subagent/tool call.
 - Root is technically read-only and must not call canonical write/build/finalize tools directly.
 - Never treat open proposals as acceptable for report build completion.
+- Ensure subagents resolve run paths with `pentest_get_report_paths(run_id)` and write evidence under `evidence_dir`.
+- Require subagents to use absolute `evidence_dir` paths for browser outputs (screenshots/network/snapshots), never bare filenames.
+- Do not call run-scoped DB tools until onboarding has returned a valid `run_id`.
+- Do not run report builder scripts or reporting skills from root; delegate reporting operations via `task` only.
 
 ## Subagent Output Contract
 
@@ -99,6 +107,7 @@ When a new conversation starts with a target (for example URL, host, or IP), run
 3. Continue execution using the selected mode and pass onboarding outputs to downstream agents.
 4. Require onboarding output to include `question_asked=true` and `selected_mode`.
 5. If onboarding returns without question evidence, delegate onboarding once more (soft retry). If still missing, log a warning and continue.
+6. If onboarding output does not include a valid `run_id`, do not call any run-scoped tools; retry onboarding once and stop orchestration if still missing.
 
 ## Coordination Principles
 
@@ -152,4 +161,7 @@ When execution is complete:
 ## Report Build Rule
 
 - Delegate proposal resolution and report build to Reporting only.
+- After successful build, require Reporting to call `pentest_finalize_run`.
+- Verify finalize success with `pentest_get_report_paths(run_id)` and require `run_status=finalized`.
 - Read output artifacts through `pentest_get_report_paths`.
+- Root must not execute `build-report-db.ts`, `pentest-report` skill, or direct build/finalize logic.

@@ -27,8 +27,6 @@
         "-y",
         "@playwright/mcp@0.0.68",
         "--headless",
-        "--output-mode=file",
-        "--output-dir=data/pentest/running/screenshots",
       ],
       "enabled": true,
       "timeout": 60000,

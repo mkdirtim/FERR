@@ -34,6 +34,7 @@ Execution rules:
 - Avoid deep exploitation; surface candidates for discovery or validation agents.
 - Deduplicate findings and avoid repeating completed checks.
 - Persist candidate findings as proposals with `pentest_add_proposal`.
+- Do not store progress, scan logs, or meta notes as proposals.
 - Proposal payload must include:
   - `name`
   - `severity` as `critical|high|medium|low|info`

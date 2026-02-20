@@ -262,7 +262,7 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
     [*] --> proposed
-    proposed --> accepted: pentest_add_finding with proposal_id
+    proposed --> accepted: pentest_accept_proposal
     proposed --> rejected: pentest_reject_proposal
     accepted --> [*]
     rejected --> [*]
@@ -289,7 +289,7 @@ sequenceDiagram
     Analysis->>DB: pentest_add_proposal
     Exploit->>DB: pentest_add_proposal
     Root->>Reporting: resolve proposals
-    Reporting->>DB: pentest_add_finding (accept)
+    Reporting->>DB: pentest_accept_proposal (accept)
     Reporting->>DB: pentest_reject_proposal (reject)
     Reporting->>DB: pentest_check_readiness
     alt ready
@@ -305,6 +305,7 @@ sequenceDiagram
 `check_readiness` computes:
 - `ready` (bool)
 - `errors[]`
+- `blocker_codes[]` (stable machine-readable blocker identifiers)
 - `warnings[]`
 - proposal/finding counts
 - `missing_required_fields[]`
@@ -314,6 +315,13 @@ In `production` safety mode, build is blocked when:
 - required run fields are missing
 - default placeholders are still present
 - no findings exist
+- `executive_summary.summary_text` is empty
+- `execution_context.subject_description` is empty
+- `execution_context.scope_targets_markdown` is empty
+- `execution_context.methodology_details` is empty
+- one or more findings are in `draft`
+- one or more findings are missing CVSS (`cvss_score` or `cvss_vector`)
+- one or more findings have empty assets (`assets_json` as empty array)
 
 In all safety modes, build is blocked when:
 - one or more proposals remain in `proposed`
@@ -336,6 +344,7 @@ Validation note:
 ### Proposals
 - `pentest_add_proposal` -> inserts `proposal(status='proposed')`
 - `pentest_get_proposals` -> list proposals (`status` and `agent_name` filters)
+- `pentest_accept_proposal` -> canonical accept path from proposal payload to finding
 - `pentest_reject_proposal` -> sets proposal to rejected with reason
 
 ### Findings
@@ -354,6 +363,7 @@ Validation note:
 - `pentest_build_report` -> sync run header from contacts, run readiness, render outputs, persist build metadata
   - header sync is executed before readiness and can update `run.assessor_name`, `run.assessor_email`, `run.client_name` even when build is later blocked
 - `pentest_finalize_run` -> guarded move running -> finished with status transitions
+- `pentest_get_report_paths` -> resolves report artifact absolute paths using actual run state (`running` or `finished`)
 
 ## Validation Rules
 
@@ -394,6 +404,7 @@ Finalize sequence:
 2. Compute severity counts live from `finding`
   - report mode filter: `status NOT IN ('closed','wontfix')`
 3. Map domain fields to template markers
+  - includes rendering `TODO_EXECUTIVE_SUMMARY_SEVERITY_TABLE` from live counts
 4. Replace markers and inject generated finding blocks
 5. Verify unresolved markers = 0
 6. Render via pandoc (`pdf|html|docx|all`)

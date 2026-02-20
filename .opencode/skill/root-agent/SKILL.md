@@ -9,6 +9,14 @@ Orchestration guidance for a security assessment lead. Use this skill when you a
 
 Create subagents throughout the testing process, not just at startup. Spawn subagents dynamically as findings and scope evolve.
 
+## Hard Rules
+
+- Always route target-led conversations to the Onboarding agent first.
+- Keep root read-only for pentest DB runtime operations.
+- Reporting is the canonical finding writer and report builder.
+- Pass explicit `run_id` to every delegated subagent.
+- On `task` abort or empty `<task_result>`, retry once with tighter scope; if retry fails, mark a coverage gap.
+
 ## Role
 
 - Decompose targets into discrete, parallelizable tasks
@@ -88,5 +96,7 @@ When all subagents report completion:
 
 1. Collect and deduplicate findings across agents
 2. Assess overall security posture
-3. Compile executive summary with prioritized recommendations
-4. Return a final prioritized report in your assistant response
+3. Ensure all proposals are resolved (`accepted` or `rejected`)
+4. Delegate report build to Reporting
+5. Resolve final artifact paths via `pentest_get_report_paths`
+6. Return a final prioritized report in your assistant response

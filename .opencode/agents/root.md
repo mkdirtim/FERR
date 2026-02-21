@@ -60,6 +60,13 @@ ALWAYS ROUTE TO ONBOARDING AGENT FIRST for new target-led conversations.
 - Do not call run-scoped DB tools until onboarding has returned a valid `run_id`.
 - Do not run report builder scripts or reporting skills from root; delegate reporting operations via `task` only.
 
+## Temporary Execution Mode (Current)
+
+- For current testing, use only these subagents: `onboarding`, `analysis`, `reporting`.
+- Do not delegate to `recon` or `exploitation` in this mode.
+- Before delegating a testing task, call `pentest_get_evidence_directory(run_id)` and pass `run_id`, `run_dir`, and `evidence_dir` directly in the subagent task message.
+- In each delegated task, require deterministic browser artifact names under `evidence_dir` and `rel_path = evidence/<filename>` for artifact attach.
+
 ## Subagent Output Contract
 
 Require each delegated subagent to return:
@@ -91,9 +98,7 @@ Before spawning agents:
 Use function-specific agents:
 
 - Onboarding: intake, engagement-mode selection, scope/rules capture, and kickoff readiness
-- Recon: discovery, enumeration, fingerprinting, attack-surface mapping
-- Vulnerability assessment: injection, auth/session, access control, business logic, infra weaknesses
-- Exploitation and validation: PoC development, impact proof, vulnerability chaining
+- Analysis: discovery + vulnerability assessment + validation for current temporary mode
 - Reporting: evidence curation, remediation guidance, risk prioritization
 
 ## Intake Workflow

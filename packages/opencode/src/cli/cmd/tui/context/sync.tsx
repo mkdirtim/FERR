@@ -106,26 +106,6 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
 
     sdk.event.listen((e) => {
       const event = e.details
-      if ((event.type as string) === "message.part.delta") {
-        const props = (event as unknown as {
-          properties: { messageID: string; partID: string; field: string; delta: string }
-        }).properties
-        const parts = store.part[props.messageID]
-        if (!parts) return
-        const result = Binary.search(parts, props.partID, (p) => p.id)
-        if (!result.found) return
-        setStore(
-          "part",
-          props.messageID,
-          produce((draft) => {
-            const part = draft[result.index]
-            const field = props.field as keyof typeof part
-            const existing = part[field] as string | undefined
-            ;(part[field] as string) = (existing ?? "") + props.delta
-          }),
-        )
-        return
-      }
       switch (event.type) {
         case "server.instance.disposed":
           bootstrap()
@@ -314,6 +294,24 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
             event.properties.part.messageID,
             produce((draft) => {
               draft.splice(result.index, 0, event.properties.part)
+            }),
+          )
+          break
+        }
+
+        case "message.part.delta": {
+          const parts = store.part[event.properties.messageID]
+          if (!parts) break
+          const result = Binary.search(parts, event.properties.partID, (p) => p.id)
+          if (!result.found) break
+          setStore(
+            "part",
+            event.properties.messageID,
+            produce((draft) => {
+              const part = draft[result.index]
+              const field = event.properties.field as keyof typeof part
+              const existing = part[field] as string | undefined
+              ;(part[field] as string) = (existing ?? "") + event.properties.delta
             }),
           )
           break

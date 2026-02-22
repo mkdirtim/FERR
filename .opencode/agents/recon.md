@@ -44,6 +44,8 @@ Execution rules:
   - `name`
   - `severity` as `critical|high|medium|low|info`
   - `description`
+- For `pentest_add_proposal`, use `assets` as an array of non-empty strings.
+- Do not use object arrays in `assets`, and do not send `assets_json` in proposal payloads.
 
 Output to parent:
 - `status` (`ok` or `error`)

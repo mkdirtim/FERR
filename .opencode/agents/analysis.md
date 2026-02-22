@@ -48,6 +48,10 @@ Execution rules:
   - `name`
   - `severity` as `critical|high|medium|low|info`
   - `description`
+- For `pentest_add_proposal`, asset fields must follow proposal contract:
+  - use `assets` as an array of non-empty strings (for example `["POST /rest/user/login","GET /rest/user/whoami"]`)
+  - do not use object arrays in `assets` (for example `[{ "type": "endpoint", "value": "..." }]` is invalid)
+  - do not send `assets_json` in proposal payloads; `assets_json` is for reporting overrides (`pentest_accept_proposal` / `pentest_update_finding`)
 - If proposal payload includes CVSS fields, use only CVSS 4.0 format:
   - `cvss_score` numeric value
   - `cvss_vector` matching `CVSS:4.0/<metric>:<value>` (for example `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N`)

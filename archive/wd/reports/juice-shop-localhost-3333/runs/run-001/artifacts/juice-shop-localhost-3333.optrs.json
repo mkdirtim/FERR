@@ -1,0 +1,125 @@
+{
+  "report_metadata": {
+    "report_id": "43e6086c-b999-4690-b474-d721d96b7f56",
+    "client_name": "OWASP Juice Shop Assessment",
+    "engagement_name": "juice-shop-localhost-3333",
+    "engagement_id": "juice-shop-localhost-3333",
+    "date_generated": "2026-02-18T00:44:45.866Z",
+    "date_of_testing": {
+      "start": "2026-02-18T00:44:45.866Z",
+      "end": "2026-02-18T00:45:30.000Z"
+    },
+    "tester_info": {
+      "company": "OpenHack",
+      "team": [
+        {
+          "name": "Security Scanner",
+          "email": "security@example.com",
+          "role": "Lead"
+        }
+      ]
+    },
+    "recipient": {
+      "company": "OWASP Juice Shop",
+      "contacts": [
+        {
+          "name": "Security Team",
+          "email": "security@owasp-juice.shop",
+          "role": "Security"
+        }
+      ]
+    },
+    "report_version": "1.0"
+  },
+  "scope": {
+    "in_scope": [
+      {
+        "target": "http://localhost:3333",
+        "description": "OWASP Juice Shop web application",
+        "testing_type": "gray-box",
+        "methodologies": [
+          "OWASP WSTG",
+          "OWASP Top 10"
+        ]
+      }
+    ]
+  },
+  "executive_summary": {
+    "risk_rating": "high",
+    "business_impact": "The application exposes sensitive credentials and configuration data that could lead to account takeover and unauthorized access.",
+    "strengths": [
+      "Application uses allowlist for redirect validation"
+    ],
+    "challenges": [
+      "Administrative endpoints lack authentication",
+      "Sensitive credentials exposed in client-side configuration"
+    ],
+    "strategic_recommendations": [
+      "Implement authentication for all admin endpoints",
+      "Remove credentials from client-accessible configuration"
+    ]
+  },
+  "findings": [
+    {
+      "id": "F-0001",
+      "title": "Sensitive Information Disclosure - Application Configuration and OAuth Credentials Exposed",
+      "summary": "The application exposes sensitive configuration data including OAuth credentials and security question answers via an unauthenticated administrative endpoint, enabling account takeover attacks.",
+      "description": "The application exposes sensitive configuration information through the `/rest/admin/application-configuration` endpoint without authentication. This endpoint reveals Google OAuth Client ID, security question answers, and complete application configuration data.",
+      "severity": "high",
+      "cvss_score": 7.5,
+      "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+      "cwe_id": "CWE-200",
+      "affected_assets": [
+        "/rest/admin/application-configuration"
+      ],
+      "technical_details": {
+        "endpoint": "GET /rest/admin/application-configuration",
+        "exposed_data": [
+          "Google OAuth Client ID: 1005568560502-6hm16lef8oh46hr2d98vf2ohlnj4nfhq.apps.googleusercontent.com",
+          "Security Question Answers: Daniel Boone National Forest, ITsec",
+          "Server configuration details",
+          "Internal paths and product data"
+        ],
+        "proof_of_concept": "curl http://localhost:3333/rest/admin/application-configuration",
+        "impact": "Attackers can harvest OAuth credentials for phishing attacks, bypass account security questions to reset passwords and take over accounts, and gather reconnaissance information about the application architecture.",
+        "testing_process": "Accessed the /rest/admin/application-configuration endpoint directly without authentication and observed that it returned complete application configuration including sensitive credentials and security answers."
+      },
+      "recommendations": [
+        "Remove sensitive credentials from client-side configuration endpoints",
+        "Implement authentication and authorization checks for admin configuration endpoints",
+        "Store OAuth secrets server-side only",
+        "Remove security question answers from public-facing configuration"
+      ],
+      "status": "unresolved",
+      "references": [
+        "https://cwe.mitre.org/data/definitions/200.html",
+        "https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure.html"
+      ],
+      "x_openhack": {
+        "validation": {
+          "state": "validated",
+          "updated_at": "2026-02-18T00:50:42.454Z"
+        }
+      },
+      "media": [
+        {
+          "type": "screenshot",
+          "file_name": "info_disclosure_config.png",
+          "file_path": "/Users/mkdirtim/FERR/openhack/wd/reports/juice-shop-localhost-3333/runs/run-001/evidence/screenshots/info_disclosure_config.png"
+        }
+      ]
+    }
+  ],
+  "artefacts": {
+    "tools_used": [
+      {
+        "tool_name": "Playwright",
+        "version": "latest"
+      },
+      {
+        "tool_name": "Manual Testing",
+        "version": "n/a"
+      }
+    ]
+  }
+}

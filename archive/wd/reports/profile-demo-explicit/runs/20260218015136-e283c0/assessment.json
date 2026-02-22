@@ -1,0 +1,75 @@
+{
+  "report_metadata": {
+    "report_id": "3a099cef-7f67-4919-90eb-85567612b2a0",
+    "client_name": "Client",
+    "engagement_name": "profile-demo-explicit",
+    "engagement_id": "profile-demo-explicit",
+    "date_generated": "2026-02-18T01:51:37.187Z",
+    "date_of_testing": {
+      "start": "2026-02-18T01:51:37.187Z",
+      "end": "2026-02-18T01:51:37.187Z"
+    },
+    "tester_info": {
+      "company": "OpenHack Security Agent",
+      "team": [
+        {
+          "name": "Tim Schnepf",
+          "role": "Lead Security Consultant",
+          "email": "security@mkdirtim.com"
+        }
+      ]
+    },
+    "recipient": {
+      "company": "Client",
+      "contacts": [
+        {
+          "name": "Security Contact",
+          "email": "contact@example.com",
+          "role": "Security"
+        }
+      ]
+    },
+    "report_version": "1.0"
+  },
+  "scope": {
+    "in_scope": [
+      {
+        "target": "https://target.example",
+        "description": "Primary target",
+        "testing_type": "black-box",
+        "methodologies": [
+          "OWASP WSTG"
+        ]
+      }
+    ]
+  },
+  "executive_summary": {
+    "risk_rating": "medium",
+    "business_impact": "Business impact summary.",
+    "strengths": [
+      "Initial baseline"
+    ],
+    "challenges": [
+      "Initial baseline"
+    ],
+    "strategic_recommendations": [
+      "Prioritize remediation"
+    ]
+  },
+  "artefacts": {
+    "tools_used": [
+      {
+        "tool_name": "Manual",
+        "version": "n/a"
+      }
+    ]
+  },
+  "x_openhack": {
+    "test_environment": "Local instance at localhost:3333 in a dedicated test environment.",
+    "information_base": "black-box",
+    "subject_description": "Target application",
+    "methodology_details": "Manual testing from the local network without a proxy server. No WAF or filtering mechanisms were active during testing.",
+    "events": "N/A",
+    "appendix_a": "Include lists, scripts, and raw data relevant to the assessment."
+  }
+}

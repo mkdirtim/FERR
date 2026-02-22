@@ -31,11 +31,25 @@ Policy: only merge upstream release tags into `openhack` (never merge upstream b
 
   git merge --no-ff "${NEW_TAG}" -m "Upgrade upstream opencode to ${NEW_TAG}"
 
-4) Push and open a PR:
+4) Reapply fork maintenance commits:
+
+  PRUNE_SHA=aec6239af
+  FORK_FIX_SHA=c8ec2b563
+  git cherry-pick ${PRUNE_SHA}
+  git cherry-pick ${FORK_FIX_SHA}
+
+5) Regenerate lockfile and validate:
+
+  bun install
+  bun turbo typecheck
+  bun turbo test
+
+6) Push and open a PR:
 
   git push -u origin HEAD
+  gh pr create --base openhack --head upgrade/opencode-${NEW_TAG} --fill
 
-5) After the PR is merged to `openhack`, tag the upstream base commit (not the merge commit):
+7) After the PR is merged to `openhack`, tag the upstream base commit (not the merge commit):
 
   git checkout openhack
   git pull --ff-only origin openhack
@@ -43,6 +57,17 @@ Policy: only merge upstream release tags into `openhack` (never merge upstream b
   UPSTREAM_SHA="$(git rev-parse ${NEW_TAG}^{commit})"
   git tag -a "upstream-opencode-${NEW_TAG}" "${UPSTREAM_SHA}" -m "Upstream base: anomalyco/opencode ${NEW_TAG}"
   git push origin "upstream-opencode-${NEW_TAG}"
+
+8) Clean up merged upgrade branch:
+
+  git branch -d upgrade/opencode-${NEW_TAG}
+  git push origin --delete upgrade/opencode-${NEW_TAG}
+
+9) Update upgrade docs for next cycle:
+- `upgrading/HOWTO.md`
+  - update `Current prune commit`
+  - update `Current fork-fix commit`
+  - add upgrade history row
 
 ## Reapplying fork customizations
 
@@ -58,12 +83,12 @@ After merging an upstream tag, cherry-pick the fork-maintenance commits:
 
 ### Current prune commit
 
-  SHA: b9cb07e82
-  Message: fork: prune upstream-only directories (v1.1.64)
+  SHA: aec6239af
+  Message: fork: prune upstream-only directories (v1.2.10)
 
 ### Current fork-fix commit
 
-  SHA: 49b6f7685
+  SHA: c8ec2b563
   Message: fork: fix workspace and patch consistency
 
 These are cherry-picked onto each upgrade. The prune commit deletes whole
@@ -86,44 +111,41 @@ conflict. Resolution is straightforward — accept the deletion:
   git rm -r <conflicting-directory>
   git cherry-pick --continue
 
-After resolving, update the prune commit SHA in this file and in `upgrading/TODO`.
+After resolving, update the prune commit SHA in this file.
 
 ### Full upgrade + prune example
 
   git fetch upstream --tags --prune-tags
 
   NEW_TAG=vX.Y.Z
-  PRUNE_SHA=b9cb07e82
-  FORK_FIX_SHA=49b6f7685
+  PRUNE_SHA=aec6239af
+  FORK_FIX_SHA=c8ec2b563
 
   git checkout openhack
   git pull --ff-only origin openhack
+  git rev-parse -q --verify "refs/tags/${NEW_TAG}^{commit}"
   git checkout -b upgrade/opencode-${NEW_TAG}
 
   git merge --no-ff "${NEW_TAG}" -m "Upgrade upstream opencode to ${NEW_TAG}"
   git cherry-pick ${PRUNE_SHA}
   git cherry-pick ${FORK_FIX_SHA}
-  # resolve conflicts if any, run tests
-
-  bun run typecheck
-  cd packages/opencode && bun run test
-  cd ../..
-
-  # Regenerate bun.lock (pruned workspaces change dependency resolution)
   bun install
+  bun turbo typecheck
+  bun turbo test
   git add bun.lock && git commit -m "chore: regenerate bun.lock after ${NEW_TAG} upgrade"
 
   git push -u origin HEAD
-  # open PR, merge, then tag (see step 5 above)
+  gh pr create --base openhack --head upgrade/opencode-${NEW_TAG} --fill
+  # merge PR, then tag + clean up (see steps 7-9 above)
 
 ## Worked example
-Upgrade from `v1.1.64` to `v1.2.5` (PR #2, merge 711e18650):
+Latest upgrade from `v1.2.5` to `v1.2.10` (PR #3, merge 6b88eb639):
 
   git fetch upstream --tags --prune-tags
 
-  NEW_TAG=v1.2.5
-  PRUNE_SHA=b9cb07e82
-  FORK_FIX_SHA=49b6f7685
+  NEW_TAG=v1.2.10
+  PRUNE_SHA=aec6239af
+  FORK_FIX_SHA=c8ec2b563
 
   git checkout openhack
   git pull --ff-only origin openhack
@@ -131,11 +153,14 @@ Upgrade from `v1.1.64` to `v1.2.5` (PR #2, merge 711e18650):
 
   git checkout -b upgrade/opencode-${NEW_TAG}
   git merge --no-ff "${NEW_TAG}" -m "Upgrade upstream opencode to ${NEW_TAG}"
-  git cherry-pick ${PRUNE_SHA}       # only 2 files (patches/) needed deleting
-  git cherry-pick ${FORK_FIX_SHA}    # re-adds the patches
+  git cherry-pick ${PRUNE_SHA}
+  git cherry-pick ${FORK_FIX_SHA}
   bun install
+  bun turbo typecheck
+  bun turbo test
   git add bun.lock && git commit -m "chore: regenerate bun.lock after ${NEW_TAG} upgrade"
   git push -u origin HEAD
+  gh pr create --base openhack --head upgrade/opencode-${NEW_TAG} --fill
 
 After merging that PR:
 
@@ -144,6 +169,8 @@ After merging that PR:
   UPSTREAM_SHA="$(git rev-parse ${NEW_TAG}^{commit})"
   git tag -a "upstream-opencode-${NEW_TAG}" "${UPSTREAM_SHA}" -m "Upstream base: anomalyco/opencode ${NEW_TAG}"
   git push origin "upstream-opencode-${NEW_TAG}"
+  git branch -d upgrade/opencode-${NEW_TAG}
+  git push origin --delete upgrade/opencode-${NEW_TAG}
 
 ## Upgrade history
 
@@ -151,3 +178,4 @@ After merging that PR:
 |------|----|----|-----------|-----------------|-------|
 | v1.1.52 | v1.1.53 | #1 | — | — | Initial upgrade |
 | v1.1.64 | v1.2.5 | #2 | 711e18650 | 72 | Prune only touched 2 patch files; share module refactored to config-driven URL |
+| v1.2.5 | v1.2.10 | #3 | 6b88eb639 | 301 | Prune/fork-fix baseline advanced to `aec6239af` / `c8ec2b563`; upstream base tagged as `upstream-opencode-v1.2.10` |

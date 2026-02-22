@@ -4,6 +4,7 @@ Policy: only merge upstream release tags into `openhack` (never merge upstream b
 
 ## Notes
 - Upstream release tags are `vX.Y.Z` (leading `v`). Example: `v1.5.4`.
+- `gh` must be authenticated for PR creation: `gh auth login`.
 - To see whether a tag exists without fetching:
 
   git ls-remote --tags --refs upstream | rg -n 'v1\\.5\\.4$'
@@ -78,8 +79,8 @@ After merging an upstream tag, cherry-pick the fork-maintenance commits:
   git cherry-pick <PRUNE_COMMIT_SHA>
   git cherry-pick <FORK_FIX_COMMIT_SHA>
   # resolve any conflicts, then test:
-  bun run typecheck
-  cd packages/opencode && bun run test
+  bun turbo typecheck
+  bun turbo test
 
 ### Current prune commit
 
@@ -112,65 +113,6 @@ conflict. Resolution is straightforward — accept the deletion:
   git cherry-pick --continue
 
 After resolving, update the prune commit SHA in this file.
-
-### Full upgrade + prune example
-
-  git fetch upstream --tags --prune-tags
-
-  NEW_TAG=vX.Y.Z
-  PRUNE_SHA=aec6239af
-  FORK_FIX_SHA=c8ec2b563
-
-  git checkout openhack
-  git pull --ff-only origin openhack
-  git rev-parse -q --verify "refs/tags/${NEW_TAG}^{commit}"
-  git checkout -b upgrade/opencode-${NEW_TAG}
-
-  git merge --no-ff "${NEW_TAG}" -m "Upgrade upstream opencode to ${NEW_TAG}"
-  git cherry-pick ${PRUNE_SHA}
-  git cherry-pick ${FORK_FIX_SHA}
-  bun install
-  bun turbo typecheck
-  bun turbo test
-  git add bun.lock && git commit -m "chore: regenerate bun.lock after ${NEW_TAG} upgrade"
-
-  git push -u origin HEAD
-  gh pr create --base openhack --head upgrade/opencode-${NEW_TAG} --fill
-  # merge PR, then tag + clean up (see steps 7-9 above)
-
-## Worked example
-Latest upgrade from `v1.2.5` to `v1.2.10` (PR #3, merge 6b88eb639):
-
-  git fetch upstream --tags --prune-tags
-
-  NEW_TAG=v1.2.10
-  PRUNE_SHA=aec6239af
-  FORK_FIX_SHA=c8ec2b563
-
-  git checkout openhack
-  git pull --ff-only origin openhack
-  git rev-parse -q --verify "refs/tags/${NEW_TAG}^{commit}"
-
-  git checkout -b upgrade/opencode-${NEW_TAG}
-  git merge --no-ff "${NEW_TAG}" -m "Upgrade upstream opencode to ${NEW_TAG}"
-  git cherry-pick ${PRUNE_SHA}
-  git cherry-pick ${FORK_FIX_SHA}
-  bun install
-  bun turbo typecheck
-  bun turbo test
-  git add bun.lock && git commit -m "chore: regenerate bun.lock after ${NEW_TAG} upgrade"
-  git push -u origin HEAD
-  gh pr create --base openhack --head upgrade/opencode-${NEW_TAG} --fill
-
-After merging that PR:
-
-  git checkout openhack
-  git pull --ff-only origin openhack
-  UPSTREAM_SHA="$(git rev-parse ${NEW_TAG}^{commit})"
-  git tag -a "upstream-opencode-${NEW_TAG}" "${UPSTREAM_SHA}" -m "Upstream base: anomalyco/opencode ${NEW_TAG}"
-  git push origin "upstream-opencode-${NEW_TAG}"
-  git branch -d upgrade/opencode-${NEW_TAG}
-  git push origin --delete upgrade/opencode-${NEW_TAG}
 
 ## Upgrade history
 

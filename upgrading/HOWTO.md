@@ -86,7 +86,7 @@ conflict. Resolution is straightforward — accept the deletion:
   git rm -r <conflicting-directory>
   git cherry-pick --continue
 
-After resolving, update the prune commit SHA in this file and in TODOs.md.
+After resolving, update the prune commit SHA in this file and in `upgrading/TODO`.
 
 ### Full upgrade + prune example
 

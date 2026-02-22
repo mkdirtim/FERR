@@ -15,10 +15,13 @@ Create subagents throughout the testing process, not just at startup. Spawn suba
 - Keep root read-only for pentest DB runtime operations.
 - Reporting is the canonical finding writer and report builder.
 - Pass explicit `run_id` to every delegated subagent.
+- After onboarding returns `run_id`, validate it once with `pentest_get_run(run_id)` before any non-onboarding testing delegation.
 - Never call run-scoped DB tools until onboarding returns a valid `run_id`.
 - Until onboarding returns a valid `run_id`, only delegate onboarding (no web/code search or test delegation).
 - On `task` abort or empty `<task_result>`, retry once with tighter scope; if retry fails, mark a coverage gap.
 - Do not run report scripts/skills from root; delegate report build and finalize to Reporting only.
+- For browser-testing tasks, fetch `evidence_dir` once per run via `pentest_get_evidence_directory(run_id)` and pass `run_id`, `run_dir`, and `evidence_dir` in every delegated testing task.
+- Require subagents to write deterministic filenames under `evidence_dir` and attach with `rel_path = evidence/<filename>`.
 
 ## Role
 

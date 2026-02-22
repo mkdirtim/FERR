@@ -54,17 +54,20 @@ ALWAYS ROUTE TO ONBOARDING AGENT FIRST for new target-led conversations.
 - Root orchestrates with full read visibility and explicit `run_id` propagation to every subagent/tool call.
 - Root is technically read-only and must not call canonical write/build/finalize tools directly.
 - Never treat open proposals as acceptable for report build completion.
-- Require subagents to call `pentest_get_evidence_directory(run_id)` once at task start.
+- After onboarding returns `run_id`, validate it once with `pentest_get_run(run_id)` before delegating any non-onboarding testing task; if validation fails, stop and surface the exact error.
+- Require subagents to call `pentest_get_evidence_directory(run_id)` once at task start only when `evidence_dir` was not provided by root.
 - For browser outputs, require deterministic filenames under `evidence_dir`: `<kind>-<timestamp>-<rand>.<ext>`.
 - For artifact linking, require `rel_path = evidence/<filename>`.
 - Do not call run-scoped DB tools until onboarding has returned a valid `run_id`.
 - Do not run report builder scripts or reporting skills from root; delegate reporting operations via `task` only.
+- Call `pentest_get_evidence_directory(run_id)` once per run in root, store `run_dir` and `evidence_dir`, and pass them to every delegated testing subagent.
 
 ## Temporary Execution Mode (Current)
 
 - For current testing, use only these subagents: `onboarding`, `analysis`, `reporting`.
 - Do not delegate to `recon` or `exploitation` in this mode.
-- Before delegating a testing task, call `pentest_get_evidence_directory(run_id)` and pass `run_id`, `run_dir`, and `evidence_dir` directly in the subagent task message.
+- Before delegating the first testing task for a run, call `pentest_get_evidence_directory(run_id)` and pass `run_id`, `run_dir`, and `evidence_dir` directly in every subagent task message.
+- When `evidence_dir` is already passed by root, require subagents to reuse it directly and not recompute paths.
 - In each delegated task, require deterministic browser artifact names under `evidence_dir` and `rel_path = evidence/<filename>` for artifact attach.
 
 ## Subagent Output Contract

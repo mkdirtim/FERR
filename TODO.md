@@ -14,6 +14,7 @@ Current active subagents: `recon`, `analysis`, `exploitation`, `reporting`.
 
 - [ ] [P1] Add regression check/script that fails when new runtime evidence files appear in `packages/opencode/` (or other non-run roots) during a run.
 - [ ] [P2] Add evidence relevance checks so attached screenshots/logs must match the claimed exploited state/endpoint (avoid homepage/profile mismatch artifacts).
+- [ ] [P1] Add a run-scoped browser artifact helper that takes `run_id` + filename and returns a guaranteed absolute path under `evidence_dir` (context: path discipline is currently prompt/agent-driven; risk if unchanged: repeated artifact-guard retries and slower execution).
 
 #### Proposal and Report Quality
 
@@ -21,6 +22,8 @@ Current active subagents: `recon`, `analysis`, `exploitation`, `reporting`.
 - [ ] [P1] Add proposal payload preflight validation (`name`, `severity`, `description`, CVSS v4, `assets` shape) before `pentest_add_proposal` to reduce repeated submit-fail-retry loops in subagents.
 - [ ] [P1] Redact sensitive exploit material before persistence/rendering (full JWTs, password hashes, secret key material) while preserving reproducible PoC steps.
 - [ ] [P1] Add reporting/readiness duplicate guard for auth findings with same root cause/endpoint (for example JWT `none` and RS256→HS256 confusion overlap) to prevent double-counting in one run.
+- [ ] [P0] Enforce reporting-quality completeness in runtime (not only prompt policy): accepted findings must include non-empty description/proof/remediation, CVSS score+vector, non-empty assets, and artifact linkage for `validated=true` (context: current guarantees are mainly in agent prompt guidance; risk if unchanged: incomplete findings can still pass through in some flows).
+- [ ] [P1] Tighten test-mode quality baseline before final report steps (context: production checks are stricter than test mode today; risk if unchanged: weakly evidenced findings become normalized and leak into production-style workflows).
 
 ### Agent-related
 
@@ -58,6 +61,7 @@ Current active subagents: `recon`, `analysis`, `exploitation`, `reporting`.
 ### Tooling maintenance
 
 - [ ] [P2] Verify dependency check script still validates: `script/pentest-report-deps.sh`.
+- [ ] [P2] Add workspace hygiene automation for generated pentest artifacts (context: sessions produce large untracked `data/pentest/...` and `packages/opencode/...` files; risk if unchanged: noisy diffs and accidental artifact commits).
 
 ## Completed TODOs (grouped by topic)
 

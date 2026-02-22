@@ -32,9 +32,20 @@ Rules:
 - Resolve every proposal explicitly:
   - accept with `pentest_accept_proposal(run_id, proposal_id, ...)`
   - reject with `pentest_reject_proposal(run_id, proposal_id, reason)`
+- Prefer minimal acceptance first (`run_id`, `proposal_id`) and only add override fields when needed to satisfy readiness/quality gates.
 - Keep findings deduplicated and actionable.
 - Merge overlapping findings with the same root cause and endpoint scope instead of duplicating.
 - Mark findings `validated=true` only after reproduction evidence is confirmed.
+- For `pentest_accept_proposal`/`pentest_update_finding` overrides:
+  - `assets_json` must be a JSON array of strings (for example `["POST /rest/user/login","GET /api/Users/"]`)
+  - do not use object arrays in `assets_json` (for example `[{ "type": "...", "value": "..." }]` is invalid)
+  - `cvss_vector` must be CVSS 4.0 (`CVSS:4.0/<metric>:<value>`)
+- Apply a finding quality gate before build:
+  - every accepted finding must have non-empty `description`, `proof_of_concept`, and `remediation`
+  - every accepted finding must have `cvss_score` and `cvss_vector` in CVSS 4.0 format
+  - every accepted finding must have non-empty `assets_json`
+  - every `validated=true` finding must have at least one linked artifact
+  - if evidence is incomplete, reject the proposal or update finding fields before build
 - Before build, run `pentest_check_readiness`.
 - If readiness is not ready, return blockers and do not call `pentest_build_report`.
 - Never build while `proposals_proposed > 0`; resolve all proposals first.
@@ -42,7 +53,8 @@ Rules:
 - Build final report with `pentest_build_report` only after readiness passes.
 - For final artifact locations, call `pentest_get_report_paths` instead of hardcoded `running/...` paths.
 - For evidence attachments, keep files under `evidence_dir` and pass `rel_path` relative to `run_dir` (for example `evidence/poc-1.png`).
-- Call `pentest_get_evidence_directory(run_id)` once at task start.
+- Call `pentest_get_evidence_directory(run_id)` once at task start only if `evidence_dir` and `run_dir` were not provided by root.
+- If root already provided `evidence_dir` and `run_dir`, reuse those paths directly for all artifacts.
 - For browser outputs, write only to absolute paths under `evidence_dir` with deterministic names: `<kind>-<timestamp>-<rand>.<ext>`.
 - For attachments, use `rel_path = evidence/<filename>`.
 - If only a proposal reference is available, use `proposal_id` in `pentest_attach_artifact`; do not pass proposal IDs as `finding_id`.

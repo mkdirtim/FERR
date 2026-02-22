@@ -1,7 +1,6 @@
 import path from "path"
 import os from "os"
 import fs from "fs/promises"
-import { existsSync } from "fs"
 import z from "zod"
 import { Identifier } from "../id/id"
 import { MessageV2 } from "./message-v2"
@@ -60,68 +59,8 @@ IMPORTANT:
 
 const STRUCTURED_OUTPUT_SYSTEM_PROMPT = `IMPORTANT: The user has requested structured output. You MUST use the StructuredOutput tool to provide your final response. Do NOT respond with plain text - you MUST call the StructuredOutput tool with your answer formatted according to the schema.`
 
-const PENTEST_PLAYWRIGHT_FILE_TOOLS = new Set([
-  "playwright_browser_take_screenshot",
-  "playwright_browser_network_requests",
-  "playwright_browser_snapshot",
-  "playwright_browser_console_messages",
-])
-
-function asRecord(value: unknown) {
-  if (!value || typeof value !== "object") return null
-  if (Array.isArray(value)) return null
-  return value as Record<string, unknown>
-}
-
-function isPentestAgent(permission: PermissionNext.Ruleset) {
-  return permission.some((rule) => rule.permission.startsWith("pentest_"))
-}
-
-function parsePentestEvidencePath(worktree: string, filename: string) {
-  const abs = path.resolve(filename)
-  if (!path.isAbsolute(abs)) return null
-  const root = path.resolve(path.join(worktree, "data", "pentest", "running"))
-  const rel = path.relative(root, abs)
-  if (!rel || rel.startsWith("..")) return null
-  const parts = rel.split(path.sep)
-  if (parts.length < 3) return null
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parts[0])) return null
-  if (parts[1] !== "evidence") return null
-  const evidenceDir = path.join(root, parts[0], "evidence")
-  const inEvidence = abs === evidenceDir || abs.startsWith(evidenceDir + path.sep)
-  if (!inEvidence) return null
-  if (!existsSync(path.join(root, parts[0], "run.db"))) return null
-  return { runID: parts[0], evidenceDir, abs }
-}
-
 export namespace SessionPrompt {
   const log = Log.create({ service: "session.prompt" })
-
-  export function validatePentestPlaywrightFilePath(input: {
-    tool: string
-    args: unknown
-    worktree: string
-    permission: PermissionNext.Ruleset
-  }) {
-    if (!PENTEST_PLAYWRIGHT_FILE_TOOLS.has(input.tool)) return
-    if (!isPentestAgent(input.permission)) return
-
-    const obj = asRecord(input.args)
-    const filename = typeof obj?.filename === "string" ? obj.filename.trim() : ""
-
-    if (input.tool === "playwright_browser_take_screenshot" && !filename) {
-      throw new Error(
-        "Playwright screenshot guard: filename is required. Get evidence_dir via pentest_get_evidence_directory(run_id), write to an absolute path under it, and use rel_path = evidence/<filename> for attach.",
-      )
-    }
-    if (!filename) return
-
-    const parsed = parsePentestEvidencePath(input.worktree, filename)
-    if (parsed) return
-    throw new Error(
-      "Playwright artifact guard: filename must be an absolute path under data/pentest/running/<run_id>/evidence for an active run.",
-    )
-  }
 
   const state = Instance.state(
     () => {
@@ -882,12 +821,6 @@ export namespace SessionPrompt {
       // Wrap execute to add plugin hooks and format output
       item.execute = async (args, opts) => {
         const ctx = context(args, opts)
-        SessionPrompt.validatePentestPlaywrightFilePath({
-          tool: key,
-          args,
-          worktree: Instance.worktree,
-          permission: input.agent.permission,
-        })
 
         await Plugin.trigger(
           "tool.execute.before",

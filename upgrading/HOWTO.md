@@ -92,17 +92,20 @@ After merging an upstream tag, cherry-pick the fork-maintenance commits:
   SHA: c8ec2b563
   Message: fork: fix workspace and patch consistency
 
-These are cherry-picked onto each upgrade. The prune commit deletes whole
-directories only (no individual file changes within kept packages) to
-minimize conflicts.
+These are cherry-picked onto each upgrade. The prune commit can remove
+directories and standalone files depending on what still exists after the
+upstream merge.
 
-### Directories removed by the prune commit
+### Paths removed by the current prune commit (`aec6239af`)
 
-  README*.md, .github/, .opencode/agent/, .opencode/tool/, .vscode/,
-  github/, infra/, nix/, packages/console/, packages/containers/,
-  packages/docs/, packages/enterprise/, packages/extensions/,
-  packages/function/, packages/identity/, packages/slack/,
-  packages/web/, patches/, script/, sdks/, specs/
+  .github/TEAM_MEMBERS
+  .github/workflows/nix-eval.yml
+  .zed/
+  CONTRIBUTING.md
+  SECURITY.md
+  STATS.md
+  patches/@standard-community%2Fstandard-openapi@0.2.9.patch
+  specs/session-composer-refactor-plan.md
 
 ### Resolving conflicts
 

@@ -177,6 +177,77 @@ export namespace ACP {
     }
 
     private async handleEvent(event: Event) {
+      if ((event.type as string) === "message.part.delta") {
+        const props = (event as unknown as {
+          properties: {
+            sessionID: string
+            messageID: string
+            partID: string
+            field: string
+            delta: string
+          }
+        }).properties
+        const session = this.sessionManager.tryGet(props.sessionID)
+        if (!session) return
+        const sessionId = session.id
+
+        const message = await this.sdk.session
+          .message(
+            {
+              sessionID: props.sessionID,
+              messageID: props.messageID,
+              directory: session.cwd,
+            },
+            { throwOnError: true },
+          )
+          .then((x) => x.data)
+          .catch((error) => {
+            log.error("unexpected error when fetching message", { error })
+            return undefined
+          })
+
+        if (!message || message.info.role !== "assistant") return
+
+        const part = message.parts.find((p) => p.id === props.partID)
+        if (!part) return
+
+        if (part.type === "text" && props.field === "text" && part.ignored !== true) {
+          await this.connection
+            .sessionUpdate({
+              sessionId,
+              update: {
+                sessionUpdate: "agent_message_chunk",
+                content: {
+                  type: "text",
+                  text: props.delta,
+                },
+              },
+            })
+            .catch((error) => {
+              log.error("failed to send text delta to ACP", { error })
+            })
+          return
+        }
+
+        if (part.type === "reasoning" && props.field === "text") {
+          await this.connection
+            .sessionUpdate({
+              sessionId,
+              update: {
+                sessionUpdate: "agent_thought_chunk",
+                content: {
+                  type: "text",
+                  text: props.delta,
+                },
+              },
+            })
+            .catch((error) => {
+              log.error("failed to send reasoning delta to ACP", { error })
+            })
+        }
+        return
+      }
+
       switch (event.type) {
         case "permission.asked": {
           const permission = event.properties
@@ -438,68 +509,6 @@ export namespace ACP {
           return
         }
 
-        case "message.part.delta": {
-          const props = event.properties
-          const session = this.sessionManager.tryGet(props.sessionID)
-          if (!session) return
-          const sessionId = session.id
-
-          const message = await this.sdk.session
-            .message(
-              {
-                sessionID: props.sessionID,
-                messageID: props.messageID,
-                directory: session.cwd,
-              },
-              { throwOnError: true },
-            )
-            .then((x) => x.data)
-            .catch((error) => {
-              log.error("unexpected error when fetching message", { error })
-              return undefined
-            })
-
-          if (!message || message.info.role !== "assistant") return
-
-          const part = message.parts.find((p) => p.id === props.partID)
-          if (!part) return
-
-          if (part.type === "text" && props.field === "text" && part.ignored !== true) {
-            await this.connection
-              .sessionUpdate({
-                sessionId,
-                update: {
-                  sessionUpdate: "agent_message_chunk",
-                  content: {
-                    type: "text",
-                    text: props.delta,
-                  },
-                },
-              })
-              .catch((error) => {
-                log.error("failed to send text delta to ACP", { error })
-              })
-            return
-          }
-
-          if (part.type === "reasoning" && props.field === "text") {
-            await this.connection
-              .sessionUpdate({
-                sessionId,
-                update: {
-                  sessionUpdate: "agent_thought_chunk",
-                  content: {
-                    type: "text",
-                    text: props.delta,
-                  },
-                },
-              })
-              .catch((error) => {
-                log.error("failed to send reasoning delta to ACP", { error })
-              })
-          }
-          return
-        }
       }
     }
 
@@ -1493,6 +1502,7 @@ export namespace ACP {
       .then((resp) => {
         const cfg = resp.data
         if (!cfg || !cfg.model) return undefined
+        if (typeof cfg.model !== "string") return undefined
         const parsed = Provider.parseModel(cfg.model)
         return {
           providerID: parsed.providerID,

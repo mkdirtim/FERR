@@ -1,0 +1,9 @@
+[GET] http://localhost:3333/rest/admin/application-configuration => [200] OK
+[GET] http://localhost:3333/rest/user/whoami => [200] OK
+[GET] http://localhost:3333/rest/user/whoami => [200] OK
+[POST] http://localhost:3333/rest/user/login => [200] OK
+[GET] http://localhost:3333/rest/basket/1 => [200] OK
+[GET] http://localhost:3333/rest/user/whoami => [200] OK
+[GET] http://localhost:3333/rest/user/whoami => [200] OK
+[GET] http://localhost:3333/api/Quantitys/ => [200] OK
+[GET] http://localhost:3333/rest/products/search?q= => [200] OK

@@ -1,0 +1,48 @@
+- generic [ref=e4]:
+  - generic [ref=e7]:
+    - button "Open Sidenav" [ref=e273] [cursor=pointer]:
+      - img [ref=e9]: menu
+    - button "Back to homepage" [ref=e274]:
+      - generic [ref=e14]:
+        - img "OWASP Juice Shop" [ref=e275]
+        - generic [ref=e16]: OWASP Juice Shop
+    - generic "Click to search" [ref=e276]:
+      - generic [ref=e20]:
+        - generic:
+          - generic:
+            - generic:
+              - textbox [disabled]
+      - generic:
+        - img [ref=e21]: close
+        - img [ref=e22]: search
+    - button "Language selection menu" [ref=e278]:
+      - img [ref=e29]: language
+  - generic [ref=e321]:
+    - heading "Login" [level=1] [ref=e322]
+    - generic [ref=e360]: Invalid email or password.
+    - generic [ref=e323]:
+      - generic [ref=e326]:
+        - generic [ref=e327]:
+          - text: Email
+          - generic [ref=e328]: "*"
+        - textbox "Text field for the login email" [ref=e330]: test@test.com
+      - generic [ref=e334]:
+        - generic [ref=e335]:
+          - text: Password
+          - generic [ref=e336]: "*"
+        - textbox "Text field for the login password" [active] [ref=e338]: password123
+        - button "Button to display the password" [ref=e340] [cursor=pointer]:
+          - img [ref=e353]: eye
+      - link "Forgot your password?" [ref=e344] [cursor=pointer]:
+        - /url: "#/forgot-password"
+      - button "Login" [ref=e355]:
+        - img [ref=e356]: exit_to_app
+        - generic [ref=e357]: Log in
+      - generic [ref=e346]:
+        - generic [ref=e347] [cursor=pointer]:
+          - checkbox "Checkbox to stay logged in or not logged in" [ref=e349]
+          - generic:
+            - img
+        - generic [ref=e350] [cursor=pointer]: Remember me
+      - link "Not yet a customer?" [ref=e352] [cursor=pointer]:
+        - /url: "#/register"

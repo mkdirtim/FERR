@@ -35,7 +35,7 @@ This file defines how guardrails work in this repo, what is advisory vs enforced
 - File: `.opencode/lib/pentest-db.ts`
 - Used for:
   - proposal payload parsing and strict checks (`name`, `severity`, `description`)
-  - CVSS format/range checks (`CVSS:4.0/...`, score `0..10`)
+  - CVSS format/range checks (`CVSS:3.1/...`, score `0..10`, or `N/A [failed to compute]`)
   - assets checks (`assets` must be array of non-empty strings)
   - `run_id` UUID validation
   - path safety checks (`rel_path` must stay inside run dir)
@@ -108,7 +108,7 @@ If object arrays are sent (for example `{ "type": "...", "value": "..." }`), run
 |---|---|---|
 | `proposal payload assets must be a JSON array of strings` | wrong `assets` shape in proposal payload | send `assets: string[]` |
 | `proposal payload assets must contain only non-empty strings` | empty or non-string asset values | remove empty/objects; use non-empty strings only |
-| `cvss_vector must match CVSS:4.0/<metric>:<value> format` | wrong CVSS version/format | use CVSS 4.0 vector |
+| `cvss_vector must match CVSS:3.1/<metric>:<value> format or be "N/A [failed to compute]"` | wrong CVSS version/format | use CVSS 3.1 vector, or use `N/A [failed to compute]` when calculation fails |
 | `assets_json must be a JSON array of strings` | wrong reporting override payload | pass JSON string array in `assets_json` |
 | `pending proposals must be resolved before build` | unresolved proposals at report stage | accept/reject all proposals first |
 | `Run ... is not mutable (status=...)` | mutating call on finalized/non-running run | perform write operations only while run is running |

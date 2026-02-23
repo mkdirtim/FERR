@@ -21,6 +21,7 @@ Legend: `[ ]` open, `[x]` resolved, `(partial)` progress exists but remaining wo
 
 - [ ] [P1] [QUALITY-02] Redact sensitive exploit material before persistence/rendering (full JWTs, password hashes, secret key material) while preserving reproducible PoC steps.
 - [ ] [P0] [QUALITY-04] (partial) Enforce reporting-quality completeness in runtime (not only prompt policy): accepted findings must include non-empty description/proof/remediation, CVSS score+vector, non-empty assets, and artifact linkage for `validated=true`; context: current guarantees are mainly in agent prompt guidance, risk: incomplete findings can still pass through in some flows.
+- [ ] [P1] [QUALITY-05] Revisit Proposal -> Accepted field mapping semantics: decide policy for `status`/`validated` when present in `pentest_add_proposal.payload_json` (pass through, reject, or keep accept-time override only), document/default behavior explicitly, and add runtime + prompt-contract tests. In the same pass, review and align `pentest_add_proposal.payload_json` required/optional contract fields across runtime, tool descriptions, and docs.
 
 ### Prompt contracts and docs alignment
 
@@ -41,6 +42,7 @@ Legend: `[ ]` open, `[x]` resolved, `(partial)` progress exists but remaining wo
 - [ ] [P2] [DOC-07] Add a short "Use this doc if..." routing box to `project.md` for faster navigation between `project-opencode.md` and `project-openhack.md`.
 - [ ] [P2] [DOC-08] Add a "where to change what" impact matrix to `project-opencode.md` (feature/change type -> directories/files).
 - [ ] [P2] [DOC-09] Add a trust/sensitivity boundary diagram to `project-openhack.md` for `data/pentest/**` evidence/report artifacts.
+- [ ] [P1] [DOC-10] Migrate CVSS references in reporting templates/tests to CVSS 3.1 for consistency: `.opencode/skill/pentest-report/tests/openhack-juice-shop-test.md` and `openhack-report-template_v1.md`.
 
 ### Permissions and delegation policy
 
@@ -73,6 +75,10 @@ Use this section for feature-sized initiatives that are valuable but not current
 - [ ] [IDEA-02] Add optional `impact` subagent to isolate business-impact demonstration.
 - [ ] [IDEA-03] Add additional feature ideas here as they are identified.
 - [ ] [IDEA-04] Add optional local sanitization/pseudonymization pass using a self-hosted model before sending prompts/context to external LLM providers (for example `http://customer-a.com` -> `http://example-a.com`).
+- [ ] [IDEA-05] Add dedicated `recon` agent in orchestration order (after onboarding, before other specialist agents).
+- [ ] [IDEA-06] Add OWASP Penetration Test Reporting Standard (OPTRS) output/support once OPTRS is out of beta.
+- [ ] [IDEA-07] Add multi-LLM validation pattern: send one prompt to `K` LLMs, collect full independent answers, then run a synthesis step that reconciles outputs into one best combined response.
+- [ ] [IDEA-08] Implement CVSS 4.0 support across pentest runtime, prompts, templates, validation, and reporting output.
 
 ## Branch Plan (feature-xxx)
 
@@ -87,6 +93,7 @@ Branch naming rule: use `feature-<descriptive-scope>` and keep each branch scope
 - `feature-contract-prompt-trim` -> `CONTRACT-04`, `CONTRACT-05`
 - `feature-docs-onboarding-reporting-scope` -> `DOC-01`, `DOC-02`
 - `feature-docs-project-overview-visuals` -> `DOC-03`, `DOC-04`, `DOC-05`, `DOC-06`, `DOC-07`, `DOC-08`, `DOC-09`
+- `feature-docs-cvss31-templates` -> `DOC-10`
 - `feature-permission-policy-task-rules` -> `PERM-01`, `PERM-02`, `PERM-03`
 - `feature-agent-model-defaults` -> `ARCH-03`, `ARCH-04`, `ARCH-05`, `ARCH-06`
 - `feature-agent-mode-visibility-color` -> `ARCH-07`, `ARCH-08`, `ARCH-09`
@@ -95,6 +102,10 @@ Branch naming rule: use `feature-<descriptive-scope>` and keep each branch scope
 - `feature-idea-validation-subagent` -> `IDEA-01`
 - `feature-idea-impact-subagent` -> `IDEA-02`
 - `feature-idea-local-sanitization` -> `IDEA-04`
+- `feature-idea-dedicated-recon-agent` -> `IDEA-05`
+- `feature-idea-optrs-support` -> `IDEA-06`
+- `feature-idea-multi-llm-validation` -> `IDEA-07`
+- `feature-idea-cvss4-support` -> `IDEA-08`
 
 ## Skill Prefix Taxonomy (proposed)
 

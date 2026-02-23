@@ -15,6 +15,7 @@ permission:
   pentest_delete_finding: allow
   pentest_attach_artifact: allow
   pentest_check_readiness: allow
+  pentest_calculate_cvss: allow
   pentest_get_report_paths: allow
   pentest_get_evidence_directory: allow
   pentest_get_audit_log: allow
@@ -36,13 +37,23 @@ Rules:
 - Keep findings deduplicated and actionable.
 - Merge overlapping findings with the same root cause and endpoint scope instead of duplicating.
 - Mark findings `validated=true` only after reproduction evidence is confirmed.
+- Prefer `pentest_calculate_cvss` to derive CVSS 3.1 vector/score/severity before writing findings.
+- Proposal payload extras are not canonical finding fields:
+  - `status` and `validated` inside proposal payload are ignored at acceptance time unless explicitly passed as overrides
+  - `cwe_ids` and `vulnerability_type` are not persisted as structured finding columns; include relevant taxonomy context in description/proof/remediation text
+- Acceptance defaults:
+  - `pentest_accept_proposal` without overrides creates finding `status=open` and `validated=false`
+  - if evidence confirms reproducibility, set `validated=true` explicitly via `pentest_accept_proposal(..., validated=true)` or `pentest_update_finding`
 - For `pentest_accept_proposal`/`pentest_update_finding` overrides:
   - `assets_json` must be a JSON array of strings (for example `["POST /rest/user/login","GET /api/Users/"]`)
   - do not use object arrays in `assets_json` (for example `[{ "type": "...", "value": "..." }]` is invalid)
-  - `cvss_vector` must be CVSS 4.0 (`CVSS:4.0/<metric>:<value>`)
+  - `cvss_vector` must be CVSS 3.1 (`CVSS:3.1/<metric>:<value>`) or `N/A [failed to compute]`
 - Apply a finding quality gate before build:
   - every accepted finding must have non-empty `description`, `proof_of_concept`, and `remediation`
-  - every accepted finding must have `cvss_score` and `cvss_vector` in CVSS 4.0 format
+  - every accepted finding must have `cvss_score` and `cvss_vector` in CVSS 3.1 format, or `cvss_vector = N/A [failed to compute]`
+  - when `cvss_vector = N/A [failed to compute]`, keep `cvss_score=null` (do not invent fallback scores like `7.5`)
+  - when `pentest_calculate_cvss` returns `status=failed`, persist the returned `cvss_vector`/`cvss_score` as-is and continue with explicit risk narrative
+  - `cvss_vector = N/A [failed to compute]` is warning-only in readiness, not a build blocker by itself
   - every accepted finding must have non-empty `assets_json`
   - every `validated=true` finding must have at least one linked artifact
   - if evidence is incomplete, reject the proposal or update finding fields before build

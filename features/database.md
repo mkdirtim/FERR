@@ -330,7 +330,7 @@ In `production` safety mode, build is blocked when:
 - `execution_context.scope_targets_markdown` is empty
 - `execution_context.methodology_details` is empty
 - one or more findings are in `draft`
-- one or more findings are missing CVSS (`cvss_score` or `cvss_vector`)
+- one or more findings are missing CVSS (`cvss_vector` missing, or `cvss_score` missing for non-`N/A [failed to compute]` vectors)
 - one or more findings have empty assets (`assets_json` as empty array)
 - one or more validated findings have no attached artifacts
 
@@ -341,6 +341,7 @@ Validation note:
 - unvalidated findings generate warnings but do not hard-block build.
 - duplicate proposal fingerprints generate warnings only (no hard block).
 - validated findings without attached artifacts always generate warnings and are production blockers.
+- findings with `cvss_vector = "N/A [failed to compute]"` generate warnings and do not hard-block build.
 - in `test` mode, missing narrative fields (`subject_description`, `scope_targets_markdown`, `methodology_details`, `events`) are warning-level signals.
 
 `pentest_build_report` runs readiness internally and fails fast if not ready.
@@ -359,12 +360,19 @@ Validation note:
 - `pentest_add_proposal` -> inserts `proposal(status='proposed')`
   - normalizes payload aliases (`title -> name`, `cvss.score -> cvss_score`, `cvss.vector -> cvss_vector`, `affected_endpoint(s) -> assets`)
   - enforces required fields (`name|title`, `severity`, `description`)
-  - validates severity enum, CVSS score range, CVSS v4 vector format, and asset shapes
+  - validates severity enum, CVSS score range, CVSS v3.1 vector format (or `N/A [failed to compute]`), and asset shapes
   - rejects recon/progress metadata payloads when they look non-vulnerability and lack concrete vulnerability signals
 - `pentest_get_proposals` -> list proposals (`status` and `agent_name` filters)
 - `pentest_accept_proposal` -> canonical accept path from proposal payload to finding
   - defaults to `status='open'`, `validated=false` unless overridden
 - `pentest_reject_proposal` -> sets proposal to rejected with reason
+
+### CVSS utility
+- `pentest_calculate_cvss` -> computes CVSS 3.1 vector, score, and derived severity from base metrics
+  - input metrics: `attack_vector`, `attack_complexity`, `privileges_required`, `user_interaction`, `scope`, `confidentiality`, `integrity`, `availability`
+  - returns deterministic vector format: `CVSS:3.1/AV:.../AC:.../PR:.../UI:.../S:.../C:.../I:.../A:...`
+  - on compute failure returns `status='failed'`, `cvss_vector='N/A [failed to compute]'`, `cvss_score=null`, `severity=null`
+  - this tool is pure calculation (no DB write); persistence occurs via `pentest_add_proposal` or finding tools
 
 ### Findings
 - `pentest_add_finding` -> inserts canonical finding, optionally accepts linked proposal
@@ -407,12 +415,12 @@ Proposal-level:
 - required: `name` (or `title`), `severity`, `description`
 - severity must be one of `critical|high|medium|low|info`
 - `cvss_score` must be in `0.0..10.0` when provided
-- `cvss_vector` must match CVSS v4 format when provided
+- `cvss_vector` must match CVSS v3.1 format when provided, or equal `N/A [failed to compute]`
 - `assets` / `affected_endpoints` must be arrays of non-empty strings; `affected_endpoint` must be non-empty string
 
 Finding-level:
 - `cvss_score` in `0.0..10.0`
-- `cvss_vector` regex: `CVSS:4.0/<metric>:<value>`
+- `cvss_vector` accepted values: `CVSS:3.1/<metric>:<value>` or `N/A [failed to compute]`
 - `cvss_score` and `cvss_vector` are both allowed; score is not auto-recalculated from vector
 - `assets_json` must be JSON array of strings
 - `slug` is generated at create time and remains stable on name updates

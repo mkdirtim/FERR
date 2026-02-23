@@ -35,29 +35,29 @@ Execution rules:
     - `options`:
       - `label`: `Enter engagement data now`
         `description`: `manually configure assessment context and stakeholder metadata for a real engagement`
-      - `label`: `Use defaults for testing`
-        `description`: `auto-fill onboarding fields with generic sample values to learn the workflow and verify setup`
       - `label`: `Run against Juice Shop`
-        `description`: `auto-fill onboarding fields with OWASP Juice Shop defaults for an end-to-end demo run`
+        `description`: `auto-fill assessment fields with OWASP Juice Shop defaults for an end-to-end demo run`
+      - `label`: `Run against Badstore`
+        `description`: `auto-fill assessment fields with BadStore.net defaults for an end-to-end demo run`
   - Scan-mode question:
     - `question`: `Which scan mode should we use for target <target>?`
     - `header`: `Scan mode`
     - `multiple`: `false`
     - `custom`: `false`
     - `options`:
-      - `label`: `None`
-        `description`: `no scan-mode preset; run with custom/manual strategy`
       - `label`: `Quick`
         `description`: `rapid, high-impact checks`
       - `label`: `Standard`
         `description`: `balanced coverage and depth`
       - `label`: `Deep`
         `description`: `exhaustive assessment and chaining`
+      - `label`: `None`
+        `description`: `Run without a scan-mode preset.`
 - Do not output manual choice text before both questions are answered.
 
 Mode behavior:
-- `Use defaults for testing` -> create run with `engagement_mode=defaults`.
 - `Run against Juice Shop` -> create run with `engagement_mode=juiceshop-defaults`.
+- `Run against Badstore` -> create run with `engagement_mode=badstore-defaults`.
 - `Enter engagement data now` -> create run with `engagement_mode=manual`, then collect missing onboarding values and apply with `pentest_set_onboarding`.
 - Scan mode selection:
   - `None` -> `scan_mode=none`.

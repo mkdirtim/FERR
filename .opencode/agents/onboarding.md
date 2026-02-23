@@ -28,42 +28,42 @@ Execution rules:
 - First interaction for a target-led session must be a `question` tool call.
 - Ask intake + scan mode using `question` tool payload objects (replace `<target>` with target value):
   - Intake question:
-    - `question`: `How would you like to configure this security assessment for target <target>?`
+    - `question`: `How should we initialize this assessment?`
     - `header`: `Intake mode`
     - `multiple`: `false`
     - `custom`: `false`
     - `options`:
-      - `label`: `Enter engagement data now`
-        `description`: `manually configure assessment context and stakeholder metadata for a real engagement`
-      - `label`: `Run against Juice Shop`
-        `description`: `auto-fill assessment fields with OWASP Juice Shop defaults for an end-to-end demo run`
-      - `label`: `Run against Badstore`
-        `description`: `auto-fill assessment fields with BadStore.net defaults for an end-to-end demo run`
+      - `label`: `Manual setup`
+        `description`: `Enter scope, contacts, and engagement details manually.`
+      - `label`: `Juice Shop profile`
+        `description`: `Apply OWASP Juice Shop defaults for a demo assessment.`
+      - `label`: `BadStore profile`
+        `description`: `Apply BadStore.net defaults for a demo assessment.`
   - Scan-mode question:
-    - `question`: `Which scan mode should we use for target <target>?`
+    - `question`: `Which scan depth should we apply?`
     - `header`: `Scan mode`
     - `multiple`: `false`
     - `custom`: `false`
     - `options`:
       - `label`: `Quick`
-        `description`: `rapid, high-impact checks`
+        `description`: `Fast, high-impact checks for rapid triage.`
       - `label`: `Standard`
-        `description`: `balanced coverage and depth`
+        `description`: `Balanced coverage and validation depth.`
       - `label`: `Deep`
-        `description`: `exhaustive assessment and chaining`
-      - `label`: `None`
-        `description`: `Run without a scan-mode preset.`
+        `description`: `Comprehensive testing with extended chaining.`
+      - `label`: `No preset`
+        `description`: `Run without a scan-mode preset; use manual strategy.`
 - Do not output manual choice text before both questions are answered.
 
 Mode behavior:
-- `Run against Juice Shop` -> create run with `engagement_mode=juiceshop-defaults`.
-- `Run against Badstore` -> create run with `engagement_mode=badstore-defaults`.
-- `Enter engagement data now` -> create run with `engagement_mode=manual`, then collect missing onboarding values and apply with `pentest_set_onboarding`.
+- `Juice Shop profile` -> create run with `engagement_mode=juiceshop-defaults`.
+- `BadStore profile` -> create run with `engagement_mode=badstore-defaults`.
+- `Manual setup` -> create run with `engagement_mode=manual`, then collect missing onboarding values and apply with `pentest_set_onboarding`.
 - Scan mode selection:
-  - `None` -> `scan_mode=none`.
   - `Quick` -> `scan_mode=quick`.
   - `Standard` -> `scan_mode=standard`.
   - `Deep` -> `scan_mode=deep`.
+  - `No preset` -> `scan_mode=none`.
   - Return `scan_mode` to parent for downstream delegation behavior.
 - Normalize labels case-insensitively (trim whitespace) before mapping.
 - If scan-mode response is missing or unrecognized, ask the scan-mode question once more.

@@ -17,18 +17,18 @@ Establish assessment readiness before technical testing starts.
 ## Intake Decision
 When the session starts from a target input (for example `http://localhost:3333`), ask the user via the question tool:
 
-- `How would you like to configure this security assessment for target <target>?`
-- `Enter engagement data now` - manually configure assessment context and stakeholder metadata for a real engagement
-- `Run against Juice Shop` - auto-fill assessment fields with OWASP Juice Shop defaults for an end-to-end demo run
-- `Run against Badstore` - auto-fill assessment fields with BadStore.net defaults for an end-to-end demo run
+- `How should we initialize this assessment?`
+- `Manual setup` - Enter scope, contacts, and engagement details manually.
+- `Juice Shop profile` - Apply OWASP Juice Shop defaults for a demo assessment.
+- `BadStore profile` - Apply BadStore.net defaults for a demo assessment.
 
 After intake mode is selected, ask scan mode via the question tool:
 
-- `Which scan mode should we use for target <target>?`
-- `Quick` - rapid, high-impact checks
-- `Standard` - balanced coverage and depth
-- `Deep` - exhaustive assessment and chaining
-- `None` - Run without a scan-mode preset.
+- `Which scan depth should we apply?`
+- `Quick` - Fast, high-impact checks for rapid triage.
+- `Standard` - Balanced coverage and validation depth.
+- `Deep` - Comprehensive testing with extended chaining.
+- `No preset` - Run without a scan-mode preset; use manual strategy.
 
 Question payload constraints:
 - `multiple=false`

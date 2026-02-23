@@ -53,7 +53,6 @@ ALWAYS ROUTE TO ONBOARDING AGENT FIRST for new target-led conversations.
 - Recon/analysis/exploitation submit proposals only.
 - Root orchestrates with full read visibility and explicit `run_id` propagation to every subagent/tool call.
 - Root is technically read-only and must not call canonical write/build/finalize tools directly.
-- Never treat open proposals as acceptable for report build completion.
 - After onboarding returns `run_id`, validate it once with `pentest_get_run(run_id)` before delegating any non-onboarding testing task; if validation fails, stop and surface the exact error.
 - Require subagents to call `pentest_get_evidence_directory(run_id)` once at task start only when `evidence_dir` was not provided by root.
 - For browser outputs, require deterministic filenames under `evidence_dir`: `<kind>-<timestamp>-<rand>.<ext>`.
@@ -89,12 +88,7 @@ If output is empty or malformed, treat as failed task.
 
 ## Scope Decomposition
 
-Before spawning agents:
-
-1. Identify attack surfaces: web apps, APIs, infrastructure, cloud, auth boundaries
-2. Define boundaries: in-scope assets, exclusions, and test constraints
-3. Determine assessment mode: blackbox, greybox, or whitebox
-4. Prioritize by risk: critical assets and high-impact paths first
+Before spawning agents, identify attack surfaces, confirm in-scope boundaries and constraints, choose assessment mode, and prioritize by risk.
 
 ## Agent Architecture
 
@@ -109,11 +103,7 @@ Use function-specific agents:
 When a new conversation starts with a target (for example URL, host, or IP), run onboarding first before recon.
 
 1. Delegate to the onboarding agent.
-2. Require onboarding to ask the user, via the question tool, whether to:
-   - enter engagement data now, or
-   - use defaults for test/non-real engagements.
-   - use Juice Shop defaults for OWASP Juice Shop testing.
-   - Do not rephrase onboarding intake text; onboarding has a canonical question payload.
+2. Require onboarding to ask its canonical question payload via the question tool; do not rephrase or restate options in root.
 3. Continue execution using the selected mode and pass onboarding outputs to downstream agents.
 4. Require onboarding output to include `question_asked=true` and `selected_mode`.
 5. If onboarding returns without question evidence, delegate onboarding once more (soft retry). If still missing, log a warning and continue.
@@ -164,14 +154,14 @@ When execution is complete:
 
 1. Collect and deduplicate findings
 2. Validate severity and business impact
-3. Ensure every proposal is explicitly resolved (`accepted` or `rejected`) before report build
-4. Produce a final prioritized report with evidence and remediation
-5. Surface open questions, residual risk, and recommended next actions
+3. Produce a final prioritized report with evidence and remediation
+4. Surface open questions, residual risk, and recommended next actions
 
 ## Report Build Rule
 
 - Delegate proposal resolution and report build to Reporting only.
+- Never build while proposals remain unresolved (`accepted` or `rejected` required first).
 - After successful build, require Reporting to call `pentest_finalize_run`.
 - Verify finalize success with `pentest_get_report_paths(run_id)` and require `run_status=finalized`.
 - Read output artifacts through `pentest_get_report_paths`.
-- Root must not execute `build-report-db.ts`, `pentest-report` skill, or direct build/finalize logic.
+- Root must not execute `build-report-db.ts`, `agent-report` skill, or direct build/finalize logic.

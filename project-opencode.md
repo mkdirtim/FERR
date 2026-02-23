@@ -23,8 +23,6 @@ OpenHack-specific pentest workflows are documented in `project-openhack.md`.
 | `script/` | Repo-level utilities (`generate.ts`, formatting, report deps helper) |
 | `patches/` | Patched upstream dependencies |
 | `third_party_licenses/` | Third-party license attribution |
-| `CONTRIBUTING.md` | Contributor workflow and expectations |
-| `SECURITY.md` | Security policy and trust model |
 | `AGENTS.md` | Local coding/testing guardrails for contributors |
 
 ## Package Map
@@ -40,6 +38,24 @@ OpenHack-specific pentest workflows are documented in `project-openhack.md`.
 | `packages/plugin` | Plugin helpers and tool schema helpers |
 | `packages/script` | Shared internal script helpers |
 
+## Package Dependency View
+
+```mermaid
+graph LR
+  d["@opencode-ai/desktop"] --> a["@opencode-ai/app"]
+  d --> u["@opencode-ai/ui"]
+  a --> s["@opencode-ai/sdk"]
+  a --> u
+  a --> util["@opencode-ai/util"]
+  o["opencode"] --> p["@opencode-ai/plugin"]
+  o --> s
+  o --> sc["@opencode-ai/script"]
+  o --> util
+  u --> s
+  u --> util
+  p --> s
+```
+
 ## Runtime Areas (`packages/opencode/src/`)
 
 Key directories:
@@ -48,6 +64,72 @@ Key directories:
 - `provider/`, `mcp/`: model provider + MCP integration
 - `permission/`, `shell/`, `pty/`, `worktree/`: local execution and workspace boundaries
 - `project/`, `config/`, `storage/`: metadata, config loading, persistence
+
+## Runtime Component Flow
+
+```mermaid
+flowchart LR
+  subgraph e["Entrypoints"]
+    cli["cli"]
+    srv["server"]
+  end
+
+  subgraph o["Orchestration"]
+    ag["agent"]
+    ses["session"]
+    tl["tool"]
+    sk["skill"]
+  end
+
+  subgraph i["Integrations"]
+    pr["provider"]
+    mcp["mcp"]
+  end
+
+  subgraph x["Execution Controls"]
+    perm["permission"]
+    sh["shell"]
+    pty["pty"]
+    wt["worktree"]
+  end
+
+  subgraph p["Persistence and Config"]
+    proj["project"]
+    cfg["config"]
+    st["storage"]
+  end
+
+  cli --> ses
+  srv --> ses
+  ses --> ag
+  ag --> tl
+  ag --> sk
+  tl --> pr
+  tl --> mcp
+  pr --> perm
+  mcp --> perm
+  perm --> sh
+  perm --> pty
+  perm --> wt
+  ses --> proj
+  ses --> cfg
+  ses --> st
+```
+
+## Where to Change What
+
+| Change type | Primary paths | Notes |
+| --- | --- | --- |
+| CLI behavior | `packages/opencode/src/cli/`, `packages/opencode/src/command/` | Command parsing, UX flow, local terminal behavior |
+| Server/API behavior | `packages/opencode/src/server/`, `packages/opencode/src/tool/` | HTTP/session APIs and tool execution endpoints |
+| Orchestration/task flow | `packages/opencode/src/agent/`, `packages/opencode/src/session/`, `packages/opencode/src/skill/` | Agent lifecycle, delegation flow, session state |
+| Permissions/sandboxing | `packages/opencode/src/permission/`, `packages/opencode/src/shell/`, `packages/opencode/src/pty/`, `packages/opencode/src/worktree/` | Command policy, process boundaries, filesystem scope |
+| Provider/MCP integration | `packages/opencode/src/provider/`, `packages/opencode/src/mcp/` | LLM provider adapters and MCP transport/integration |
+| SDK generation | `packages/sdk/js/`, `packages/sdk/js/script/build.ts` | JavaScript SDK source/build output pipeline |
+| Web UI | `packages/app/`, `packages/ui/` | Product web app surface and shared UI primitives |
+| Desktop wrapper | `packages/desktop/`, `packages/app/` | Tauri wrapper and desktop packaging around app |
+| Shared utilities/components | `packages/util/`, `packages/ui/`, `packages/plugin/` | Cross-package helpers, UI primitives, plugin helpers |
+| Repo scripts/codegen | `script/`, `packages/script/`, `script/generate.ts` | Repo maintenance scripts and generated artifacts |
 
 ## Common Commands
 

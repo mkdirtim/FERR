@@ -1,0 +1,340 @@
+#!/usr/bin/env bash
+# Legacy/debug renderer.
+# Prefer: bun .opencode/skills/agent-report/scripts/build-report-db.ts
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+assets="$root/assets"
+project_root="$(cd "$root/../../.." && pwd)"
+
+init=""
+fill=""
+validate=""
+in=""
+out=""
+fmt="pdf"
+resource=""
+pdf_engine="xelatex"
+template="$assets/openhack-report-template_v1.md"
+latex_template="$assets/eisvogel.latex"
+allow_placeholders="0"
+output_dir="data/report"
+vars_file=""
+set_args=()
+
+resolve_path() {
+  local p="$1"
+  if [[ "$p" = /* ]]; then
+    printf "%s\n" "$p"
+    return
+  fi
+  printf "%s/%s\n" "$project_root" "$p"
+}
+
+find_markers() {
+  local file="$1"
+  if command -v rg >/dev/null 2>&1; then
+    rg -n '\{\{(PH_|TODO_)' "$file" || true
+    return
+  fi
+  grep -nE '\{\{(PH_|TODO_)' "$file" || true
+}
+
+validate_file() {
+  local file="$1"
+  local strict="$2"
+  local fail="0"
+  local dir bg bg_abs unresolved
+
+  if [[ ! -f "$file" ]]; then
+    echo "Input markdown file not found: $file" >&2
+    return 1
+  fi
+
+  for key in title date subtitle titlepage-background; do
+    if ! grep -Eq "^${key}:" "$file"; then
+      echo "Missing required frontmatter key: $key" >&2
+      fail="1"
+    fi
+  done
+
+  bg="$(grep -E '^titlepage-background:' "$file" | head -n1 | sed -E 's/^titlepage-background:[[:space:]]*"?([^"]*)"?/\1/')"
+  if [[ -n "$bg" ]]; then
+    dir="$(cd "$(dirname "$file")" && pwd)"
+    if [[ "$bg" = /* ]]; then
+      bg_abs="$bg"
+    else
+      bg_abs="$dir/$bg"
+    fi
+    if [[ ! -f "$bg_abs" ]]; then
+      echo "titlepage-background not found: $bg_abs" >&2
+      fail="1"
+    fi
+  fi
+
+  if [[ "$strict" = "1" ]]; then
+    unresolved="$(find_markers "$file")"
+    if [[ -n "$unresolved" ]]; then
+      echo "Unresolved template markers detected in $file. Fill all {{PH_*}} and {{TODO_*}} values before rendering." >&2
+      echo "Use --allow-placeholders to bypass this check." >&2
+      echo "$unresolved" >&2
+      fail="1"
+    fi
+  fi
+
+  if [[ "$fail" = "1" ]]; then
+    return 1
+  fi
+
+  return 0
+}
+
+build_map() {
+  local map="$1"
+
+  if [[ -n "$vars_file" ]]; then
+    local vf
+    vf="$(resolve_path "$vars_file")"
+    if [[ ! -f "$vf" ]]; then
+      echo "Vars file not found: $vf" >&2
+      return 1
+    fi
+    while IFS= read -r line; do
+      [[ -z "$line" ]] && continue
+      [[ "$line" =~ ^[[:space:]]*# ]] && continue
+      if [[ "$line" != *"="* ]]; then
+        continue
+      fi
+      printf "%s\t%s\n" "${line%%=*}" "${line#*=}" >> "$map"
+    done < "$vf"
+  fi
+
+  local kv
+  for kv in "${set_args[@]}"; do
+    if [[ "$kv" != *"="* ]]; then
+      echo "--set expects KEY=VALUE, got: $kv" >&2
+      return 1
+    fi
+    printf "%s\t%s\n" "${kv%%=*}" "${kv#*=}" >> "$map"
+  done
+
+  if [[ ! -s "$map" ]]; then
+    echo "No replacement values provided. Use --vars <file> and/or --set KEY=VALUE." >&2
+    return 1
+  fi
+}
+
+fill_file() {
+  local src="$1"
+  local dst="$2"
+  local map
+  map="$(mktemp)"
+  trap 'rm -f "$map"' RETURN
+  build_map "$map"
+
+  awk -F '\t' '
+    NR==FNR {
+      k=$1
+      v=substr($0, index($0, "\t")+1)
+      gsub(/\\/, "\\\\", v)
+      gsub(/&/, "\\\\&", v)
+      vals[k]=v
+      next
+    }
+    {
+      line=$0
+      for (k in vals) {
+        gsub("{{" k "}}", vals[k], line)
+        gsub("\\{\\{" k ":[^\n]*\\}\\}", vals[k], line)
+      }
+      print line
+    }
+  ' "$map" "$src" > "$dst"
+}
+
+render_one() {
+  local file="$1"
+  local out_abs="$2"
+  local kind="$3"
+  local in_dir in_file res
+  local cmd
+
+  in_dir="$(cd "$(dirname "$file")" && pwd)"
+  in_file="$(basename "$file")"
+  res="${resource:-.:$in_dir}"
+
+  cmd=(pandoc "$in_file" -o "$out_abs" --from markdown+yaml_metadata_block+raw_html --resource-path "$res")
+  if [[ "$kind" = "pdf" ]]; then
+    cmd+=(--template "$latex_template" --table-of-contents --toc-depth 6 --number-sections --top-level-division=chapter --pdf-engine "$pdf_engine")
+    if pandoc --help 2>/dev/null | grep -q -- "--syntax-highlighting"; then
+      cmd+=(--syntax-highlighting breezedark)
+    else
+      cmd+=(--highlight-style breezedark)
+    fi
+  fi
+
+  mkdir -p "$(dirname "$out_abs")"
+  (cd "$in_dir" && "${cmd[@]}")
+  echo "Created $out_abs"
+}
+
+help() {
+  cat <<'EOF'
+Usage:
+  build-report.sh --init <path.md> [options]
+  build-report.sh --fill <path.md> [--output <path.md>] [options]
+  build-report.sh --validate <path.md> [options]
+  build-report.sh --input <path.md> [--output <path>] [options]
+
+Modes:
+  --init <path.md>       Create report markdown from template
+  --fill <path.md>       Fill placeholders in markdown from --vars/--set
+  --validate <path.md>   Validate markdown before rendering
+  --input <path.md>      Render markdown to output
+  --output <path>        Output path (optional; default uses --output-dir)
+
+Options:
+  --template <path>      Markdown template path for --init
+  --vars <path>          Variables file with KEY=VALUE lines
+  --set <KEY=VALUE>      Inline replacement (repeatable)
+  --format <fmt>         pdf|html|docx|all (default: pdf)
+  --output-dir <path>    Default render output directory (default: data/report, relative to project root)
+  --resource-path <path> Pandoc resource path (default: .:<input-dir>)
+  --pdf-engine <value>   PDF engine (default: xelatex)
+  --allow-placeholders   Skip unresolved placeholder preflight check
+  -h, --help             Show help
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --init) init="${2:-}"; shift 2 ;;
+    --fill) fill="${2:-}"; shift 2 ;;
+    --validate) validate="${2:-}"; shift 2 ;;
+    --input) in="${2:-}"; shift 2 ;;
+    --output) out="${2:-}"; shift 2 ;;
+    --template) template="${2:-}"; shift 2 ;;
+    --vars) vars_file="${2:-}"; shift 2 ;;
+    --set) set_args+=("${2:-}"); shift 2 ;;
+    --format) fmt="${2:-}"; shift 2 ;;
+    --output-dir) output_dir="${2:-}"; shift 2 ;;
+    --resource-path) resource="${2:-}"; shift 2 ;;
+    --pdf-engine) pdf_engine="${2:-}"; shift 2 ;;
+    --allow-placeholders) allow_placeholders="1"; shift ;;
+    -h|--help) help; exit 0 ;;
+    *) echo "Unknown arg: $1" >&2; help; exit 1 ;;
+  esac
+done
+
+if [[ -n "$init" ]]; then
+  local_init="$(resolve_path "$init")"
+  if [[ ! -f "$template" ]]; then
+    template="$(resolve_path "$template")"
+  fi
+  if [[ ! -f "$template" ]]; then
+    echo "Template not found: $template" >&2
+    exit 1
+  fi
+
+  mkdir -p "$(dirname "$local_init")"
+  sed 's#titlepage-background: "src/images/openhack-report-background.pdf"#titlepage-background: "images/openhack-report-background.pdf"#' "$template" > "$local_init"
+  mkdir -p "$(dirname "$local_init")/images"
+  cp "$assets/images/openhack-report-background.pdf" "$(dirname "$local_init")/images/"
+  if [[ -f "$assets/images/openhack-report-placeholder.png" ]]; then
+    cp "$assets/images/openhack-report-placeholder.png" "$(dirname "$local_init")/images/"
+  fi
+  echo "Created $local_init"
+  exit 0
+fi
+
+if [[ -n "$fill" ]]; then
+  fill_abs="$(resolve_path "$fill")"
+  if [[ ! -f "$fill_abs" ]]; then
+    echo "Fill input not found: $fill_abs" >&2
+    exit 1
+  fi
+
+  if [[ -n "$out" ]]; then
+    out_abs="$(resolve_path "$out")"
+  else
+    out_abs="$fill_abs"
+  fi
+
+  mkdir -p "$(dirname "$out_abs")"
+  tmp="$(mktemp)"
+  fill_file "$fill_abs" "$tmp"
+  mv "$tmp" "$out_abs"
+  left="$(find_markers "$out_abs" | wc -l | tr -d ' ')"
+  echo "Filled $out_abs"
+  echo "Remaining template markers: $left"
+  exit 0
+fi
+
+if [[ -n "$validate" ]]; then
+  validate_abs="$(resolve_path "$validate")"
+  if [[ "$allow_placeholders" = "1" ]]; then
+    validate_file "$validate_abs" "0"
+  else
+    validate_file "$validate_abs" "1"
+  fi
+  echo "Validation passed: $validate_abs"
+  exit 0
+fi
+
+if [[ -z "$in" ]]; then
+  echo "Missing mode. Use --init, --fill, --validate, or --input." >&2
+  help
+  exit 1
+fi
+
+in_abs="$(resolve_path "$in")"
+if [[ ! -f "$in_abs" ]]; then
+  echo "Input markdown file not found: $in_abs" >&2
+  exit 1
+fi
+
+case "$fmt" in
+  pdf|html|docx|all) ;;
+  *) echo "Unsupported format: $fmt" >&2; exit 1 ;;
+esac
+
+if ! command -v pandoc >/dev/null 2>&1; then
+  echo "pandoc is required" >&2
+  exit 1
+fi
+
+if [[ "$fmt" = "pdf" || "$fmt" = "all" ]]; then
+  if ! command -v "$pdf_engine" >/dev/null 2>&1; then
+    echo "PDF engine not found: $pdf_engine" >&2
+    exit 1
+  fi
+  if [[ ! -f "$latex_template" ]]; then
+    echo "LaTeX template missing: $latex_template" >&2
+    exit 1
+  fi
+fi
+
+if [[ "$allow_placeholders" = "1" ]]; then
+  validate_file "$in_abs" "0"
+else
+  validate_file "$in_abs" "1"
+fi
+
+if [[ "$fmt" = "all" ]]; then
+  if [[ -n "$out" ]]; then
+    base="$(resolve_path "$out")"
+    base="${base%.*}"
+  else
+    base="$(resolve_path "$output_dir/$(basename "${in_abs%.md}")")"
+  fi
+  render_one "$in_abs" "$base.pdf" "pdf"
+  render_one "$in_abs" "$base.html" "html"
+  render_one "$in_abs" "$base.docx" "docx"
+  exit 0
+fi
+
+if [[ -z "$out" ]]; then
+  out="$output_dir/$(basename "${in_abs%.md}").$fmt"
+fi
+out_abs="$(resolve_path "$out")"
+render_one "$in_abs" "$out_abs" "$fmt"

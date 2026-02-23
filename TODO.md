@@ -2,7 +2,7 @@
 
 Consolidated from:
 - `.opencode/agents/TODO`
-- `.opencode/skill/pentest-report/TODO`
+- `.opencode/skills/agent-report/TODO`
 
 Current active subagents: `recon`, `analysis`, `exploitation`, `reporting`.
 
@@ -19,7 +19,6 @@ Legend: `[ ]` open, `[x]` resolved, `(partial)` progress exists but remaining wo
 
 ### Proposal and report quality gates
 
-- [ ] [P1] [QUALITY-02] Redact sensitive exploit material before persistence/rendering (full JWTs, password hashes, secret key material) while preserving reproducible PoC steps.
 - [ ] [P0] [QUALITY-04] (partial) Enforce reporting-quality completeness in runtime (not only prompt policy): accepted findings must include non-empty description/proof/remediation, CVSS score+vector, non-empty assets, and artifact linkage for `validated=true`; context: current guarantees are mainly in agent prompt guidance, risk: incomplete findings can still pass through in some flows.
 - [ ] [P1] [QUALITY-05] Revisit Proposal -> Accepted field mapping semantics: decide policy for `status`/`validated` when present in `pentest_add_proposal.payload_json` (pass through, reject, or keep accept-time override only), document/default behavior explicitly, and add runtime + prompt-contract tests. In the same pass, review and align `pentest_add_proposal.payload_json` required/optional contract fields across runtime, tool descriptions, and docs.
 
@@ -29,20 +28,8 @@ Legend: `[ ]` open, `[x]` resolved, `(partial)` progress exists but remaining wo
 - [ ] [P1] [CONTRACT-02] Standardize subagent output IDs: require `proposal_ids[]` in proposal-producing agents, and only emit `finding_id` after explicit accept step to avoid proposal/finding ID confusion.
 - [ ] [P1] [CONTRACT-03] Add prompt-contract test for delegation timeliness: after onboarding, root must delegate to the requested specialist tasks within a bounded number of steps (no repeated skill-loading loops).
 - [ ] [P1] [CONTRACT-04] Condense output sections in `.opencode/agents/recon.md`, `.opencode/agents/analysis.md`, and `.opencode/agents/exploitation.md` to reference the standard root contract and keep only agent-specific outputs.
-- [ ] [P1] [CONTRACT-05] Remove redundant root prompt content in `.opencode/agents/root.md` (duplicate intake option list, duplicate completion rule) and condense scope decomposition to one concise instruction line.
 - [ ] [P1] [DOC-01] Trim `data/features/onboarding.md` to onboarding-owned responsibilities only (workflow steps 1-2, scoped outputs/done criteria) and remove duplicated payload/path implementation details.
 - [ ] [P1] [DOC-02] Trim `data/features/reporting.md` to workflow spec only and remove embedded skill-layout reference section; update goal sentence accordingly.
-
-### Documentation and visualization
-
-- [ ] [P1] [DOC-03] Fix stale docs references to pruned files in project docs (for example prune lists that still mention only `README*.md` while `CONTRIBUTING.md`, `SECURITY.md`, and `STATS.md` are also pruned).
-- [ ] [P2] [DOC-04] Add a Mermaid system-context diagram to `project.md` showing OpenCode runtime, OpenHack layer, and `data/pentest` runtime state boundaries.
-- [ ] [P2] [DOC-05] Add OpenCode package/runtime topology diagrams to `project-opencode.md` (package dependency view and runtime component flow).
-- [ ] [P2] [DOC-06] Add OpenHack workflow diagrams to `project-openhack.md` (agent orchestration, proposal-to-finding state flow, run lifecycle).
-- [ ] [P2] [DOC-07] Add a short "Use this doc if..." routing box to `project.md` for faster navigation between `project-opencode.md` and `project-openhack.md`.
-- [ ] [P2] [DOC-08] Add a "where to change what" impact matrix to `project-opencode.md` (feature/change type -> directories/files).
-- [ ] [P2] [DOC-09] Add a trust/sensitivity boundary diagram to `project-openhack.md` for `data/pentest/**` evidence/report artifacts.
-- [ ] [P1] [DOC-10] Migrate CVSS references in reporting templates/tests to CVSS 3.1 for consistency: `.opencode/skill/pentest-report/tests/openhack-juice-shop-test.md` and `openhack-report-template_v1.md`.
 
 ### Permissions and delegation policy
 
@@ -62,10 +49,10 @@ Legend: `[ ]` open, `[x]` resolved, `(partial)` progress exists but remaining wo
 
 ### Skill naming and prefixes
 
-- [ ] [P1] [PREFIX-01] Adopt and document skill prefix taxonomy: `vuln-` (vulnerabilities), `scan-` (scan modes), `agent-` (agent-specific workflows), `project-` (project-specific skills), `guide-` (generic operator guidance).
-- [ ] [P1] [PREFIX-02] Migrate skill names and directories to prefixed names (including `SKILL.md` `name:` values) with deterministic old->new mapping.
-- [ ] [P1] [PREFIX-03] Add backward-compatibility aliases for old skill names to avoid breaking prompts/workflows during migration.
-- [ ] [P2] [PREFIX-04] Update docs, examples, and references to prefer prefixed skill names.
+- [x] [P1] [PREFIX-01] Adopt and document skill prefix taxonomy: `vuln-` (vulnerabilities), `scanmode-` (scan modes), `agent-` (agent-specific workflows), `project-` (project-specific skills), `guide-` (generic operator guidance).
+- [x] [P1] [PREFIX-02] Migrate skill names and directories to prefixed names (including `SKILL.md` `name:` values) with deterministic old->new mapping.
+- [ ] [P1] [PREFIX-03] Add backward-compatibility aliases for old skill names to avoid breaking prompts/workflows during migration. (Skipped for now by request)
+- [x] [P2] [PREFIX-04] Update docs, examples, and references to prefer prefixed skill names.
 
 ## Bigger Ideas (feature backlog, no urgency)
 
@@ -79,6 +66,7 @@ Use this section for feature-sized initiatives that are valuable but not current
 - [ ] [IDEA-06] Add OWASP Penetration Test Reporting Standard (OPTRS) output/support once OPTRS is out of beta.
 - [ ] [IDEA-07] Add multi-LLM validation pattern: send one prompt to `K` LLMs, collect full independent answers, then run a synthesis step that reconciles outputs into one best combined response.
 - [ ] [IDEA-08] Implement CVSS 4.0 support across pentest runtime, prompts, templates, validation, and reporting output.
+- [ ] [IDEA-09] Redact sensitive exploit material before persistence/rendering (full JWTs, password hashes, secret key material) while preserving reproducible PoC steps.
 
 ## Branch Plan (feature-xxx)
 
@@ -86,7 +74,6 @@ Branch naming rule: use `feature-<descriptive-scope>` and keep each branch scope
 
 - `feature-runtime-evidence-guards` -> `RUNTIME-01`, `RUNTIME-02`, `RUNTIME-03`
 - `feature-runtime-workspace-hygiene` -> `RUNTIME-04`
-- `feature-quality-redaction-dedupe` -> `QUALITY-02`
 - `feature-quality-completeness-baseline` -> `QUALITY-04`
 - `feature-contract-payload-and-ids` -> `CONTRACT-01`, `CONTRACT-02`
 - `feature-contract-delegation-timeliness` -> `CONTRACT-03`
@@ -98,7 +85,7 @@ Branch naming rule: use `feature-<descriptive-scope>` and keep each branch scope
 - `feature-agent-model-defaults` -> `ARCH-03`, `ARCH-04`, `ARCH-05`, `ARCH-06`
 - `feature-agent-mode-visibility-color` -> `ARCH-07`, `ARCH-08`, `ARCH-09`
 - `feature-skill-prefix-taxonomy` -> `PREFIX-01`
-- `feature-skill-prefix-migration` -> `PREFIX-02`, `PREFIX-03`, `PREFIX-04`
+- `feature-skill-prefix-migration` -> `PREFIX-02`, `PREFIX-04`
 - `feature-idea-validation-subagent` -> `IDEA-01`
 - `feature-idea-impact-subagent` -> `IDEA-02`
 - `feature-idea-local-sanitization` -> `IDEA-04`
@@ -106,13 +93,14 @@ Branch naming rule: use `feature-<descriptive-scope>` and keep each branch scope
 - `feature-idea-optrs-support` -> `IDEA-06`
 - `feature-idea-multi-llm-validation` -> `IDEA-07`
 - `feature-idea-cvss4-support` -> `IDEA-08`
+- `feature-idea-sensitive-redaction` -> `IDEA-09`
 
-## Skill Prefix Taxonomy (proposed)
+## Skill Prefix Taxonomy
 
 ### Prefix groups
 
 - `vuln-` -> vulnerability/finding-focused skills
-- `scan-` -> scan depth/mode skills
+- `scanmode-` -> scan depth/mode skills
 - `agent-` -> agent-specific orchestration/report workflows
 - `project-` -> project-specific workflow/helper skills
 - `guide-` -> helper/operator usage skills
@@ -136,11 +124,11 @@ Branch naming rule: use `feature-<descriptive-scope>` and keep each branch scope
 - `subdomain-takeover` -> `vuln-subdomain-takeover`
 - `xss` -> `vuln-xss`
 - `xxe` -> `vuln-xxe`
-- `scanmode-quick` -> `scan-quick`
-- `scanmode-standard` -> `scan-standard`
-- `scanmode-deep` -> `scan-deep`
+- `scan-quick` -> `scanmode-quick`
+- `scan-standard` -> `scanmode-standard`
+- `scan-deep` -> `scanmode-deep`
 - `root-agent` -> `agent-root`
-- `pentest-report` -> `agent-pentest-report`
+- `pentest-report` -> `agent-report`
 - `usage` -> `project-usage`
 
 ## Completed TODOs (grouped by topic)
@@ -184,7 +172,7 @@ Branch naming rule: use `feature-<descriptive-scope>` and keep each branch scope
 - [x] [P0] Update `.opencode/agents/reporting.md`: require `proposed=0` before build; otherwise return blockers only.
 - [x] [P1] Update `.opencode/agents/reporting.md` narrative rule to verification-only: use readiness blocker feedback and return blockers to root instead of direct narrative writes.
 - [x] [P1] Clarify exploitation wording in `.opencode/agents/exploitation.md` to avoid proposal lifecycle ambiguity.
-- [x] [P1] Update `.opencode/skill/pentest-report/SKILL.md` quality-gate wording so pending proposals block build in all safety modes.
+- [x] [P1] Update `.opencode/skills/agent-report/SKILL.md` quality-gate wording so pending proposals block build in all safety modes.
 - [x] [P1] Update reporting prompt to merge overlapping findings (same root cause/endpoint scope).
 - [x] [P1] Update reporting prompt to fill narrative fields before build: `summary_text`, `subject_description`, `scope_targets_markdown`, `methodology_details`, `events`.
 - [x] [P0] Enforce onboarding-first root behavior as hard gate before valid `run_id` and add prompt-contract coverage.
@@ -192,6 +180,18 @@ Branch naming rule: use `feature-<descriptive-scope>` and keep each branch scope
 - [x] [P0] Enforce reporting-only build path from root (no direct script/skill build execution) and add prompt-contract coverage.
 - [x] [P0] Enforce finalize verification contract (`pentest_finalize_run` + `pentest_get_report_paths` with finalized status) in root/reporting prompts.
 - [x] [P1] Add prompt-contract test that root cannot take direct report-build actions (no direct reporting skill/script execution; must delegate to reporting task flow).
+- [x] [P1] [CONTRACT-05] Remove redundant root prompt content in `.opencode/agents/root.md` (duplicate intake option list, duplicate completion rule) and condense scope decomposition to one concise instruction line.
+
+### Documentation and visualization
+
+- [x] [P1] [DOC-03] Fix stale docs references to pruned files in project docs (for example prune lists that still mention only `README*.md` while `CONTRIBUTING.md`, `SECURITY.md`, and `STATS.md` are also pruned).
+- [x] [P2] [DOC-04] Add a Mermaid system-context diagram to `project.md` showing OpenCode runtime, OpenHack layer, and `data/pentest` runtime state boundaries.
+- [x] [P2] [DOC-05] Add OpenCode package/runtime topology diagrams to `project-opencode.md` (package dependency view and runtime component flow).
+- [x] [P2] [DOC-06] Add OpenHack workflow diagrams to `project-openhack.md` (agent orchestration, proposal-to-finding state flow, run lifecycle).
+- [x] [P2] [DOC-07] Add a short "Use this doc if..." routing box to `project.md` for faster navigation between `project-opencode.md` and `project-openhack.md`.
+- [x] [P2] [DOC-08] Add a "where to change what" impact matrix to `project-opencode.md` (feature/change type -> directories/files).
+- [x] [P2] [DOC-09] Add a trust/sensitivity boundary diagram to `project-openhack.md` for `data/pentest/**` evidence/report artifacts.
+- [x] [P1] [DOC-10] Verify CVSS references in `.opencode/skills/agent-report/tests/openhack-juice-shop-test.md` and `openhack-report-template_v1.md` remain CVSS 3.1; no content changes required.
 
 ### Tooling maintenance
 
@@ -200,6 +200,11 @@ Branch naming rule: use `feature-<descriptive-scope>` and keep each branch scope
 ## Changelog
 
 This section is the canonical changelog for this repository backlog workflow. Keep newest entries first.
+
+### 2026-02-23
+
+- Completed `CONTRACT-05`: trimmed redundant root prompt intake/completion text and condensed scope decomposition in `.opencode/agents/root.md`.
+- Completed `DOC-03` through `DOC-09` across `project.md`, `project-opencode.md`, and `project-openhack.md` (stale reference cleanup, routing box, topology/workflow diagrams, trust boundary diagram, and impact matrix), and completed `DOC-10` as verification-only because CVSS references were already 3.1 in `.opencode/skills/agent-report/tests/openhack-juice-shop-test.md` and `openhack-report-template_v1.md`.
 
 ### 2026-02-22
 

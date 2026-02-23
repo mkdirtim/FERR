@@ -19,7 +19,7 @@ OpenCode core runtime/package details are documented in `project-opencode.md`.
 | `.opencode/opencode.jsonc` | Local OpenCode config for provider/MCP/tool permissions |
 | `.opencode/tools/pentest.ts` | Pentest tool API surface (`create_run`, `add_proposal`, `build_report`, `finalize_run`, etc.) |
 | `.opencode/lib/pentest-db.ts` | Canonical DB runtime logic, readiness gates, artifact linking, report assembly/finalize |
-| `.opencode/agents/*.md` | Subagent prompts/contracts (`root`, `onboarding`, `analysis`, `recon`, `exploitation`, `reporting`) |
+| `.opencode/agents/*.md` | Agent prompts/contracts (`orchestration`, `onboarding`, `exploitation`, `validation`, `reporting`) |
 | `.opencode/skills/*/SKILL.md` | Security testing playbooks (SQLi, XSS, IDOR, CSRF, SSRF, JWT, RCE, XXE, and more) |
 | `.opencode/skills/agent-report/` | Report templates, marker/proposal references, report build scripts, fixtures |
 | `.opencode/scripts/migrate-runtime-artifacts.sh` | Moves stray runtime artifacts into run-scoped locations |
@@ -40,24 +40,23 @@ Notes:
 ## Pentest Flow (High Level)
 
 1. Onboarding creates a run and sets engagement metadata.
-2. Recon/analysis/exploitation submit proposals.
-3. Reporting accepts/rejects proposals into canonical findings.
-4. Readiness checks enforce blockers before report build.
-5. Report build generates markdown/pdf/html/docx.
-6. Finalize moves run from `running` to `finished`.
+2. Exploitation agents fan out in parallel and submit proposals.
+3. Validation agents fan out in parallel and resolve proposals to `validated` or `rejected`.
+4. Reporting rejects duplicates, accepts remaining `validated` proposals, then runs readiness/build/finalize.
+5. Finalize moves run from `running` to `finished`.
 
 ## Agent Orchestration
 
 ```mermaid
 flowchart LR
-  user["User target input"] --> root["root"]
-  root --> onb["onboarding"]
-  onb --> rec["recon"]
-  onb --> ana["analysis"]
-  onb --> exp["exploitation"]
-  rec --> rep["reporting"]
-  ana --> rep
-  exp --> rep
+  user["User target input"] --> orch["orchestration"]
+  orch --> onb["onboarding"]
+  onb --> exp1["exploitation slice A"]
+  onb --> exp2["exploitation slice B"]
+  exp1 --> val1["validation shard A"]
+  exp2 --> val2["validation shard B"]
+  val1 --> rep["reporting"]
+  val2 --> rep
   rep --> fin["finalize checks"]
 ```
 
@@ -65,11 +64,10 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-  prop["proposal: proposed"] --> acc["proposal: accepted"]
+  prop["proposal: proposed"] --> val["proposal: validated"]
   prop --> rej["proposal: rejected"]
-  acc --> open["finding: open"]
-  open --> val["finding: validated"]
-  val --> fix["finding: fixed or closed"]
+  val --> acc["proposal: accepted"]
+  acc --> open["finding: open/mitigated/closed"]
   artp["artifact attach (proposal_id)"] -. "evidence staging" .-> prop
   artf["artifact attach (finding_id)"] -. "evidence linkage" .-> open
 ```

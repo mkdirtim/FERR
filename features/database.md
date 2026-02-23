@@ -19,11 +19,10 @@ Implementation source:
 ```mermaid
 flowchart LR
     A[Onboarding Agent] -->|create/set onboarding| DB[(run.db)]
-    B[Recon Agent] -->|add proposal| DB
-    C[Analysis Agent] -->|add proposal| DB
-    D[Exploitation Agent] -->|add proposal| DB
-    E[Reporting Agent] -->|accept/reject proposals + findings + build| DB
-    F[Root Agent] -->|orchestrate + read state| DB
+    B[Exploitation Agents] -->|parallel add proposal| DB
+    C[Validation Agents] -->|parallel validate/reject proposals| DB
+    D[Reporting Agent] -->|reject duplicates + accept validated + build| DB
+    E[Orchestration Agent] -->|orchestrate + read state| DB
     DB --> G[Report Artifacts in run/report]
     DB --> H[Finished Runs data/pentest/finished]
 ```
@@ -60,7 +59,7 @@ Migration tracking table:
 - `schema_migrations(version, applied_at, applied_by)`
 
 Current schema version:
-- `4`
+- `5`
 
 Version 2 migration adds:
 - `proposal.resolved_by`
@@ -77,6 +76,12 @@ Version 4 migration changes:
 - `artifact.proposal_id` added for proposal-stage evidence
 - staged artifacts can be attached before proposal acceptance and auto-linked to finding on accept
 - index `idx_artifact_run_proposal` added on `(run_id, proposal_id)`
+
+Version 5 migration changes:
+- `proposal.status` expanded to `proposed|validated|accepted|rejected`
+- `finding.validated` column removed
+- `idx_finding_run_validated` removed
+- `proposal` and `finding` tables rebuilt transactionally while preserving existing rows and proposal/finding/artifact links
 
 Migration precheck:
 - Migration fails if duplicate non-null `(run_id, proposal_id)` links already exist in `finding`.
@@ -141,7 +146,6 @@ erDiagram
       text cvss_vector
       text assets_json
       text status
-      int validated
       text description
       text proof_of_concept
       text remediation
@@ -203,7 +207,7 @@ Appendix content blocks.
 Subagent proposal queue and resolution state.
 
 Key constraints:
-- `status IN ('proposed','accepted','rejected')`
+- `status IN ('proposed','validated','accepted','rejected')`
 - FK `run_id -> run(id)` with `ON DELETE CASCADE`
 
 Resolution fields:
@@ -218,7 +222,6 @@ Canonical finding records (reporting-owned writes).
 Key constraints:
 - `severity IN ('critical','high','medium','low','info')`
 - `status IN ('draft','open','mitigated','closed','wontfix')`
-- `validated IN (0,1)`
 - `cvss_score` numeric range `[0,10]` when provided
 - `UNIQUE(run_id, slug)`
 - `UNIQUE(run_id, seq)`
@@ -248,7 +251,6 @@ Last build/materialization status and artifact paths for each run.
 ## Indexes
 
 - `idx_finding_run_seq` on `finding(run_id, seq)`
-- `idx_finding_run_validated` on `finding(run_id, validated)`
 - `idx_artifact_finding` on `artifact(finding_id)`
 - `idx_artifact_run_proposal` on `artifact(run_id, proposal_id)`
 - `idx_proposal_run_status` on `proposal(run_id, status)`
@@ -272,7 +274,9 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
     [*] --> proposed
-    proposed --> accepted: pentest_accept_proposal
+    proposed --> validated: pentest_validate_proposal
+    validated --> accepted: pentest_accept_proposal
+    validated --> rejected: pentest_reject_proposal
     proposed --> rejected: pentest_reject_proposal
     accepted --> [*]
     rejected --> [*]
@@ -282,31 +286,29 @@ stateDiagram-v2
 
 ```mermaid
 sequenceDiagram
-    participant Root
+    participant Orchestration
     participant Onboarding
-    participant Recon
-    participant Analysis
-    participant Exploit
+    participant Exploit as Exploitation (parallel)
+    participant Validate as Validation (parallel)
     participant Reporting
     participant DB as run.db
 
-    Root->>Onboarding: create run
+    Orchestration->>Onboarding: create run
     Onboarding->>DB: pentest_create_run / pentest_set_onboarding
-    Root->>Recon: delegate with explicit run_id
-    Root->>Analysis: delegate with explicit run_id
-    Root->>Exploit: delegate with explicit run_id
-    Recon->>DB: pentest_add_proposal
-    Analysis->>DB: pentest_add_proposal
+    Orchestration->>Exploit: fan-out scoped tasks
     Exploit->>DB: pentest_add_proposal
-    Root->>Reporting: resolve proposals
-    Reporting->>DB: pentest_accept_proposal (accept)
-    Reporting->>DB: pentest_reject_proposal (reject)
+    Orchestration->>Validate: fan-out proposal shards
+    Validate->>DB: pentest_validate_proposal (success)
+    Validate->>DB: pentest_reject_proposal (failure)
+    Orchestration->>Reporting: resolve validated set
+    Reporting->>DB: pentest_reject_proposal (duplicates)
+    Reporting->>DB: pentest_accept_proposal (validated only)
     Reporting->>DB: pentest_check_readiness
     alt ready
       Reporting->>DB: pentest_build_report
-      Root->>DB: pentest_finalize_run
+      Reporting->>DB: pentest_finalize_run
     else blockers
-      Reporting-->>Root: blocker list
+      Reporting-->>Orchestration: blocker list
     end
 ```
 
@@ -332,15 +334,12 @@ In `production` safety mode, build is blocked when:
 - one or more findings are in `draft`
 - one or more findings are missing CVSS (`cvss_vector` missing, or `cvss_score` missing for non-`N/A [failed to compute]` vectors)
 - one or more findings have empty assets (`assets_json` as empty array)
-- one or more validated findings have no attached artifacts
 
 In all safety modes, build is blocked when:
 - one or more proposals remain in `proposed`
 
 Validation note:
-- unvalidated findings generate warnings but do not hard-block build.
 - duplicate proposal fingerprints generate warnings only (no hard block).
-- validated findings without attached artifacts always generate warnings and are production blockers.
 - findings with `cvss_vector = "N/A [failed to compute]"` generate warnings and do not hard-block build.
 - in `test` mode, missing narrative fields (`subject_description`, `scope_targets_markdown`, `methodology_details`, `events`) are warning-level signals.
 
@@ -363,9 +362,12 @@ Validation note:
   - validates severity enum, CVSS score range, CVSS v3.1 vector format (or `N/A [failed to compute]`), and asset shapes
   - rejects recon/progress metadata payloads when they look non-vulnerability and lack concrete vulnerability signals
 - `pentest_get_proposals` -> list proposals (`status` and `agent_name` filters)
+- `pentest_validate_proposal` -> transitions `proposal: proposed -> validated`
 - `pentest_accept_proposal` -> canonical accept path from proposal payload to finding
-  - defaults to `status='open'`, `validated=false` unless overridden
+  - requires proposal `status='validated'`
+  - defaults finding `status='open'` unless overridden
 - `pentest_reject_proposal` -> sets proposal to rejected with reason
+  - allowed from `proposed` and `validated`
 
 ### CVSS utility
 - `pentest_calculate_cvss` -> computes CVSS 3.1 vector, score, and derived severity from base metrics
@@ -375,8 +377,11 @@ Validation note:
   - this tool is pure calculation (no DB write); persistence occurs via `pentest_add_proposal` or finding tools
 
 ### Findings
-- `pentest_add_finding` -> inserts canonical finding, optionally accepts linked proposal
-  - defaults to `status='draft'`, `validated=false` unless provided
+- `pentest_add_finding` -> inserts canonical finding from a linked validated proposal
+  - `proposal_id` is required
+  - linked proposal must be `status='validated'`
+  - transitions linked proposal to `accepted`
+- direct finding bypass without proposal linkage is disallowed
 - `pentest_update_finding` -> patch finding fields (errors if `finding_id` is not found for `run_id`)
 - `pentest_delete_finding` -> deletes finding and linked artifacts
 - `pentest_get_finding` / `pentest_get_findings` -> read finding views
@@ -385,8 +390,11 @@ Validation note:
 - `pentest_get_evidence_directory` -> returns run-scoped evidence write location for active run
   - requires `run.status='running'`
   - returns `run_dir`, `evidence_dir`, `evidence_rel_base`
-  - intended flow: get once, write deterministic filenames, attach as `rel_path = evidence/<filename>`
+  - intended flow: get once, write deterministic filenames, then attach with `path` as absolute file path under `run_dir`
 - `pentest_attach_artifact` -> verifies path and checksum, inserts artifact
+  - preferred input is `path` (absolute under `run_dir`)
+  - compatibility: relative paths are accepted and resolved under `run_dir`
+  - DB always stores normalized run-relative `artifact.rel_path`
   - accepts either `finding_id` or `proposal_id` (both optional for run-level evidence)
   - with `proposal_id` and no canonical finding yet, evidence is staged on proposal and auto-linked when proposal is accepted
   - with `proposal_id` and existing canonical finding, links directly to that finding
@@ -428,7 +436,7 @@ Finding-level:
 Path-level:
 - artifact paths are validated to remain inside the run directory
 - canonical write root is run-scoped: `data/pentest/running/<run_id>/...`
-- browser-output creation should use run-scoped absolute filenames under `evidence_dir` (from `pentest_get_evidence_directory`) and attach with `rel_path = evidence/<filename>`
+- browser-output creation should use run-scoped absolute filenames under `evidence_dir` (from `pentest_get_evidence_directory`) and attach with `path = <absolute path>`
 - files outside the run dir are not imported during attach; callers must write evidence to run-scoped paths first
 
 ## Atomicity Guarantees
@@ -436,7 +444,7 @@ Path-level:
 Atomic units (single transaction):
 - onboarding updates
 - contact insert
-- proposal insert/reject
+- proposal insert/validate/reject
 - finding create/update/delete
 - artifact attach
 - report_build status updates
@@ -477,11 +485,11 @@ WHERE run_id = ? AND status = 'proposed'
 ORDER BY time_created;
 ```
 
-Validated findings count:
+Validated proposals count:
 ```sql
 SELECT COUNT(*) AS validated
-FROM finding
-WHERE run_id = ? AND validated = 1;
+FROM proposal
+WHERE run_id = ? AND status = 'validated';
 ```
 
 Audit trail:
@@ -515,7 +523,7 @@ Finalize failed:
 
 ## Known Constraints (v1)
 
-- No DB-native phase/checkpoint table yet (root orchestrates phase externally)
+- No DB-native phase/checkpoint table yet (orchestration agent orchestrates phase externally)
 - `proposal.payload_json` is stored as JSON text without DB-native JSON schema constraints (validation/normalization is enforced in runtime code)
 - Contact parser accepts pipe/semicolon rows and skips malformed rows silently
 
@@ -523,8 +531,8 @@ Finalize failed:
 
 1. Use onboarding to create run and baseline metadata
 2. Pass explicit `run_id` to every delegated agent/task
-3. Let recon/analysis/exploitation submit proposals only
-4. Let reporting resolve proposals to canonical findings
-5. Run readiness before every build attempt
+3. Let exploitation agents submit proposals only
+4. Let validation agents transition proposals to `validated` or `rejected`
+5. Let reporting reject duplicates, accept remaining validated proposals, and run readiness
 6. Build and then finalize
 7. Use audit log for traceability and debugging

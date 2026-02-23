@@ -22,6 +22,10 @@ Legend: `[ ]` open, `[x]` resolved, `(partial)` progress exists but remaining wo
 - [ ] [P0] [QUALITY-04] (partial) Enforce reporting-quality completeness in runtime (not only prompt policy): accepted findings must include non-empty description/proof/remediation, CVSS score+vector, non-empty assets, and artifact linkage for `validated=true`; context: current guarantees are mainly in agent prompt guidance, risk: incomplete findings can still pass through in some flows.
 - [ ] [P1] [QUALITY-05] Revisit Proposal -> Accepted field mapping semantics: decide policy for `status`/`validated` when present in `pentest_add_proposal.payload_json` (pass through, reject, or keep accept-time override only), document/default behavior explicitly, and add runtime + prompt-contract tests. In the same pass, review and align `pentest_add_proposal.payload_json` required/optional contract fields across runtime, tool descriptions, and docs.
 
+### Tool schema gaps
+
+- [ ] [P1] [TOOL-01] `question` tool omits `custom` field from LLM schema (`Question.Info.omit({ custom: true })`), so agents cannot set `custom: false` to suppress "Type your own answer" — even when the agent prompt instructs it. Fix: expose `custom` in the tool schema or default it to `false` in `execute`. Affected file: `packages/opencode/src/tool/question.ts`.
+
 ### Prompt contracts and docs alignment
 
 - [ ] [P1] [CONTRACT-01] (partial) Add canonical `pentest_add_proposal` payload templates to recon/exploitation/JWT task prompts (required fields, CVSS v4 format, and `assets` as array of strings) to reduce retry/error loops.

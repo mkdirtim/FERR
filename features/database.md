@@ -171,7 +171,7 @@ erDiagram
 Primary run metadata and lifecycle.
 
 Key constraints:
-- `engagement_mode IN ('manual','defaults','juiceshop-defaults')`
+- `engagement_mode IN ('manual','juiceshop-defaults','badstore-defaults')`
 - `safety_mode IN ('test','production')`
 - `status IN ('running','finalize_in_progress','finalized','failed_finalize')`
 

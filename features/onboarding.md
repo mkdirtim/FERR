@@ -22,6 +22,18 @@ When the session starts from a target input (for example `http://localhost:3333`
 - `Use defaults for testing` - auto-fill onboarding fields with generic sample values to learn the workflow and verify setup
 - `Run against Juice Shop` - auto-fill onboarding fields with OWASP Juice Shop defaults for an end-to-end demo run
 
+After intake mode is selected, ask scan mode via the question tool:
+
+- `Which scan mode should we use for target <target>?`
+- `None` - no scan-mode preset; run with custom/manual strategy
+- `Quick` - rapid, high-impact checks
+- `Standard` - balanced coverage and depth
+- `Deep` - exhaustive assessment and chaining
+
+Question payload constraints:
+- `multiple=false`
+- `custom=false`
+
 Requirement:
 - This must be a real `question` tool call, not a plain text prompt that asks for `A/B` input.
 
@@ -49,6 +61,7 @@ For all modes:
 
 ## Outputs
 - Intake mode selected (`manual`, `defaults`, or `juiceshop-defaults`)
+- Scan mode selected (`none`, `quick`, `standard`, or `deep`)
 - Engagement metadata values used
 - Scope checklist (confirmed vs pending)
 - Blocker list with owner and next action

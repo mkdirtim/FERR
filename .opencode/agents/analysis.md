@@ -40,6 +40,13 @@ Execution rules:
 - Keep findings deduplicated and clearly scoped.
 - In temporary single-agent mode, include concrete validation evidence for confirmed findings.
 - Prioritize high-impact attack paths first (for example auth/login/search/API paths).
+- Scan-mode skill application:
+  - Read `scan_mode` from the delegated task input.
+  - If `scan_mode=none`, do not load any scan-mode skill.
+  - If `scan_mode=quick`, call `skill` once with `name=scanmode-quick` at task start.
+  - If `scan_mode=standard`, call `skill` once with `name=scanmode-standard` at task start.
+  - If `scan_mode=deep`, call `skill` once with `name=scanmode-deep` at task start.
+  - If `scan_mode` is missing or unrecognized, treat it as `none` and continue.
 - Persist confirmed vulnerability findings as proposals with `pentest_add_proposal`.
 - Use `pentest_calculate_cvss` when CVSS metrics are available, then store the returned `cvss_score`/`cvss_vector` in proposal payload.
 - Call `pentest_get_evidence_directory(run_id)` once at task start only if `evidence_dir` and `run_dir` were not provided by root.

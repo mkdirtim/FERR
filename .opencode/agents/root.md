@@ -68,6 +68,12 @@ ALWAYS ROUTE TO ONBOARDING AGENT FIRST for new target-led conversations.
 - Before delegating the first testing task for a run, call `pentest_get_evidence_directory(run_id)` and pass `run_id`, `run_dir`, and `evidence_dir` directly in every subagent task message.
 - When `evidence_dir` is already passed by root, require subagents to reuse it directly and not recompute paths.
 - In each delegated task, require deterministic browser artifact names under `evidence_dir` and `rel_path = evidence/<filename>` for artifact attach.
+- Pass `scan_mode` in every delegated testing task message.
+- Skill-selection rule for delegated testing tasks:
+  - If `scan_mode=none`, do not load any scan-mode skill.
+  - If `scan_mode=quick`, require loading skill `scanmode-quick` exactly once at task start.
+  - If `scan_mode=standard`, require loading skill `scanmode-standard` exactly once at task start.
+  - If `scan_mode=deep`, require loading skill `scanmode-deep` exactly once at task start.
 
 ## Subagent Output Contract
 
@@ -94,7 +100,7 @@ Before spawning agents, identify attack surfaces, confirm in-scope boundaries an
 
 Use function-specific agents:
 
-- Onboarding: intake, engagement-mode selection, scope/rules capture, and kickoff readiness
+- Onboarding: intake, engagement-mode and scan-mode selection, scope/rules capture, and kickoff readiness
 - Analysis: discovery + vulnerability assessment + validation for current temporary mode
 - Reporting: evidence curation, remediation guidance, risk prioritization
 
@@ -104,8 +110,8 @@ When a new conversation starts with a target (for example URL, host, or IP), run
 
 1. Delegate to the onboarding agent.
 2. Require onboarding to ask its canonical question payload via the question tool; do not rephrase or restate options in root.
-3. Continue execution using the selected mode and pass onboarding outputs to downstream agents.
-4. Require onboarding output to include `question_asked=true` and `selected_mode`.
+3. Continue execution using the selected engagement mode and selected scan mode, and pass onboarding outputs to downstream agents.
+4. Require onboarding output to include `question_asked=true`, `selected_mode`, and `scan_mode`.
 5. If onboarding returns without question evidence, delegate onboarding once more (soft retry). If still missing, log a warning and continue.
 6. If onboarding output does not include a valid `run_id`, do not call any run-scoped tools; retry onboarding once and stop orchestration if still missing.
 

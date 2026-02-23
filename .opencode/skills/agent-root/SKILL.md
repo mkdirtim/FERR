@@ -12,6 +12,12 @@ Create subagents throughout the testing process, not just at startup. Spawn suba
 ## Hard Rules
 
 - Always route target-led conversations to the Onboarding agent first.
+- Require onboarding to capture scan mode (`none|quick|standard|deep`) and propagate it to downstream testing tasks.
+- Apply scan-mode skills conditionally in delegated testing tasks:
+  - `none` => do not load any scan-mode skill
+  - `quick` => load `scanmode-quick`
+  - `standard` => load `scanmode-standard`
+  - `deep` => load `scanmode-deep`
 - Keep root read-only for pentest DB runtime operations.
 - Reporting is the canonical finding writer and report builder.
 - Pass explicit `run_id` to every delegated subagent.

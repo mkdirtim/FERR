@@ -1,0 +1,89 @@
+# Docker Compose for OpenHack (openhack + juiceshop + badstore)
+#
+# Usage:
+#   Start all services:          docker compose up -d
+#   Enter openhack container:    docker compose exec openhack bash
+#   Stop all services:           docker compose down
+
+name: openhack
+
+services:
+  openhack:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openhack
+    hostname: openhack
+    stdin_open: true
+    tty: true
+    init: true
+    restart: unless-stopped
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    volumes:
+      - ..:/app
+      # Persist npx/npm downloads across container recreations (MCP servers use npx).
+      - openhack-npm:/home/opencode/.npm
+      # Persist Playwright browser downloads/cache.
+      - openhack-playwright:/home/opencode/.cache/ms-playwright
+    networks:
+      - openhack-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:4096:4096" # opencode serve/web
+      - "${OPENCODE_APP_PORT:-0}:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /app/package.json && which bun >/dev/null && which nmap >/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    command: /bin/bash
+
+  juiceshop:
+    image: bkimminich/juice-shop
+    container_name: openhack-juiceshop
+    hostname: juiceshop
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3333:3000"
+    environment:
+      - NODE_ENV=unsafe
+    networks:
+      - openhack-network
+    healthcheck:
+      test: ["CMD", "/nodejs/bin/node", "-e", "require('http').get('http://localhost:3000/', (res) => { process.exit(res.statusCode < 400 ? 0 : 1); }).on('error', () => process.exit(1));"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  badstore:
+    image: jvhoof/badstore-docker
+    container_name: openhack-badstore
+    hostname: badstore
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3336:80"
+    networks:
+      - openhack-network
+    healthcheck:
+      test: ["CMD-SHELL", "test -s /var/run/apache2/apache2.pid"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  openhack-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.78.0/24
+          gateway: 192.168.78.1
+
+volumes:
+  openhack-npm:
+  openhack-playwright:

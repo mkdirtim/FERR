@@ -28,6 +28,7 @@ Legend: `[ ]` open, `[x]` resolved, `(partial)` progress exists but remaining wo
 
 ### Prompt contracts and docs alignment
 
+- [ ] [P0] [ONBOARD-01] Fix custom/manual onboarding interaction flow: after `Manual setup`, the onboarding agent must ask the user for missing onboarding fields (for example assessor/client/contact/scope metadata) instead of auto-filling or silently continuing with placeholders; keep unresolved values in `missing_fields` when user input is not provided.
 - [ ] [P1] [CONTRACT-01] (partial) Add canonical `pentest_add_proposal` payload templates to recon/exploitation/JWT task prompts (required fields, CVSS v4 format, and `assets` as array of strings) to reduce retry/error loops.
 - [ ] [P1] [CONTRACT-02] Standardize subagent output IDs: require `proposal_ids[]` in proposal-producing agents, and only emit `finding_id` after explicit accept step to avoid proposal/finding ID confusion.
 - [ ] [P1] [CONTRACT-03] Add prompt-contract test for delegation timeliness: after onboarding, root must delegate to the requested specialist tasks within a bounded number of steps (no repeated skill-loading loops).

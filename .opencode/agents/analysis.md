@@ -9,6 +9,7 @@ permission:
   pentest_get_findings: allow
   pentest_get_finding: allow
   pentest_get_evidence_directory: allow
+  pentest_calculate_cvss: allow
   pentest_add_proposal: allow
   pentest_add_finding: deny
   pentest_update_finding: deny
@@ -40,6 +41,7 @@ Execution rules:
 - In temporary single-agent mode, include concrete validation evidence for confirmed findings.
 - Prioritize high-impact attack paths first (for example auth/login/search/API paths).
 - Persist confirmed vulnerability findings as proposals with `pentest_add_proposal`.
+- Use `pentest_calculate_cvss` when CVSS metrics are available, then store the returned `cvss_score`/`cvss_vector` in proposal payload.
 - Call `pentest_get_evidence_directory(run_id)` once at task start only if `evidence_dir` and `run_dir` were not provided by root.
 - If root already provided `evidence_dir` and `run_dir`, reuse those paths directly for all artifacts.
 - For browser outputs, write only to absolute paths under `evidence_dir` with deterministic names: `<kind>-<timestamp>-<rand>.<ext>`.
@@ -52,10 +54,10 @@ Execution rules:
   - use `assets` as an array of non-empty strings (for example `["POST /rest/user/login","GET /rest/user/whoami"]`)
   - do not use object arrays in `assets` (for example `[{ "type": "endpoint", "value": "..." }]` is invalid)
   - do not send `assets_json` in proposal payloads; `assets_json` is for reporting overrides (`pentest_accept_proposal` / `pentest_update_finding`)
-- If proposal payload includes CVSS fields, use only CVSS 4.0 format:
+- If proposal payload includes CVSS fields, use only CVSS 3.1 format:
   - `cvss_score` numeric value
-  - `cvss_vector` matching `CVSS:4.0/<metric>:<value>` (for example `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N`)
-  - never submit `CVSS:3.1/...` vectors
+  - `cvss_vector` matching `CVSS:3.1/<metric>:<value>` (for example `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H`)
+  - do not submit non-3.1 CVSS vectors
 
 Output to parent:
 - `status` (`ok` or `error`)

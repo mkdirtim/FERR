@@ -32,7 +32,7 @@ This document describes the full CVSS integration in OpenHack: the dedicated too
 - CVSS calculation + validation + readiness + rendering:
   - `/Users/mkdirtim/FERR/openhack/.opencode/lib/pentest-db.ts`
 - Agent contracts using the tool:
-  - `/Users/mkdirtim/FERR/openhack/.opencode/agents/analysis.md`
+  - `/Users/mkdirtim/FERR/openhack/.opencode/agents/exploitation.md`
   - `/Users/mkdirtim/FERR/openhack/.opencode/agents/reporting.md`
 - Tests:
   - `/Users/mkdirtim/FERR/openhack/packages/opencode/test/pentest/pentest-db-runtime.test.ts`
@@ -102,13 +102,12 @@ Error message:
 
 ## Proposal and Finding Behavior
 
-- Analysis/Reporting should call `pentest_calculate_cvss` and persist returned `cvss_score`/`cvss_vector`.
+- Exploitation/Reporting should call `pentest_calculate_cvss` and persist returned `cvss_score`/`cvss_vector`.
 - Proposal payload extras are not canonical fields at accept time:
-  - `status` / `validated` in proposal payload are ignored unless passed as explicit accept/update overrides.
+  - `status` in proposal payload is ignored unless passed as explicit accept/update overrides.
   - `cwe_ids` and `vulnerability_type` are not persisted as structured finding columns.
 - Accept defaults without overrides:
   - `status = open`
-  - `validated = false`
 
 ## Readiness and Build Semantics
 
@@ -136,7 +135,7 @@ Production CVSS blocker logic:
 
 ## Agent Integration
 
-### Analysis agent
+### Exploitation agent
 
 - Allowed to call `pentest_calculate_cvss`.
 - Instructed to use it when CVSS metrics are available and store output in proposal payload.

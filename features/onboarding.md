@@ -57,7 +57,7 @@ For all modes:
 3. Confirm scope and exclusions in writing
 4. Validate access and prerequisite tooling
 5. Identify missing inputs and blockers
-6. Produce kickoff task breakdown
+6. Produce kickoff task breakdown for orchestration -> exploitation -> validation -> reporting
 
 ## Outputs
 - Intake mode selected (`manual`, `juiceshop-defaults`, or `badstore-defaults`)
@@ -65,7 +65,7 @@ For all modes:
 - Engagement metadata values used
 - Scope checklist (confirmed vs pending)
 - Blocker list with owner and next action
-- Prioritized kickoff plan for recon, analysis, exploitation, and reporting
+- Prioritized kickoff plan for exploitation fan-out, validation fan-out, and reporting
 
 ## Done Criteria
 - Intake decision completed and metadata captured

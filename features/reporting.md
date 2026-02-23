@@ -4,8 +4,8 @@
 Deliver clear, evidence-backed findings with actionable remediation guidance, and document the pentest report skill layout.
 
 ## Scope
-- Use validated findings only
-- Remove duplicates and inconsistent claims
+- Use `validated` proposals only
+- Reject duplicates with full-context judgment
 - Prioritize by exploitability and business impact
 
 ## Inputs
@@ -15,12 +15,12 @@ Deliver clear, evidence-backed findings with actionable remediation guidance, an
 - Environment and version context
 
 ## Workflow
-1. Resolve proposals to canonical findings (accept or reject)
-2. Normalize and deduplicate findings
-3. Verify each finding has reproducible evidence
-4. Assign severity with clear rationale
-5. Run readiness preflight before build
-6. Write remediation and verification guidance
+1. If any proposal is still `proposed`, return blockers (no build).
+2. Reject duplicates among `validated` proposals.
+3. Accept remaining `validated` proposals into canonical findings.
+4. Assign severity with clear rationale.
+5. Run readiness preflight before build.
+6. Build and finalize report artifacts.
 
 ## Outputs
 - Final findings list with severity and confidence
@@ -29,7 +29,7 @@ Deliver clear, evidence-backed findings with actionable remediation guidance, an
 - Residual risk and open questions
 
 ## Done Criteria
-- Every finding is reproducible and scoped
+- Every accepted finding came from a `validated` proposal
 - Severity and impact are justified
 - Remediation steps are concrete and testable
 

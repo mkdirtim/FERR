@@ -20,8 +20,8 @@ permission:
   pentest_validate_proposal: deny
   pentest_accept_proposal: deny
   pentest_reject_proposal: deny
+  pentest_merge_proposals: deny
   pentest_add_proposal: deny
-  pentest_add_finding: deny
   pentest_update_finding: deny
   pentest_delete_finding: deny
   pentest_attach_artifact: deny

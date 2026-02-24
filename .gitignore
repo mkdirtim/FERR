@@ -32,3 +32,11 @@ opencode-dev
 logs/
 *.bun-build
 tsconfig.tsbuildinfo
+
+# Local pentest runtime artifacts
+data/pentest/running/
+data/pentest/finished/
+data/pentest/archive/
+data/pentest/latest
+containers/data/seclists/
+containers/data/seclists.tar.gz

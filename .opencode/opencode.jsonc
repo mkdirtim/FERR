@@ -25,14 +25,17 @@
     // - "--device=iPhone 15" - emulate mobile device
     // - "--storage-state=path/to/state.json" - start with saved cookies/localStorage
     //
-    // Profile location: ~/Library/Caches/ms-playwright/mcp-chrome-profile
+    // Playwright's Chromium is pre-installed in the container image (no runtime download needed).
     "playwright": {
       "type": "local",
       "command": [
-        "npx",
-        "-y",
+        "bun",
+        "x",
         "@playwright/mcp@0.0.68",
+        "--browser=chromium",
         "--headless",
+        "--isolated",
+        "--no-sandbox",
       ],
       "enabled": true,
       "timeout": 60000,

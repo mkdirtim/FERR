@@ -25,7 +25,7 @@ permission:
   pentest_add_contact: deny
   pentest_add_proposal: deny
   pentest_accept_proposal: deny
-  pentest_add_finding: deny
+  pentest_merge_proposals: deny
   pentest_update_finding: deny
   pentest_delete_finding: deny
   pentest_attach_artifact: deny
@@ -47,6 +47,13 @@ Rules:
 - First action: call `pentest_get_proposals(run_id)`, resolve assigned scope to explicit proposal IDs, and treat DB proposal records as source of truth.
 - If input uses shard boundaries instead of explicit IDs, select only proposals in the assigned shard from fetched results before testing.
 - Do not begin browser testing until assigned proposal records are loaded.
+- Tool selection policy (`curl` vs Playwright):
+  - Default to `curl`/HTTP tools first for reproduction checks (request replay, auth/header tweaks, payload mutation, endpoint verification).
+  - Use Playwright only when browser state is strictly required to validate a claim (JS-rendered state, SPA-only auth/token handling, dynamic CSRF/nonces, UI-only workflows).
+  - Prefer a hybrid flow:
+    - Use Playwright once to bootstrap session/cookies/tokens if needed.
+    - Return to `curl`/HTTP tools for deterministic repro and verification.
+    - Use Playwright again only if a final UI confirmation is necessary for confidence.
 - Do not record or attach evidence.
 - For each assigned proposal:
   - if reproducible, call `pentest_validate_proposal(run_id, proposal_id, note?)`

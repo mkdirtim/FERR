@@ -35,21 +35,10 @@ if ! docker compose version &>/dev/null; then
     exit 1
 fi
 
-echo -e "${BOLD}openhackstack quickstart${NC}"
+echo -e "${BOLD}ferr quickstart${NC}"
 echo "This will clone external repos and start the Docker environment."
 
 # ---------- external repos ----------
-
-step "Cloning SecLists wordlists"
-
-SECLISTS_DIR="$ROOT_DIR/data/seclists"
-if [ -d "$SECLISTS_DIR/.git" ] || [ -d "$SECLISTS_DIR/Discovery" ]; then
-    echo -e "${GREEN}✓ SecLists already present${NC}"
-else
-    git clone --depth 1 https://github.com/danielmiessler/SecLists.git "$SECLISTS_DIR"
-    rm -rf "$SECLISTS_DIR/.git"
-    echo -e "${GREEN}✓ SecLists cloned${NC}"
-fi
 
 step "Cloning third-party agent projects"
 
@@ -93,7 +82,7 @@ docker compose build
 docker compose up -d
 
 echo ""
-echo -e "${GREEN}${BOLD}✓ openhackstack is ready${NC}"
+echo -e "${GREEN}${BOLD}✓ ferr is ready${NC}"
 echo ""
 echo "  Dev container:  docker compose exec openhack bash"
 echo "  Web UI:         http://localhost:4096"

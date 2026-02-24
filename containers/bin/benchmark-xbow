@@ -11,7 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$SCRIPT_DIR/.."
 REPO_DIR="$ROOT_DIR/data/projects/xbow"
 BENCHMARKS_DIR="$REPO_DIR/benchmarks"
-NETWORK="openhackstack_openhackstack-network"
+NETWORK="ferr_network"
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'

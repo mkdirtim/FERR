@@ -35,18 +35,12 @@ else
     exit 1
 fi
 
-if [ -d "$SCRIPT_DIR/../data/seclists" ]; then
-    echo -e "${GREEN}✓${NC} SecLists wordlists found"
-else
-    echo -e "${YELLOW}⚠${NC} SecLists not downloaded (optional)"
-fi
-
 echo ""
 echo "=== Test 2: Docker Compose Configuration ==="
 cd "$CONFIG_DIR"
-if docker compose config --services > /dev/null 2>&1; then
+if docker compose --profile targets --profile playground config --services > /dev/null 2>&1; then
     echo -e "${GREEN}✓${NC} docker compose.yml is valid"
-    echo "  Services: $(docker compose config --services | tr '\n' ', ' | sed 's/,$//')"
+    echo "  Services: $(docker compose --profile targets --profile playground config --services | tr '\n' ', ' | sed 's/,$//')"
 else
     echo -e "${RED}✗${NC} docker compose.yml has errors"
     exit 1
@@ -59,9 +53,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}Building dev image (service: openhack)...${NC}"
     docker compose build openhack
     echo -e "${GREEN}✓${NC} dev image built successfully"
-    echo ""
 fi
 
+echo ""
 echo "=== Test 4: Start Services ==="
 auto_read "Start all services (with targets)? (y/N) "
 if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -75,13 +69,14 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo ""
     echo "=== Service Status ==="
     docker compose ps
-    echo ""
 fi
 
+echo ""
 echo "=== Test 5: Container Tools ==="
 auto_read "Test container access and tools? (y/N) "
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     if docker compose ps openhack | grep -q "Up"; then
+        echo ""
         echo -e "${GREEN}✓${NC} dev container is running"
 
         if docker compose exec -T openhack bun --version > /dev/null 2>&1; then
@@ -104,19 +99,20 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         fi
 
         if docker compose exec -T openhack test -d /usr/share/wordlists/seclists; then
-            echo -e "${GREEN}✓${NC} SecLists wordlists mounted"
+            echo -e "${GREEN}✓${NC} SecLists wordlists available"
         else
-            echo -e "${YELLOW}⚠${NC} SecLists wordlists not mounted"
+            echo -e "${RED}✗${NC} SecLists wordlists NOT found (image may need rebuild)"
         fi
     else
         echo -e "${RED}✗${NC} dev container is NOT running"
     fi
-    echo ""
 fi
 
+echo ""
 echo "=== Test 6: Vulnerable Applications ==="
 auto_read "Test vulnerable application accessibility? (y/N) "
 if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo ""
     echo -e "${YELLOW}Testing vulnerable apps (this may take a moment)...${NC}"
     sleep 10
 
@@ -135,10 +131,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     check_port "bWAPP" 3335
     check_port "BadStore" 3336
     check_port "WebGoat" 3337
-
-    echo ""
 fi
 
+echo ""
 echo "=== Test Summary ==="
 echo ""
 echo "Ports:"

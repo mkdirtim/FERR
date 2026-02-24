@@ -50,7 +50,8 @@ x-playground-common: &playground-common
     # Persist Claude Code login across container recreations (used by PentestGPT).
     - playground-claude:/home/playground/.claude
   networks:
-    - network
+    - playground
+    - targets
 
 services:
   openhack:
@@ -73,6 +74,7 @@ services:
       - openhack-npm:/home/opencode/.npm
     networks:
       - network
+      - targets_app
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
@@ -116,7 +118,8 @@ services:
     volumes:
       - gvm-data:/data
     networks:
-      - network
+      - playground
+      - targets
     healthcheck:
       test: ["CMD-SHELL", "curl -fsSk http://localhost:9392/ || exit 1"]
       interval: 30s
@@ -135,7 +138,8 @@ services:
     environment:
       - NODE_ENV=unsafe
     networks:
-      - network
+      - targets_app
+      - targets
     healthcheck:
       test: ["CMD", "/nodejs/bin/node", "-e", "require('http').get('http://localhost:3000/', (res) => { process.exit(res.statusCode < 400 ? 0 : 1); }).on('error', () => process.exit(1));"]
       interval: 30s
@@ -154,7 +158,8 @@ services:
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
     networks:
-      - network
+      - targets_app
+      - targets
     healthcheck:
       test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost/login.php') !== false ? 0 : 1);"]
       interval: 30s
@@ -171,7 +176,8 @@ services:
     ports:
       - "127.0.0.1:3335:80"
     networks:
-      - network
+      - targets_app
+      - targets
     healthcheck:
       test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost/login.php') !== false ? 0 : 1);"]
       interval: 30s
@@ -187,7 +193,8 @@ services:
     ports:
       - "127.0.0.1:3336:80"
     networks:
-      - network
+      - targets_app
+      - targets
     healthcheck:
       test: ["CMD-SHELL", "test -s /var/run/apache2/apache2.pid"]
       interval: 30s
@@ -207,7 +214,8 @@ services:
     environment:
       - TZ=UTC
     networks:
-      - network
+      - targets_app
+      - targets
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/WebGoat/actuator/health"]
       interval: 30s
@@ -223,6 +231,27 @@ networks:
       config:
         - subnet: 192.168.78.0/24
           gateway: 192.168.78.1
+  targets:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.79.0/24
+          gateway: 192.168.79.1
+  targets_app:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.81.0/24
+          gateway: 192.168.81.1
+  playground:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.80.0/24
+          gateway: 192.168.80.1
 
 volumes:
   openhack-npm:

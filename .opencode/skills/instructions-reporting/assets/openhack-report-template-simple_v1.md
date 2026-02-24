@@ -1,0 +1,231 @@
+---
+title: "Web Application Penetration Test Report — v1.0"
+author: ["Performed by the OpenHack Security Agent\\newline Issued by {{PH_ASSESSOR_NAME}} ({{PH_DOCUMENT_CONTROL_ASSESSOR_EMAIL}})"]
+date: "{{PH_DATE}}"
+subject: "Security Assessment"
+keywords: [Security, Assessment, Pentest, OpenHack]
+subtitle: "Target System: {{PH_TARGET_NAME}}"
+lang: "en"
+titlepage: true
+titlepage-text-color: "333333"
+titlepage-rule-color: "4A7C59"
+titlepage-rule-height: 2
+book: true
+classoption: oneside
+code-block-font-size: \scriptsize
+colorlinks: true
+linkcolor: linkgreen
+toccolor: black
+urlcolor: linkgreen
+header-includes:
+  - \definecolor{linkgreen}{HTML}{3E6A3E}
+table-use-row-colors: true
+watermark: "DRAFT"
+titlepage-background: "src/images/openhack-report-background.pdf"
+geometry:
+  - top=15mm
+  - bottom=15mm
+  - includeheadfoot
+---
+**Scope**
+
+*{{PH_ASSESSOR}}* was engaged by *{{PH_CLIENT}}* to conduct {{PH_SCOPE_ASSESSMENT_TYPE}} IT security investigation. The subject of the investigation was the "{{PH_TARGET_NAME}}".
+
+The test was performed using {{PH_SCOPE_TEST_ENVIRONMENT}}.
+
+**Objective**
+
+The objective of the IT security investigation was to identify vulnerabilities and security gaps which, in the event of misuse, would have an impact on the availability, integrity and confidentiality of the defined applications and/or systems and the data processed on them. The result of this project is a report that contains a management summary of all relevant findings and a compilation of recommended measures.
+
+The technical IT security audit is not a substantive audit effort to ensure that all vulnerabilities and security gaps existing at the time of the audit are identified. There is a possibility that established safeguards will effectively prevent identification and exploitation of vulnerabilities and security gaps. The client acknowledges that this is not an indicator of deficiencies in engagement performance and that additional unidentified vulnerabilities and security gaps may exist.
+
+\vspace{4em}
+\footnotesize
+\begin{itshape}
+\textbf{Disclaimer}
+
+*{{PH_ASSESSOR}}* conducted the security penetration test on behalf of *{{PH_CLIENT}}*. This report has been prepared exclusively for *{{PH_CLIENT}}*. It is intended exclusively for internal use and is accordingly not designed to serve third parties as a basis for their decisions, unless agreed otherwise in writing. Third parties may not derive any rights or otherwise benefit from this engagement unless agreed otherwise in writing. Affiliated companies of the client are also considered "third parties" within the meaning of this engagement.
+
+*{{PH_ASSESSOR}}* does not assume any liability or legal claims against third parties unless agreed otherwise in writing or a disclaimer cannot effectively be implemented.
+
+It is the sole responsibility of anyone who becomes aware of the work results summarized in this report to decide to what extent and in what way the information is useful or appropriate and to supplement, check or update it as part of their own review.
+
+No adjustments will be made to the report to reflect events or circumstances that occur after the report is issued, unless required by law.
+
+The recommendations in this report are general and applicable in many different environments but could have unpredictable effects in specific environments. Therefore, any actions derived from the recommendations should be carefully considered and implemented through the regular change process. This should include appropriate testing of the changes on a test environment prior to going live. If the changes are not tested in advance in an identically configured test environment, failures or other damage cannot be ruled out.
+
+Please note: Technical descriptions (or parts thereof) in this report may be taken from the OWASP Testing Guide (www.owasp.org).
+
+\end{itshape}
+\normalsize
+
+\newpage
+
+# Document Control
+
+\small
+
+**Document Status**
+
+|                         |                                              |
+| ----------------------- | -------------------------------------------- |
+| **Title**               | Security Assessment Report                   |
+| **Document Owner**      | {{PH_ASSESSOR}}                                 |
+| **Classification**      | Strictly Confidential                        |
+| **Project Timeframe**   | {{PH_DATE}}                                    |
+
+**Version History**
+
+| Version | Date       | State          | Author       | Comments |
+| ------- | ---------- | -------------- | ------------ | -------- |
+| **0.1** | {{PH_DATE}} | Draft          | {{PH_ASSESSOR_NAME}} | --       |
+|         |             |       |                      |          |
+
+**Contact Persons - Assessor**
+
+| Name            | Role                      | Phone           | Email                  |
+| --------------- | ------------------------- | --------------- | ---------------------- |
+{{TODO_DOCUMENT_CONTROL_CONTACTS_ASSESSOR: One row per assessor using format "| Name | Role | Phone | Email |"}}
+
+**Contact Persons - Client**
+
+| Name            | Role                      | Phone           | Email                  |
+| --------------- | ------------------------- | --------------- | ---------------------- |
+{{TODO_DOCUMENT_CONTROL_CONTACTS_CLIENT: One row per client contact using format "| Name | Role | Phone | Email |"}}
+
+\normalsize
+
+# Executive Summary
+
+*{{PH_ASSESSOR}}* (hereinafter referred to as "ASSESSOR") has been commissioned by *{{PH_CLIENT}}* (hereinafter referred to as "CLIENT") to carry out a penetration test.
+
+The penetration test of the *{{PH_TARGET_NAME}}* application took place on **{{PH_DATE}}**.
+
+For this purpose, the web application, accessible at *{{PH_TARGET_URL}}*, was tested from the perspective of an external attacker. {{TODO_EXECUTIVE_SUMMARY_INFORMATION_BASE: Describe the information base (black-box, white-box, grey-box) and any access provided.}}
+
+{{TODO_EXECUTIVE_SUMMARY_TEXT: State total vulnerability count and summarize severity distribution, e.g. "As part of the test, a total of 6 vulnerabilities were identified: 2 critical, 2 high, and 2 medium."}}
+
+{{TODO_EXECUTIVE_SUMMARY_SEVERITY_COUNTS: Replace each X with the actual count per severity level.}}
+
+{{TODO_EXECUTIVE_SUMMARY_SEVERITY_TABLE: Render full severity table rows from live finding counts.}}
+
+A description of the scope and test environment can be found in Chapter 3. Chapter 4 presents the risk assessment methodology. Chapter 5 provides a summary of findings. Chapter 6 contains the detailed technical descriptions of the findings including remediation measures.
+
+It is recommended that the remediation of the critical risk vulnerabilities be treated with the highest priority and countermeasures implemented as soon as possible. The vulnerabilities with high and medium risk should also be remedied in the short term. The low-risk vulnerabilities should be treated with lower priority due to their reduced risk, but should still be addressed.
+
+# Execution of the Security Penetration Test
+
+## Subject Under Test
+
+{{TODO_EXECUTION_SUBJECT_DESCRIPTION: Provide a brief description of the application or system under test, including its purpose and core functionality.}}
+
+## Scope
+
+The scope for the assessment was the following targets:
+
+{{TODO_EXECUTION_SCOPE_TARGETS: List targets as "- ip:port - Service name", one per line.}}
+
+## Methodology
+
+The security penetration test of the {{PH_TARGET_NAME}} took place on {{PH_DATE}}.
+
+{{TODO_EXECUTION_METHODOLOGY_DETAILS: Describe how the test was conducted, e.g. proxy server, WAF whitelisting, network conditions, and user accounts provided.}}
+
+The web application was tested for security vulnerabilities across the following categories. This can be considered a guideline as penetration tests are a creative process and therefore the tests are not limited to what is given here. The base of these categories is the OWASP Top 10 for Web, which is fully covered by this penetration test approach.
+
+| **Category**                          | **OWASP Top 10 Mapping**                                     | **Description**                                              |
+| ------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Broken Access Control                 | A01: Broken Access Control                                   | Users can act outside their permissions, leading to unauthorized viewing, modification, or deletion of data. |
+| Security Misconfiguration             | A05: Security Misconfiguration                               | Systems or cloud services are insecurely configured, e.g., through default passwords or unnecessarily enabled features. |
+| Software Supply Chain Failures        | A06: Vulnerable & Outdated Components / A08: Software & Data Integrity Failures | Vulnerabilities arise from compromised third-party code, libraries, or build pipelines. |
+| Cryptographic Failures                | A02: Cryptographic Failures                                  | Sensitive data is exposed through missing, weak, or incorrectly implemented encryption. |
+| Injection                             | A03: Injection                                               | Attackers inject malicious commands (e.g., SQL or shell code) through input fields that the system erroneously executes. |
+| Insecure Design                       | A04: Insecure Design                                         | Fundamental architectural flaws that exist before implementation make an application inherently insecure. |
+| Authentication Failures               | A07: Identification & Authentication Failures                | Flaws in identity verification allow attackers to take over sessions or guess passwords (brute force). |
+| Software or Data Integrity Failures   | A08: Software & Data Integrity Failures                      | Lack of verification of code or data sources leads to acceptance of untrusted updates or serialization data. |
+| Security Logging & Alerting Failures  | A09: Security Logging & Monitoring Failures                  | Attacks go undetected or responses are delayed due to missing logs or absent alert notifications. |
+| Mishandling of Exceptional Conditions | No direct OWASP Top 10 category (CWE-703)                    | Programs respond inadequately to unforeseen situations, which can lead to crashes or logic errors. |
+
+## Events
+
+During the test, the following restrictions or events occurred that may have affected the scope or depth of the assessment: {{TODO_EXECUTION_EVENTS: N/A or describe any restrictions, outages, or scope changes.}}
+
+\newpage
+
+# Risk Assessment
+
+## CVSS
+
+The risk assessment of the vulnerabilities found is performed using the industry standard Common Vulnerability Scoring System v3.1 (hereinafter referred to as "CVSS"). This is a standard that can be used to uniformly assess the vulnerability of computer systems and the severity of security vulnerabilities. This makes it possible to compare vulnerabilities more effectively.
+
+The Common Vulnerability Scoring System has a metric structure and is based on values that are divided into three groups: "Base", "Temporal", and "Environmental". To determine the vulnerability scores, each group has its own rules. The values of the Base group are invariant in time and remain the same in different environments. In the Temporal group, the time dependency of a vulnerability is taken into account. For example, the vulnerability of a system to a particular vulnerability decreases over time as more and more countermeasures such as patches become known and available. The Environmental group incorporates various criteria of the specific IT environments into the vulnerability rating.
+
+The CVSS ratings are numerical values on a scale of 0.0 to 10.0, with the highest vulnerability of a system occurring at a value of 10.0. Our rating is based on the Base Metrics (Base Score) and is composed of:
+
+- Attack Vector (AV)
+- Attack Complexity (AC)
+- Privileges Required (PR)
+- User Interaction (UI)
+- Scope (S)
+- Confidentiality (C)
+- Integrity (I)
+- Availability (A)
+
+As penetration testers, we can only assess the general threats posed by a vulnerability through Base Metrics. However, we have no insight into the internal structures of our clients. Therefore, the assessment of the specific risks for the client's systems and business processes must be done by the client. For this purpose, CVSS offers Environmental Metrics. This makes it possible to subsequently adjust the CVSS score of vulnerabilities after the test result has been submitted before they are remedied. This changes the assessment of the risk and thus the urgency of remediation of a vulnerability. For more information, see [CVSS v3.1 Specification](https://www.first.org/cvss/v3.1/specification-document).
+
+## Risk Categories
+
+The risk categories used in this report reflect the recommended priority for addressing the vulnerabilities identified during the penetration test. The categorization is based on the probability of exploitation and the significance of the impact. The risk value is calculated using the CVSS v3.1 standard:
+
+| **Assessment**  | **Risk Category Description**                                |
+| --------------- | ------------------------------------------------------------ |
+| \textcolor[HTML]{7B2D8E}{\textbf{Critical}} | Critical vulnerabilities that allow an attacker to gain full access to the object under test and its sensitive information. It is possible to cause enormous damage to the client's reputation. Furthermore, these vulnerabilities may allow attackers to gain wide-ranging privileges, including to other systems or applications of the client that have not been investigated in detail within the scope of this project. Exploitation of the vulnerabilities is not prevented and can be reproduced with medium to low effort. |
+| \textcolor[HTML]{CC0000}{\textbf{High}} | Vulnerabilities that may allow an attacker to manipulate sensitive data, damage the client's reputation, gain unauthorized access to sensitive information, or gain unauthorized access to applications or the client's infrastructure. The vulnerabilities are reproducible with medium to high effort. |
+| \textcolor[HTML]{E67E22}{\textbf{Medium}} | Vulnerabilities that may allow an attacker to harm the client's reputation or gain unauthorized access to client data. The privileges that an attacker can gain by exploiting the vulnerabilities are limited. |
+| \textcolor[HTML]{D4AC0D}{\textbf{Low}} | Security vulnerabilities that do not pose a threat in themselves, but which, for example, provide attackers with useful information about the network and systems. These vulnerabilities allow an attacker only very limited access. |
+| \textcolor[HTML]{2E86C1}{\textbf{Informational}} | Anomalies such as functional limitations or inconsistencies. These do not currently represent a risk and have no negative impact on the test object. Accordingly, no action is required. Nevertheless, countermeasures can be helpful for the functional and safety improvement of the test object. If necessary, this may give rise to risks under other circumstances. |
+
+## Vulnerability States
+
+The vulnerabilities can be in one of the following states:
+
+- **Active**: The vulnerability has been identified and it has been possible to verify its existence through exploitation or direct evidence.
+- **Potential**: The vulnerability has been identified but its exploitation has not been possible, so its existence cannot be fully verified, and it is up to the client to determine the impact.
+- **Fixed**: The vulnerability has been remediated and verified through retesting.
+
+\newpage
+
+# Summary of Findings
+
+| **Id**   | **Finding Name**       | **Risk Assessment** | **CVSS v3.1 Score** |
+| -------- | ---------------------- | --------------- | ------------- |
+{{TODO_SUMMARY_OF_FINDINGS: Replace with one row per finding using format "| ID | Finding Name | \textcolor[HTML]{COLOR}{Severity} | Score |"}}
+
+\newpage
+
+# Findings and Remediation
+
+## Finding
+
+### {{TODO_FINDING_NAME: Name of the vulnerability.}}
+
+|                      |                                                              |
+| -------------------- | ------------------------------------------------------------ |
+| **Severity**      | {{TODO_FINDING_SEVERITY: Use \textcolor[HTML]{COLOR}{\textbf{Level}} with Critical=#7B2D8E, High=#CC0000, Medium=#E67E22, Low=#D4AC0D, Informational=#2E86C1.}} |
+| **CVSS Base Score**  | {{TODO_FINDING_CVSS: Use format "**Score** ([CVSS:3.1/AV:../AC:../PR:../UI:../S:../C:../I:../A:..](https://www.first.org/cvss/calculator/3.1#CVSS:3.1/...))".}} |
+| **Assets**           | {{TODO_FINDING_ASSETS: Target IP or hostname.}}                      |
+| **Status**           | {{TODO_FINDING_STATUS: Active, Potential, or Fixed.}}                |
+
+**Description**
+
+{{TODO_FINDING_DESCRIPTION: Describe the vulnerability, what it is, and why it exists. Include the potential impact.}}
+
+**Proof of Concept**
+
+{{TODO_FINDING_PROOF_OF_CONCEPT: Provide detailed steps, commands, and screenshots to reproduce the vulnerability.}}
+
+**Remediation**
+
+{{TODO_FINDING_REMEDIATION: Provide specific remediation steps as a bullet list, including relevant OWASP or vendor references.}}
+
+\newpage

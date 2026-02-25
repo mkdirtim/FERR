@@ -2,6 +2,12 @@
 
 This file defines how guardrails work in this repo, what is advisory vs enforced, and when each layer applies.
 
+## Verification Status
+
+- Last verified: **2026-02-25**
+- Runtime enforcement source: `.opencode/lib/pentest-db.ts`
+- Permission enforcement source: `packages/opencode/src/permission/next.ts`
+
 ## Enforcement Levels
 
 | Level | Type | Enforced by | Behavior on violation |
@@ -17,7 +23,7 @@ This file defines how guardrails work in this repo, what is advisory vs enforced
 ## Where Each Guardrail Applies
 
 ### 1) Prompt guardrails (L0)
-- Files: `.opencode/agents/root.md`, `.opencode/agents/analysis.md`, `.opencode/agents/recon.md`, `.opencode/agents/exploitation.md`, `.opencode/agents/reporting.md`
+- Files: `.opencode/agents/orchestration.md`, `.opencode/agents/onboarding.md`, `.opencode/agents/exploitation.md`, `.opencode/agents/validation.md`, `.opencode/agents/reporting.md`
 - Used for:
   - workflow sequencing (onboarding first, reporting does acceptance/build)
   - payload conventions (for example `assets` vs `assets_json`)
@@ -30,6 +36,7 @@ This file defines how guardrails work in this repo, what is advisory vs enforced
   - top-level arg shape (for example `run_id`, `payload_json`, `proposal_id`)
 - Limitation:
   - `pentest_add_proposal` accepts `payload_json` as a string; nested JSON fields are validated later at runtime (L2), not here.
+  - `question` tool currently omits `custom` from its exposed LLM schema (`Question.Info.omit({ custom: true })`), so prompts can request `custom=false` but cannot reliably enforce it via tool args today.
 
 ### 3) Runtime/domain validation (L2)
 - File: `.opencode/lib/pentest-db.ts`
@@ -47,9 +54,9 @@ This file defines how guardrails work in this repo, what is advisory vs enforced
 ### 4) Readiness/build gates (L3)
 - File: `.opencode/lib/pentest-db.ts`
 - `checkReadiness()`:
-  - emits warnings (for example unvalidated findings)
+  - emits warnings (for example CVSS compute failure markers and duplicate proposal fingerprints)
   - emits blockers (for example pending proposals)
-  - in production safety mode, enforces stronger blockers (missing CVSS, empty assets_json, missing validated artifacts, etc.)
+  - in production safety mode, enforces stronger blockers (missing required run fields, default placeholders, empty narrative fields, draft findings, missing CVSS where required, empty assets)
 - `buildReport()`:
   - always calls `checkReadiness()`
   - fails when `ready=false`

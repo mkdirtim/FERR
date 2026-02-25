@@ -1,5 +1,10 @@
 # Onboarding
 
+## Verification Status
+- Last verified: **2026-02-25**
+- Prompt contract source: `.opencode/agents/onboarding.md`
+- Tool limitation source: `packages/opencode/src/tool/question.ts`
+
 ## Goal
 Establish assessment readiness before technical testing starts.
 
@@ -28,11 +33,14 @@ After intake mode is selected, ask scan mode via the question tool:
 - `Quick` - Fast, high-impact checks for rapid triage.
 - `Standard` - Balanced coverage and validation depth.
 - `Deep` - Comprehensive testing with extended chaining.
-- `No preset` - Run without a scan-mode preset; use manual strategy.
+- `None` - Run without a scan-mode preset; use manual strategy.
 
 Question payload constraints:
 - `multiple=false`
-- `custom=false`
+- `custom=false` (desired)
+
+Current limitation:
+- `question` tool currently omits `custom` from its LLM-facing schema, so `custom=false` cannot be reliably enforced in tool args yet.
 
 Requirement:
 - This must be a real `question` tool call, not a plain text prompt that asks for `A/B` input.
@@ -60,7 +68,7 @@ For all modes:
 6. Produce kickoff task breakdown for orchestration -> exploitation -> validation -> reporting
 
 ## Outputs
-- Intake mode selected (`manual`, `juiceshop-defaults`, or `badstore-defaults`)
+- Intake mode selected (`custom`, `juiceshop`, or `badstore`) and DB engagement mode selected (`manual`, `juiceshop-defaults`, or `badstore-defaults`)
 - Scan mode selected (`none`, `quick`, `standard`, or `deep`)
 - Engagement metadata values used
 - Scope checklist (confirmed vs pending)

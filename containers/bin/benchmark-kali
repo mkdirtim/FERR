@@ -8,7 +8,7 @@
 # Usage:
 #   benchmark-kali                      # scan all targets
 #   benchmark-kali juiceshop            # scan one target
-#   benchmark-kali dvwa webgoat         # scan specific targets
+#   benchmark-kali dvwa webgoat         # scan specific auxiliary targets (if network-attached)
 #   benchmark-kali --gvm                # include GVM/OpenVAS scans
 #   benchmark-kali --gvm juiceshop      # GVM scan on one target
 #
@@ -38,7 +38,7 @@ declare -A TARGET_MAP=(
     [badstore]="badstore:80"
     [webgoat]="webgoat:8080"
 )
-ALL_TARGETS=(juiceshop dvwa bwapp badstore webgoat)
+ALL_TARGETS=(juiceshop badstore)
 
 NMAP_SCRIPTS="default,vuln,http-title,http-headers,http-methods,http-robots.txt,http-enum,http-server-header"
 
@@ -47,7 +47,7 @@ TARGETS=()
 for arg in "$@"; do
     if [ "$arg" = "--gvm" ]; then
         RUN_GVM=true
-    elif [[ -v "TARGET_MAP[$arg]" ]]; then
+    elif [[ -v TARGET_MAP[$arg] ]]; then
         TARGETS+=("$arg")
     else
         echo "[-] Unknown target: ${arg}"

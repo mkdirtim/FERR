@@ -1,10 +1,10 @@
 # TODO
 
 Consolidated from:
-- `.opencode/agents/TODO`
-- `.opencode/skills/agent-report/TODO`
+- `.opencode/agents/TODO` (legacy)
+- `.opencode/skills/agent-report/TODO` (legacy; reporting assets now live under `.opencode/skills/instructions-reporting/`)
 
-Current active subagents: `recon`, `analysis`, `exploitation`, `reporting`.
+Current active subagents: `orchestration`, `onboarding`, `exploitation`, `validation`, `reporting`.
 
 ## Active TODOs (prioritized and grouped)
 
@@ -28,19 +28,14 @@ Legend: `[ ]` open, `[x]` resolved, `(partial)` progress exists but remaining wo
 
 ### Prompt contracts and docs alignment
 
-- [ ] [P0] [ONBOARD-01] Fix custom/manual onboarding interaction flow: after `Manual setup`, the onboarding agent must ask the user for missing onboarding fields (for example assessor/client/contact/scope metadata) instead of auto-filling or silently continuing with placeholders; keep unresolved values in `missing_fields` when user input is not provided.
-- [ ] [P1] [CONTRACT-01] (partial) Add canonical `pentest_add_proposal` payload templates to recon/exploitation/JWT task prompts (required fields, CVSS v4 format, and `assets` as array of strings) to reduce retry/error loops.
-- [ ] [P1] [CONTRACT-02] Standardize subagent output IDs: require `proposal_ids[]` in proposal-producing agents, and only emit `finding_id` after explicit accept step to avoid proposal/finding ID confusion.
-- [ ] [P1] [CONTRACT-03] Add prompt-contract test for delegation timeliness: after onboarding, root must delegate to the requested specialist tasks within a bounded number of steps (no repeated skill-loading loops).
-- [ ] [P1] [CONTRACT-04] Condense output sections in `.opencode/agents/recon.md`, `.opencode/agents/analysis.md`, and `.opencode/agents/exploitation.md` to reference the standard root contract and keep only agent-specific outputs.
-- [ ] [P1] [DOC-01] Trim `data/features/onboarding.md` to onboarding-owned responsibilities only (workflow steps 1-2, scoped outputs/done criteria) and remove duplicated payload/path implementation details.
-- [ ] [P1] [DOC-02] Trim `data/features/reporting.md` to workflow spec only and remove embedded skill-layout reference section; update goal sentence accordingly.
+- [ ] [P1] [CONTRACT-01] (partial) Add canonical `pentest_add_proposal` payload templates to exploitation/JWT task prompts (required fields, CVSS 3.1 format, and `assets` as array of strings) to reduce retry/error loops.
+- [ ] [P1] [CONTRACT-04] Condense output sections in `.opencode/agents/exploitation.md`, `.opencode/agents/validation.md`, and `.opencode/agents/reporting.md` to reference the standard orchestration contract and keep only agent-specific outputs.
+- [ ] [P1] [DOC-02] Trim `data/docs/features/reporting.md` to workflow spec only and remove embedded skill-layout reference section; update goal sentence accordingly.
 
 ### Permissions and delegation policy
 
-- [ ] [P1] [PERM-01] Define explicit tool allow/deny policy for root and subagents, including wildcard tool rules.
 - [ ] [P1] [PERM-02] Define `permission.task` delegation rules for root/orchestrator with ordered allow/ask exceptions and default deny.
-- [ ] [P2] [PERM-03] Decide policy for explicit permission denies in agent files; if default-deny remains authoritative and no wildcard exceptions require explicit blocks, remove redundant deny lines from `.opencode/agents/onboarding.md`, `.opencode/agents/reporting.md`, `.opencode/agents/recon.md`, `.opencode/agents/analysis.md`, and `.opencode/agents/exploitation.md`.
+- [ ] [P2] [PERM-03] Decide policy for explicit permission denies in agent files; if default-deny remains authoritative and no wildcard exceptions require explicit blocks, remove redundant deny lines from `.opencode/agents/orchestration.md`, `.opencode/agents/onboarding.md`, `.opencode/agents/exploitation.md`, `.opencode/agents/validation.md`, and `.opencode/agents/reporting.md`.
 
 ### Optional agent architecture and tuning
 
@@ -48,7 +43,6 @@ Legend: `[ ]` open, `[x]` resolved, `(partial)` progress exists but remaining wo
 - [ ] [P2] [ARCH-04] Set and document `top_p` defaults for root and subagents.
 - [ ] [P2] [ARCH-05] Set and document `steps` (max-steps) defaults for root and subagents.
 - [ ] [P2] [ARCH-06] Evaluate and document provider-specific model options per agent (for example `reasoningEffort`, `textVerbosity`).
-- [ ] [P2] [ARCH-07] Review and document `mode` per agent (`primary`, `subagent`, `all`).
 - [ ] [P2] [ARCH-08] Decide per-agent `hidden: true` usage (Task-only/internal) vs visible in `@` autocomplete.
 - [ ] [P2] [ARCH-09] Assign `color` for root and each subagent for clearer UI differentiation.
 
@@ -168,27 +162,33 @@ Branch naming rule: use `feature-<descriptive-scope>` and keep each branch scope
 
 ### Agent-related
 
-- [x] [P0] Update `.opencode/agents/root.md` to retry once on `task` abort/empty `<task_result>`, then mark a coverage gap.
-- [x] [P0] Add required subagent output contract in root prompt: `status`, `proposals_submitted`, `errors`, `coverage`.
-- [x] [P0] Update root prompt so reporting resolves all proposals explicitly, not only top findings.
+- [x] [P0] Update `.opencode/agents/orchestration.md` to retry once on `task` abort/empty `<task_result>`, then mark a coverage gap.
+- [x] [P0] Add required subagent output contract in orchestration prompt: `status`, `proposals_submitted`, `errors`, `coverage`.
+- [x] [P0] Update orchestration prompt so reporting resolves all proposals explicitly, not only top findings.
 - [x] [P0] Update `.opencode/agents/onboarding.md` output contract with mandatory `question_asked=true` and `selected_mode`.
-- [x] [P0] Update root prompt with onboarding soft-retry if question evidence is missing.
-- [x] [P1] Add prompt-contract test for root retry/gap behavior in `packages/opencode/test/pentest/pentest-agent-prompts.test.ts`.
+- [x] [P0] [ONBOARD-01] Fix custom/manual onboarding interaction flow: after `Manual setup`, onboarding collects missing onboarding values and keeps unresolved values in `missing_fields`.
+- [x] [P0] Update orchestration prompt with onboarding soft-retry if question evidence is missing.
+- [x] [P1] Add prompt-contract test for orchestration retry/gap behavior in `packages/opencode/test/pentest/pentest-agent-prompts.test.ts`.
 - [x] [P0] Update `.opencode/agents/reporting.md`: require `proposed=0` before build; otherwise return blockers only.
 - [x] [P1] Update `.opencode/agents/reporting.md` narrative rule to verification-only: use readiness blocker feedback and return blockers to root instead of direct narrative writes.
 - [x] [P1] Clarify exploitation wording in `.opencode/agents/exploitation.md` to avoid proposal lifecycle ambiguity.
-- [x] [P1] Update `.opencode/skills/agent-report/SKILL.md` quality-gate wording so pending proposals block build in all safety modes.
+- [x] [P1] [CONTRACT-02] Standardize proposal-stage output IDs: proposal-producing agents return `proposal_ids[]`, and proposal-stage flows avoid `finding_id` usage.
+- [x] [P1] [CONTRACT-03] Add prompt-contract test for delegation timeliness and bounded retries after onboarding in `packages/opencode/test/pentest/pentest-agent-prompts.test.ts`.
+- [x] [P1] [PERM-01] Define explicit tool allow/deny policy for orchestrator and subagents, including wildcard skill rules.
+- [x] [P2] [ARCH-07] Review and document `mode` per agent (`subagent`/`all`) across active agent manifests.
+- [x] [P1] Update `.opencode/skills/instructions-reporting/SKILL.md` quality-gate wording so pending proposals block build in all safety modes.
 - [x] [P1] Update reporting prompt to merge overlapping findings (same root cause/endpoint scope).
 - [x] [P1] Update reporting prompt to fill narrative fields before build: `summary_text`, `subject_description`, `scope_targets_markdown`, `methodology_details`, `events`.
-- [x] [P0] Enforce onboarding-first root behavior as hard gate before valid `run_id` and add prompt-contract coverage.
-- [x] [P0] Enforce root safeguard to avoid run-scoped DB calls before valid `run_id` and add prompt-contract coverage.
-- [x] [P0] Enforce reporting-only build path from root (no direct script/skill build execution) and add prompt-contract coverage.
-- [x] [P0] Enforce finalize verification contract (`pentest_finalize_run` + `pentest_get_report_paths` with finalized status) in root/reporting prompts.
-- [x] [P1] Add prompt-contract test that root cannot take direct report-build actions (no direct reporting skill/script execution; must delegate to reporting task flow).
-- [x] [P1] [CONTRACT-05] Remove redundant root prompt content in `.opencode/agents/root.md` (duplicate intake option list, duplicate completion rule) and condense scope decomposition to one concise instruction line.
+- [x] [P0] Enforce onboarding-first orchestration behavior as hard gate before valid `run_id` and add prompt-contract coverage.
+- [x] [P0] Enforce orchestration safeguard to avoid run-scoped DB calls before valid `run_id` and add prompt-contract coverage.
+- [x] [P0] Enforce reporting-only build path from orchestration (no direct script/skill build execution) and add prompt-contract coverage.
+- [x] [P0] Enforce finalize verification contract (`pentest_finalize_run` + `pentest_get_report_paths` with finalized status) in orchestration/reporting prompts.
+- [x] [P1] Add prompt-contract test that orchestration cannot take direct report-build actions (no direct reporting skill/script execution; must delegate to reporting task flow).
+- [x] [P1] [CONTRACT-05] Remove redundant orchestration prompt content in `.opencode/agents/orchestration.md` (duplicate intake option list, duplicate completion rule) and condense scope decomposition to one concise instruction line.
 
 ### Documentation and visualization
 
+- [x] [P1] [DOC-01] Trim `data/docs/features/onboarding.md` to onboarding-owned responsibilities only (workflow steps 1-2, scoped outputs/done criteria) and remove duplicated payload/path implementation details.
 - [x] [P1] [DOC-03] Fix stale docs references to pruned files in project docs (for example prune lists that still mention only `README*.md` while `CONTRIBUTING.md`, `SECURITY.md`, and `STATS.md` are also pruned).
 - [x] [P2] [DOC-04] Add a Mermaid system-context diagram to `project.md` showing OpenCode runtime, OpenHack layer, and `data/pentest` runtime state boundaries.
 - [x] [P2] [DOC-05] Add OpenCode package/runtime topology diagrams to `project-opencode.md` (package dependency view and runtime component flow).
@@ -196,7 +196,7 @@ Branch naming rule: use `feature-<descriptive-scope>` and keep each branch scope
 - [x] [P2] [DOC-07] Add a short "Use this doc if..." routing box to `project.md` for faster navigation between `project-opencode.md` and `project-openhack.md`.
 - [x] [P2] [DOC-08] Add a "where to change what" impact matrix to `project-opencode.md` (feature/change type -> directories/files).
 - [x] [P2] [DOC-09] Add a trust/sensitivity boundary diagram to `project-openhack.md` for `data/pentest/**` evidence/report artifacts.
-- [x] [P1] [DOC-10] Verify CVSS references in `.opencode/skills/agent-report/tests/openhack-juice-shop-test.md` and `openhack-report-template_v1.md` remain CVSS 3.1; no content changes required.
+- [x] [P1] [DOC-10] Verify CVSS references in `.opencode/skills/instructions-reporting/assets/tests/openhack-juice-shop-test.md` and `openhack-report-template_v1.md` remain CVSS 3.1; no content changes required.
 
 ### Tooling maintenance
 
@@ -206,10 +206,15 @@ Branch naming rule: use `feature-<descriptive-scope>` and keep each branch scope
 
 This section is the canonical changelog for this repository backlog workflow. Keep newest entries first.
 
+### 2026-02-25
+
+- Moved resolved active IDs to completed tracking: `ONBOARD-01`, `CONTRACT-02`, `CONTRACT-03`, `DOC-01`, `PERM-01`, and `ARCH-07`.
+- Refreshed stale references to current paths/names (`orchestration` agent, `validation` agent, `data/docs/features/*`, and `instructions-reporting` skill assets).
+
 ### 2026-02-23
 
-- Completed `CONTRACT-05`: trimmed redundant root prompt intake/completion text and condensed scope decomposition in `.opencode/agents/root.md`.
-- Completed `DOC-03` through `DOC-09` across `project.md`, `project-opencode.md`, and `project-openhack.md` (stale reference cleanup, routing box, topology/workflow diagrams, trust boundary diagram, and impact matrix), and completed `DOC-10` as verification-only because CVSS references were already 3.1 in `.opencode/skills/agent-report/tests/openhack-juice-shop-test.md` and `openhack-report-template_v1.md`.
+- Completed `CONTRACT-05`: trimmed redundant orchestration prompt intake/completion text and condensed scope decomposition in `.opencode/agents/orchestration.md`.
+- Completed `DOC-03` through `DOC-09` across `project.md`, `project-opencode.md`, and `project-openhack.md` (stale reference cleanup, routing box, topology/workflow diagrams, trust boundary diagram, and impact matrix), and completed `DOC-10` as verification-only because CVSS references were already 3.1 in `.opencode/skills/instructions-reporting/assets/tests/openhack-juice-shop-test.md` and `openhack-report-template_v1.md`.
 
 ### 2026-02-22
 

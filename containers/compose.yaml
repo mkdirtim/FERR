@@ -3,9 +3,9 @@
 # Usage:
 #   Dev only:              docker compose up -d
 #   With targets:          docker compose --profile targets up -d
-#   With playground:       docker compose --profile playground up -d playground
+#   With playground:       docker compose --profile playground up -d baseline_agents_host
 #   Everything:            docker compose --profile targets --profile playground up -d
-#   Enter dev container:   docker compose exec openhack bash
+#   Enter dev container:   docker compose exec ferr_openhack_agent bash
 #   Stop all:              docker compose --profile targets --profile playground down
 
 name: ferr
@@ -51,16 +51,16 @@ x-playground-common: &playground-common
     - playground-claude:/home/playground/.claude
   networks:
     - playground
-    - targets
+    - baseline_attack_net
 
 services:
-  openhack:
+  ferr_openhack_agent:
     image: openhack:latest
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: openhack
-    hostname: openhack
+    container_name: ferr_openhack_agent
+    hostname: ferr_openhack_agent
     stdin_open: true
     tty: true
     init: true
@@ -73,8 +73,12 @@ services:
       # Persist npx/npm downloads across container recreations (MCP servers use npx).
       - openhack-npm:/home/opencode/.npm
     networks:
-      - network
-      - targets_app
+      internal_net:
+        aliases: ["openhack"]
+      experiment_attack_net:
+        aliases: ["openhack"]
+      auxiliary_attack_net:
+        aliases: ["openhack"]
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
@@ -88,27 +92,33 @@ services:
       start_period: 15s
     command: /bin/bash
 
-  playground:
+  baseline_agents_host:
     profiles: ["playground"]
     <<: *playground-common
     build:
       context: .
       dockerfile: Dockerfile.playground
-    container_name: playground-kali
-    hostname: kali
+    container_name: baseline_agents_host
+    hostname: baseline_agents_host
     healthcheck:
       test: ["CMD-SHELL", "python3 --version >/dev/null && which uv >/dev/null && which poetry >/dev/null && which nmap >/dev/null"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 15s
+    networks:
+      playground: {}
+      baseline_attack_net:
+        aliases: ["agenthost"]
+      auxiliary_attack_net:
+        aliases: ["agenthost"]
     command: /bin/bash
 
-  gvm:
+  baseline_vulnerability_scanner:
     profiles: ["playground"]
     image: immauss/openvas:latest
-    container_name: playground-gvm
-    hostname: gvm
+    container_name: baseline_vulnerability_scanner
+    hostname: baseline_vulnerability_scanner
     restart: unless-stopped
     environment:
       - USERNAME=admin
@@ -118,8 +128,11 @@ services:
     volumes:
       - gvm-data:/data
     networks:
-      - playground
-      - targets
+      playground: {}
+      baseline_attack_net:
+        aliases: ["scanner"]
+      auxiliary_attack_net:
+        aliases: ["scanner"]
     healthcheck:
       test: ["CMD-SHELL", "curl -fsSk http://localhost:9392/ || exit 1"]
       interval: 30s
@@ -127,10 +140,10 @@ services:
       retries: 20
       start_period: 300s
 
-  juiceshop:
+  sut_juiceshop:
     profiles: ["targets"]
     image: bkimminich/juice-shop
-    container_name: targets-juiceshop
+    container_name: sut_juiceshop
     hostname: juiceshop
     restart: unless-stopped
     ports:
@@ -138,19 +151,21 @@ services:
     environment:
       - NODE_ENV=unsafe
     networks:
-      - targets_app
-      - targets
+      experiment_attack_net:
+        aliases: ["juiceshop"]
+      baseline_attack_net:
+        aliases: ["juiceshop"]
     healthcheck:
       test: ["CMD", "/nodejs/bin/node", "-e", "require('http').get('http://localhost:3000/', (res) => { process.exit(res.statusCode < 400 ? 0 : 1); }).on('error', () => process.exit(1));"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  dvwa:
+  aux_dvwa:
     profiles: ["targets"]
     image: vulnerables/web-dvwa
     platform: linux/amd64
-    container_name: targets-dvwa
+    container_name: aux_dvwa
     hostname: dvwa
     restart: unless-stopped
     ports:
@@ -158,43 +173,45 @@ services:
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
     networks:
-      - targets_app
-      - targets
+      auxiliary_attack_net:
+        aliases: ["dvwa"]
     healthcheck:
       test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost/login.php') !== false ? 0 : 1);"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  bwapp:
+  aux_bwapp:
     profiles: ["targets"]
     image: raesene/bwapp
     platform: linux/amd64
-    container_name: targets-bwapp
+    container_name: aux_bwapp
     hostname: bwapp
     restart: unless-stopped
     ports:
       - "127.0.0.1:3335:80"
     networks:
-      - targets_app
-      - targets
+      auxiliary_attack_net:
+        aliases: ["bwapp"]
     healthcheck:
       test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost/login.php') !== false ? 0 : 1);"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  badstore:
+  sut_badstore:
     profiles: ["targets"]
     image: jvhoof/badstore-docker
-    container_name: targets-badstore
+    container_name: sut_badstore
     hostname: badstore
     restart: unless-stopped
     ports:
       - "127.0.0.1:3336:80"
     networks:
-      - targets_app
-      - targets
+      experiment_attack_net:
+        aliases: ["badstore"]
+      baseline_attack_net:
+        aliases: ["badstore"]
     healthcheck:
       test: ["CMD-SHELL", "test -s /var/run/apache2/apache2.pid"]
       interval: 30s
@@ -202,10 +219,10 @@ services:
       retries: 3
       start_period: 30s
 
-  webgoat:
+  aux_webgoat:
     profiles: ["targets"]
     image: webgoat/webgoat
-    container_name: targets-webgoat
+    container_name: aux_webgoat
     hostname: webgoat
     restart: unless-stopped
     ports:
@@ -214,8 +231,8 @@ services:
     environment:
       - TZ=UTC
     networks:
-      - targets_app
-      - targets
+      auxiliary_attack_net:
+        aliases: ["webgoat"]
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/WebGoat/actuator/health"]
       interval: 30s
@@ -224,27 +241,34 @@ services:
       start_period: 60s
 
 networks:
-  network:
+  internal_net:
     driver: bridge
     ipam:
       driver: default
       config:
         - subnet: 192.168.78.0/24
           gateway: 192.168.78.1
-  targets:
+  baseline_attack_net:
     driver: bridge
     ipam:
       driver: default
       config:
         - subnet: 192.168.79.0/24
           gateway: 192.168.79.1
-  targets_app:
+  experiment_attack_net:
     driver: bridge
     ipam:
       driver: default
       config:
         - subnet: 192.168.81.0/24
           gateway: 192.168.81.1
+  auxiliary_attack_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.82.0/24
+          gateway: 192.168.82.1
   playground:
     driver: bridge
     ipam:

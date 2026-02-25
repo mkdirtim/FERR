@@ -2,7 +2,7 @@
 # Manage XBOW validation benchmarks
 #
 # Each benchmark is an independent Docker Compose stack. This script builds,
-# runs, and connects benchmarks to the targets network so playground
+# runs, and connects benchmarks to the baseline attack network so playground
 # containers can reach them by hostname.
 
 set -euo pipefail
@@ -11,7 +11,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$SCRIPT_DIR/.."
 REPO_DIR="$ROOT_DIR/data/projects/xbow"
 BENCHMARKS_DIR="$REPO_DIR/benchmarks"
-NETWORK="ferr_targets"
+NETWORK="ferr_auxiliary_attack_net"
+TARGET_ALIAS="aux_xbow"
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -25,7 +26,7 @@ Usage: bin/benchmark-xbow <command> [BENCHMARK_ID]
 Commands:
   list                    List all available benchmarks
   build BENCHMARK_ID      Build a benchmark with random flag
-  run   BENCHMARK_ID      Run a benchmark (connects to targets network)
+  run   BENCHMARK_ID      Run a benchmark (connects to auxiliary attack network; primary target alias: aux_xbow)
   stop  BENCHMARK_ID      Stop a running benchmark
   flag  BENCHMARK_ID      Show the flag for a built benchmark
 
@@ -124,17 +125,55 @@ run_benchmark() {
     cd "$benchmark_dir"
     docker compose -p "$pname" up -d --wait
 
-    # Connect containers to targets network
+    # Connect containers to auxiliary attack network.
+    # The primary benchmark app gets alias "aux_xbow" so callers can treat it
+    # as an auxiliary target hostname.
     local containers
     containers=$(docker compose -p "$pname" ps -q 2>/dev/null)
+    local primary=""
     for container in $containers; do
+        if [ -z "$primary" ]; then
+            primary="$container"
+        fi
+        local service
+        service=$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.service" }}' "$container" 2>/dev/null || true)
+        case "$service" in
+            app|web|challenge|target|sut|*app*|*web*|*challenge*|*target*)
+                primary="$container"
+                break
+                ;;
+        esac
+    done
+
+    for container in $containers; do
+        local cname
+        cname=$(docker inspect -f '{{.Name}}' "$container" | sed 's/^\///')
         if ! docker inspect "$container" 2>/dev/null | jq -e ".[0].NetworkSettings.Networks[\"$NETWORK\"]" >/dev/null 2>&1; then
+            if [ "$container" = "$primary" ]; then
+                docker network connect --alias "$TARGET_ALIAS" "$NETWORK" "$container" 2>/dev/null || true
+                echo "  Connected $cname to auxiliary attack network (alias: $TARGET_ALIAS)"
+                continue
+            fi
             docker network connect "$NETWORK" "$container" 2>/dev/null || true
-            local cname
-            cname=$(docker inspect -f '{{.Name}}' "$container" | sed 's/^\///')
-            echo "  Connected $cname to targets network"
+            echo "  Connected $cname to auxiliary attack network"
         fi
     done
+
+    if [ -n "$primary" ] && ! docker inspect "$primary" 2>/dev/null | jq -e ".[0].NetworkSettings.Networks[\"$NETWORK\"].Aliases // [] | index(\"$TARGET_ALIAS\")" >/dev/null 2>&1; then
+        docker network disconnect "$NETWORK" "$primary" >/dev/null 2>&1 || true
+        docker network connect --alias "$TARGET_ALIAS" "$NETWORK" "$primary" >/dev/null 2>&1 || true
+        local pname_h
+        pname_h=$(docker inspect -f '{{.Name}}' "$primary" | sed 's/^\///')
+        echo "  Updated $pname_h alias on auxiliary attack network to $TARGET_ALIAS"
+    fi
+
+    if [ -n "$primary" ]; then
+        local pname_h
+        pname_h=$(docker inspect -f '{{.Name}}' "$primary" | sed 's/^\///')
+        echo "  Primary SUT hostname: $TARGET_ALIAS ($pname_h)"
+    else
+        echo -e "${YELLOW}No running benchmark containers found to attach.${NC}"
+        fi
 
     echo -e "${GREEN}✓ $id is running${NC}"
     echo ""

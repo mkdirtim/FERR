@@ -22,7 +22,7 @@ validate: ## Validate configuration and optionally run smoke tests
 build: ## Build container images
 	docker compose build
 
-up: ## Start dev container only (service: openhack)
+up: ## Start dev container only (service: ferr_openhack_agent)
 	docker compose up -d
 
 up-with-targets: ## Start dev container with vulnerable targets
@@ -45,27 +45,27 @@ restart-with-targets: down up-with-targets ## Restart dev container and targets
 logs: ## Tail logs from all services
 	docker compose logs -f
 
-shell: ## Open a bash shell in the openhack container
-	docker compose exec openhack bash
+shell: ## Open a bash shell in the ferr_openhack_agent container
+	docker compose exec ferr_openhack_agent bash
 
 install: ## Install workspace dependencies with bun
-	docker compose exec openhack bun install
+	docker compose exec ferr_openhack_agent bun install
 
 dev: ## Run the dev script (TUI/CLI)
-	docker compose exec openhack bun run dev
+	docker compose exec ferr_openhack_agent bun run dev
 
 app: ## Run web app dev server (packages/app, container port 3000)
-	docker compose exec openhack bun run dev:web
+	docker compose exec ferr_openhack_agent bun run dev:web
 
 web: ## Run opencode web server (port 4096)
-	docker compose exec openhack bash -c "cd packages/opencode && bun run --conditions=browser ./src/index.ts web --hostname 0.0.0.0 --port 4096"
+	docker compose exec ferr_openhack_agent bash -c "cd packages/opencode && bun run --conditions=browser ./src/index.ts web --hostname 0.0.0.0 --port 4096"
 
 serve: ## Run the opencode HTTP server (port 4096)
-	docker compose exec openhack bash -c "cd packages/opencode && bun run --conditions=browser ./src/index.ts serve --hostname 0.0.0.0 --port 4096"
+	docker compose exec ferr_openhack_agent bash -c "cd packages/opencode && bun run --conditions=browser ./src/index.ts serve --hostname 0.0.0.0 --port 4096"
 
 test: ## Run package tests
 	@echo "Run tests from a package, eg:"
-	@echo "  docker compose exec openhack bun --cwd packages/opencode test"
+	@echo "  docker compose exec ferr_openhack_agent bun --cwd packages/opencode test"
 
 status: ## Show status of all services
 	docker compose --profile targets ps
@@ -80,7 +80,7 @@ targets: ## List vulnerable web applications and their ports
 	@echo "  - WebWolf:     http://localhost:3338"
 
 scan: ## Example: Run nmap scan on juiceshop
-	docker compose exec openhack nmap -sV juiceshop
+	docker compose exec ferr_openhack_agent nmap -sV juiceshop
 
 docs: ## Print documentation locations
 	@echo "Docs:"
@@ -88,17 +88,17 @@ docs: ## Print documentation locations
 
 playground: ## Start playground container (Kali-based, profile: playground)
 	@if [ -f ./data/projects/playground.env ]; then \
-		docker compose --env-file ./data/projects/playground.env --profile playground up -d playground; \
+		docker compose --env-file ./data/projects/playground.env --profile playground up -d baseline_agents_host; \
 	else \
-		docker compose --profile playground up -d playground; \
+		docker compose --profile playground up -d baseline_agents_host; \
 	fi
 
 playground-env: ## Create ./data/projects/playground.env (gitignored) from example
 	@test -f ./data/projects/playground.env || cp ./data/projects/playground.env.example ./data/projects/playground.env
 	@echo "Edit: ./data/projects/playground.env"
 
-benchmark-kali: ## Scan targets from playground-kali (nmap, whatweb, nikto, ZAP, ffuf, sqlmap)
-	docker compose --profile playground exec playground benchmark-kali
+benchmark-kali: ## Scan targets from baseline_agents_host (nmap, whatweb, nikto, ZAP, ffuf, sqlmap)
+	docker compose --profile playground exec baseline_agents_host benchmark-kali
 
 benchmark-pentestgpt: ## Run PentestGPT benchmark (RUNS=5)
 	./bin/benchmark-pentestgpt $(RUNS)

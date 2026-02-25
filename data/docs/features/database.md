@@ -4,6 +4,12 @@
 
 This document specifies the pentest runtime database used by the proposal-first workflow.
 
+## Verification Status
+
+- Last verified: **2026-02-25**
+- Source of truth: `.opencode/lib/pentest-db.ts` and `.opencode/tools/pentest.ts`
+- Current migration target: `SCHEMA_VERSION = 5`
+
 Goals:
 - Store canonical run state in one place
 - Let multiple agents collaborate safely on a shared run

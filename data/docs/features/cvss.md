@@ -2,6 +2,13 @@
 
 This document describes the full CVSS integration in OpenHack: the dedicated tool, runtime validation, readiness behavior, and report rendering.
 
+## Verification Status
+
+- Last verified: **2026-02-25**
+- Runtime implementation: `.opencode/lib/pentest-db.ts` (`calculateCvss31`, `validateCvssVector`, readiness checks, report rendering helpers)
+- Tool contract: `.opencode/tools/pentest.ts` (`pentest_calculate_cvss`)
+- Coverage checks: `packages/opencode/test/pentest/pentest-db-runtime.test.ts`, `packages/opencode/test/pentest/pentest-agent-prompts.test.ts`
+
 ## Scope and Design
 
 - Runtime is CVSS 3.1 only.

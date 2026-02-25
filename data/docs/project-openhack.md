@@ -19,6 +19,7 @@ OpenCode core runtime/package details are documented in `project-opencode.md`.
 | `.opencode/opencode.jsonc` | Local OpenCode config for provider/MCP/tool permissions |
 | `.opencode/tools/pentest.ts` | Pentest tool API surface (`create_run`, `add_proposal`, `build_report`, `finalize_run`, etc.) |
 | `.opencode/lib/pentest-db.ts` | Canonical DB runtime logic, readiness gates, artifact linking, report assembly/finalize |
+| `.opencode/lib/onboarding-defaults.ts` | Code-owned onboarding defaults for `manual`, `juiceshop-defaults`, and `badstore-defaults` |
 | `.opencode/agents/*.md` | Agent prompts/contracts (`orchestration`, `onboarding`, `exploitation`, `validation`, `reporting`) |
 | `.opencode/skills/*/SKILL.md` | Security testing playbooks (SQLi, XSS, IDOR, CSRF, SSRF, JWT, RCE, XXE, and more) |
 | `.opencode/skills/agent-report/` | Report templates, marker/proposal references, report build scripts, fixtures |
@@ -29,7 +30,6 @@ OpenCode core runtime/package details are documented in `project-opencode.md`.
 | Path | Purpose |
 | --- | --- |
 | `features/` | Workflow docs (`features/database.md`, `features/onboarding.md`, `features/reporting.md`) |
-| `data/pentest/assets/` | Default/custom onboarding profiles and archived templates |
 | `data/pentest/running/<run_id>/` | Active run state (`run.db`, `evidence/`, `report/`) |
 | `data/pentest/finished/<run_id>/` | Finalized run state and artifacts |
 

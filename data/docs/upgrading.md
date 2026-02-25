@@ -124,3 +124,4 @@ After resolving, update the prune commit SHA in this file.
 | v1.1.52 | v1.1.53 | #1 | — | — | Initial upgrade |
 | v1.1.64 | v1.2.5 | #2 | 711e18650 | 72 | Prune only touched 2 patch files; share module refactored to config-driven URL |
 | v1.2.5 | v1.2.10 | #3 | 6b88eb639 | 301 | Prune/fork-fix baseline advanced to `aec6239af` / `c8ec2b563`; upstream base tagged as `upstream-opencode-v1.2.10` |
+| v1.2.10 | v1.2.14 | #4 | de6131ca4 | 117 | Prune/fork-fix SHAs unchanged; `skill.test.ts` taken verbatim from upstream (path.join portability + `.opencode/skill/` singular) |

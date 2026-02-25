@@ -22,11 +22,11 @@ This skill is loaded from the global home directory.
   )
 }
 
-test("discovers skills from .opencode/skills/ directory", async () => {
+test("discovers skills from .opencode/skill/ directory", async () => {
   await using tmp = await tmpdir({
     git: true,
     init: async (dir) => {
-      const skillDir = path.join(dir, ".opencode", "skills", "test-skill")
+      const skillDir = path.join(dir, ".opencode", "skill", "test-skill")
       await Bun.write(
         path.join(skillDir, "SKILL.md"),
         `---
@@ -50,7 +50,7 @@ Instructions here.
       const testSkill = skills.find((s) => s.name === "test-skill")
       expect(testSkill).toBeDefined()
       expect(testSkill!.description).toBe("A test skill for verification.")
-      expect(testSkill!.location).toContain(path.join("skills", "test-skill", "SKILL.md"))
+      expect(testSkill!.location).toContain(path.join("skill", "test-skill", "SKILL.md"))
     },
   })
 })
@@ -59,7 +59,7 @@ test("returns skill directories from Skill.dirs", async () => {
   await using tmp = await tmpdir({
     git: true,
     init: async (dir) => {
-      const skillDir = path.join(dir, ".opencode", "skills", "dir-skill")
+      const skillDir = path.join(dir, ".opencode", "skill", "dir-skill")
       await Bun.write(
         path.join(skillDir, "SKILL.md"),
         `---
@@ -81,7 +81,7 @@ description: Skill for dirs test.
       directory: tmp.path,
       fn: async () => {
         const dirs = await Skill.dirs()
-        const skillDir = path.join(tmp.path, ".opencode", "skills", "dir-skill")
+        const skillDir = path.join(tmp.path, ".opencode", "skill", "dir-skill")
         expect(dirs).toContain(skillDir)
         expect(dirs.length).toBe(1)
       },
@@ -91,12 +91,12 @@ description: Skill for dirs test.
   }
 })
 
-test("discovers multiple skills from .opencode/skills/ directory", async () => {
+test("discovers multiple skills from .opencode/skill/ directory", async () => {
   await using tmp = await tmpdir({
     git: true,
     init: async (dir) => {
-      const skillDir1 = path.join(dir, ".opencode", "skills", "skill-one")
-      const skillDir2 = path.join(dir, ".opencode", "skills", "skill-two")
+      const skillDir1 = path.join(dir, ".opencode", "skill", "skill-one")
+      const skillDir2 = path.join(dir, ".opencode", "skill", "skill-two")
       await Bun.write(
         path.join(skillDir1, "SKILL.md"),
         `---
@@ -135,7 +135,7 @@ test("skips skills with missing frontmatter", async () => {
   await using tmp = await tmpdir({
     git: true,
     init: async (dir) => {
-      const skillDir = path.join(dir, ".opencode", "skills", "no-frontmatter")
+      const skillDir = path.join(dir, ".opencode", "skill", "no-frontmatter")
       await Bun.write(
         path.join(skillDir, "SKILL.md"),
         `# No Frontmatter

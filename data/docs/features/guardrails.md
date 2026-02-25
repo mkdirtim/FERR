@@ -42,6 +42,7 @@ This file defines how guardrails work in this repo, what is advisory vs enforced
 - File: `.opencode/lib/pentest-db.ts`
 - Used for:
   - proposal payload parsing and strict checks (`name`, `severity`, `description`)
+  - onboarding default seeding from code-owned constants (`.opencode/lib/onboarding-defaults.ts`)
   - CVSS format/range checks (`CVSS:3.1/...`, score `0..10`, or `N/A [failed to compute]`)
   - assets checks (`assets` must be array of non-empty strings)
   - `run_id` UUID validation

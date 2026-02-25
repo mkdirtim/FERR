@@ -45,15 +45,10 @@ Current limitation:
 Requirement:
 - This must be a real `question` tool call, not a plain text prompt that asks for `A/B` input.
 
-Juice Shop defaults source:
-- `data/pentest/assets/default-onboarding-juiceshop.md`
-
-Badstore defaults source:
-- `data/pentest/assets/default-onboarding-badstore.md`
-
-Manual/custom source:
-- `data/pentest/assets/custom-onboarding.md`
-- Collect each empty value from the user.
+Onboarding defaults source:
+- `.opencode/lib/onboarding-defaults.ts`
+- `Juice Shop profile` and `BadStore profile` are seeded from code-owned constants.
+- `Manual setup` starts with blank onboarding fields and blank contacts; collect each value from the user.
 
 For all modes:
 - Set `PH_TARGET_URL` from the initial target input.

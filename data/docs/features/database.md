@@ -331,7 +331,7 @@ sequenceDiagram
 
 In `production` safety mode, build is blocked when:
 - required run fields are missing
-- default placeholders are still present
+- default placeholders are still present (compared against baseline values in `.opencode/lib/onboarding-defaults.ts`)
 - no findings exist
 - `executive_summary.summary_text` is empty
 - `execution_context.subject_description` is empty
@@ -355,6 +355,7 @@ Validation note:
 
 ### Run and onboarding
 - `pentest_create_run` -> inserts run + summary + context + appendix + contacts
+  - onboarding presets are seeded from `.opencode/lib/onboarding-defaults.ts` (no runtime markdown profile parsing)
   - returns `run_id`, `db_path`, `run_dir`, `evidence_dir`, `report_dir`
 - `pentest_set_onboarding` -> updates run/summary/context/appendix/contacts
 - `pentest_add_contact` -> inserts contact row

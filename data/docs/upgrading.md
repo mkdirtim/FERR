@@ -35,8 +35,10 @@ Policy: only merge upstream release tags into `openhack` (never merge upstream b
 4) Reapply fork maintenance commits:
 
   PRUNE_SHA=aec6239af
+  PRUNE_SHA_2=fc8f17c10
   FORK_FIX_SHA=c8ec2b563
   git cherry-pick ${PRUNE_SHA}
+  git cherry-pick ${PRUNE_SHA_2}
   git cherry-pick ${FORK_FIX_SHA}
 
 5) Regenerate lockfile and validate:
@@ -77,6 +79,7 @@ After merging an upstream tag, cherry-pick the fork-maintenance commits:
 - reapply fork root manifest/patch consistency
 
   git cherry-pick <PRUNE_COMMIT_SHA>
+  git cherry-pick <PRUNE_COMMIT_SHA_2>
   git cherry-pick <FORK_FIX_COMMIT_SHA>
   # resolve any conflicts, then test:
   bun turbo typecheck
@@ -86,6 +89,11 @@ After merging an upstream tag, cherry-pick the fork-maintenance commits:
 
   SHA: aec6239af
   Message: fork: prune upstream-only directories (v1.2.10)
+
+### Current prune commit 2
+
+  SHA: fc8f17c10
+  Message: fork: prune glossary agents (v1.2.14)
 
 ### Current fork-fix commit
 
@@ -106,6 +114,10 @@ upstream merge.
   STATS.md
   patches/@standard-community%2Fstandard-openapi@0.2.9.patch
   specs/session-composer-refactor-plan.md
+
+### Paths removed by prune commit 2 (`fc8f17c10`)
+
+  .opencode/agent/glossary/
 
 ### Resolving conflicts
 

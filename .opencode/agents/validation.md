@@ -46,6 +46,12 @@ Objective:
 Rules:
 - First action: call `pentest_get_proposals(run_id)`, resolve assigned scope to explicit proposal IDs, and treat DB proposal records as source of truth.
 - If input uses shard boundaries instead of explicit IDs, select only proposals in the assigned shard from fetched results before testing.
+- Resolve assigned IDs into:
+  - `processable_ids`: proposals currently in `proposed`
+  - `skipped_ids`: proposals currently in `validated|accepted|rejected`
+  - `missing_ids`: assigned IDs absent from DB results
+- Mutate only `processable_ids`.
+- For `skipped_ids`, do not mutate; add warning `already_resolved_status` for each skipped ID.
 - Do not begin browser testing until assigned proposal records are loaded.
 - Tool selection policy (`curl` vs Playwright):
   - Default to `curl`/HTTP tools first for reproduction checks (request replay, auth/header tweaks, payload mutation, endpoint verification).
@@ -58,7 +64,12 @@ Rules:
 - For each assigned proposal:
   - if reproducible, call `pentest_validate_proposal(run_id, proposal_id, note?)`
   - if not reproducible or invalid, call `pentest_reject_proposal(run_id, proposal_id, reason)` with concise reason
-- If an assigned proposal ID is missing from DB results, report it in `errors` and skip mutation for that ID.
+- If an assigned proposal ID is missing from DB results, report it in `errors`, mark `skipped`, and skip mutation for that ID.
+- If `pentest_validate_proposal` or `pentest_reject_proposal` returns a state-transition error for an ID:
+  - refresh proposal state once via `pentest_get_proposals(run_id)`
+  - mark that ID as `skipped` with warning `already_resolved_status`
+  - continue remaining IDs
+  - do not retry mutation for that same ID in the same task
 - Do not mutate proposals outside the assigned IDs/shard.
 - Keep reasons brief and reproducibility-focused.
 - Do not accept proposals into findings.
@@ -68,4 +79,6 @@ Output to parent:
 - `validated` (count)
 - `rejected` (count)
 - `errors` (list)
-- per-proposal outcomes (proposal_id + action + short note)
+- `warnings` (list)
+- `coverage` object with `assigned_ids`, `processed_ids`, `skipped_ids`
+- per-proposal outcomes (proposal_id + action in `validated|rejected|skipped` + short note)

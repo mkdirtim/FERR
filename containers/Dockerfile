@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # MITM proxy and Chromium NSS cert utilities
     mitmproxy libnss3-tools \
     # PDF report generation (pandoc + eisvogel/xelatex)
-    pandoc texlive-latex-recommended texlive-fonts-extra texlive-latex-extra texlive-xetex \
+    pandoc texlive-latex-recommended texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra texlive-xetex \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

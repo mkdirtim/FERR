@@ -76,10 +76,15 @@ Follow this order:
 - Require exploitation tasks to keep evidence paths under `evidence_dir`: absolute Playwright screenshot filenames plus attachment `path` as an absolute file path under `evidence_dir`.
 - Validation task input should be `run_id` plus assigned proposal IDs or shard boundaries, not paraphrased proposal summaries.
 - Require validation tasks to call `pentest_get_proposals(run_id)` first and load assigned proposal records before reproduction.
+- Build validation assignment waves from `pentest_get_proposals(run_id, status="proposed")`.
+- If upstream explicit proposal IDs are provided, intersect them with the current `proposed` set before dispatching validation.
+- Emit warnings for dropped stale IDs that are no longer in `proposed` and continue orchestration.
 - Validation tasks should focus on fast manual reproduction from proposal context and do not need evidence recording.
 - If a proposal is rejected by validation, rerun validation once for that proposal ID before reporting.
 - Delegate proposal resolution and report generation to Reporting only.
 - If reporting merges proposals and returns `revalidate_proposal_ids`, run validation on those IDs and rerun reporting before allowing build/finalize.
+- Apply the same `status="proposed"` filter before re-validation and merged-proposal revalidation dispatch.
+- If a re-validation dispatch list becomes empty after filtering, skip that wave and record a warning (no-op).
 - Limit reporting->merge->revalidation cycles to 2 per run; if still requesting revalidation, return explicit blocker and stop.
 - Reporting must not build while any proposal remains `proposed`.
 - After successful report build, reporting must run `pentest_finalize_run`.

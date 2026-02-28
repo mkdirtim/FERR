@@ -1,0 +1,54 @@
+- generic:
+  - generic [ref=e9]:
+    - generic [ref=e12]:
+      - button "Open Sidenav" [ref=e418] [cursor=pointer]:
+        - img [ref=e14]: menu
+      - button "Back to homepage" [ref=e419]:
+        - generic [ref=e19]:
+          - img "OWASP Juice Shop" [ref=e420]
+          - generic [ref=e21]: OWASP Juice Shop
+      - generic "Click to search" [ref=e421]:
+        - textbox [ref=e270]: Apple Juice
+        - generic:
+          - img [ref=e26]: close
+          - img [ref=e27]: search
+      - button "Show/hide account menu" [ref=e422]:
+        - img [ref=e29]: account_circle
+        - generic [ref=e30]: Account
+      - button "Show the shopping cart" [ref=e613]:
+        - img [ref=e614]: shopping_cart
+        - generic [ref=e615]:
+          - text: Your Basket
+          - generic [ref=e616]: "1"
+      - button "Language selection menu" [ref=e423]:
+        - img [ref=e34]: language
+        - generic [ref=e35]: EN
+    - generic [ref=e621]:
+      - generic [ref=e825]: Search Results - Apple Juice
+      - generic [ref=e629]:
+        - generic "Click for more information about the product" [ref=e630] [cursor=pointer]:
+          - button "Apple Juice (1000ml)" [ref=e631]
+          - generic [ref=e632]:
+            - generic [ref=e633]: Apple Juice (1000ml)
+            - generic [ref=e634]: 0.01¤
+        - button "Add to Basket" [active] [ref=e636] [cursor=pointer]:
+          - generic [ref=e637]: Add to Basket
+      - separator [ref=e794]
+      - group [ref=e795]:
+        - generic [ref=e797]:
+          - generic [ref=e798]:
+            - generic [ref=e799]: "Items per page:"
+            - combobox "Items per page:" [ref=e804] [cursor=pointer]:
+              - generic [ref=e805]:
+                - generic [ref=e807]: "12"
+                - img [ref=e810]
+          - generic [ref=e813]:
+            - generic [ref=e814]: 1 – 1 of 1
+            - button "Previous page" [disabled] [ref=e815]:
+              - img [ref=e816]
+            - button "Next page" [disabled] [ref=e820]:
+              - img [ref=e821]
+  - generic [ref=e832]:
+    - generic [ref=e833]: Placed Apple Juice (1000ml) into basket.
+    - button "X" [ref=e835]:
+      - generic [ref=e836]: X

@@ -1,0 +1,10 @@
+[   19201ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3333/api/Users/:0
+[   26343ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3333/api/Users/:0
+[   72884ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3333/api/BasketItems:0
+[   79962ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/api/BasketItems:0
+[   83261ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/api/BasketItems:0
+[   85786ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/api/BasketItems:0
+[   98641ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/polyfills.js:0
+[  116877ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3333/polyfills.js:0
+[  133582ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/polyfills.js:0
+[  142145ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/polyfills.js:0

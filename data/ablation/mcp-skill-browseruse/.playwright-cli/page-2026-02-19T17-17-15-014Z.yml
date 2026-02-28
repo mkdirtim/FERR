@@ -1,0 +1,141 @@
+- generic:
+  - dialog "cookieconsent" [ref=e1]:
+    - generic [ref=e2]:
+      - text: This website uses fruit cookies to ensure you get the juiciest tracking experience.
+      - button "learn more about cookies" [ref=e3] [cursor=pointer]: But me wait!
+    - button "dismiss cookie message" [ref=e5] [cursor=pointer]: Me want it!
+  - generic [ref=e9]:
+    - generic [ref=e12]:
+      - button [ref=e103] [cursor=pointer]:
+        - img [ref=e14]: menu
+      - button [ref=e104]:
+        - generic [ref=e19]:
+          - img [ref=e105]
+          - generic [ref=e21]: OWASP Juice Shop
+      - generic [ref=e106]:
+        - img [ref=e26]: close
+        - img [ref=e27]: search
+      - button [ref=e107]:
+        - img [ref=e29]: account_circle
+        - generic [ref=e30]: Account
+      - button [ref=e108]:
+        - img [ref=e34]: language
+        - generic [ref=e35]: EN
+    - generic [ref=e40]:
+      - generic [ref=e42]: All Products
+      - generic [ref=e110]:
+        - generic [ref=e115] [cursor=pointer]:
+          - button [ref=e116]
+          - generic [ref=e117]:
+            - generic [ref=e118]: Apple Juice (1000ml)
+            - generic [ref=e119]: 0.01¤
+        - generic [ref=e124] [cursor=pointer]:
+          - button [ref=e125]
+          - generic [ref=e126]:
+            - generic [ref=e127]: Apple Pomace
+            - generic [ref=e128]: 0.89¤
+        - generic [ref=e133] [cursor=pointer]:
+          - button [ref=e134]
+          - generic [ref=e135]:
+            - generic [ref=e136]: Banana Juice (1000ml)
+            - generic [ref=e137]: 1.99¤
+        - generic [ref=e141]:
+          - generic:
+            - generic: Only 1 left
+          - generic [ref=e142] [cursor=pointer]:
+            - button [ref=e143]
+            - generic [ref=e144]:
+              - generic [ref=e145]: Best Juice Shop Salesman Artwork
+              - generic [ref=e146]: "-9999¤"
+        - generic [ref=e151] [cursor=pointer]:
+          - button [ref=e152]
+          - generic [ref=e153]:
+            - generic [ref=e154]: Carrot Juice (1000ml)
+            - generic [ref=e155]: 2.99¤
+        - generic [ref=e160] [cursor=pointer]:
+          - button [ref=e161]
+          - generic [ref=e162]:
+            - generic [ref=e163]: Eggfruit Juice (500ml)
+            - generic [ref=e164]: 8.99¤
+        - generic [ref=e169] [cursor=pointer]:
+          - button [ref=e170]
+          - generic [ref=e171]:
+            - generic [ref=e172]: Fruit Press
+            - generic [ref=e173]: 89.99¤
+        - generic [ref=e178] [cursor=pointer]:
+          - button [ref=e179]
+          - generic [ref=e180]:
+            - generic [ref=e181]: Green Smoothie
+            - generic [ref=e182]: 1.99¤
+        - generic [ref=e186]:
+          - generic:
+            - generic: Only 1 left
+          - generic [ref=e187] [cursor=pointer]:
+            - button [ref=e188]
+            - generic [ref=e189]:
+              - generic [ref=e190]: Juice Shop "Permafrost" 2020 Edition
+              - generic [ref=e191]: 0¤
+        - generic [ref=e196] [cursor=pointer]:
+          - button [ref=e197]
+          - generic [ref=e198]:
+            - generic [ref=e199]: Lemon Juice (500ml)
+            - generic [ref=e200]: 2.99¤
+        - generic [ref=e204]:
+          - generic:
+            - generic: Only 3 left
+          - generic [ref=e205] [cursor=pointer]:
+            - button [ref=e206]
+            - generic [ref=e207]:
+              - generic [ref=e208]: Melon Bike (Comeback-Product 2018 Edition)
+              - generic [ref=e209]: 2999¤
+        - generic [ref=e213]:
+          - generic:
+            - generic: Sold Out
+          - generic [ref=e214] [cursor=pointer]:
+            - button [ref=e215]
+            - generic [ref=e216]:
+              - generic [ref=e217]: OWASP Juice Shop "King of the Hill" Facemask
+              - generic [ref=e218]: 13.49¤
+      - separator [ref=e43]
+      - group [ref=e44]:
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]: "Items per page:"
+            - combobox [ref=e223] [cursor=pointer]:
+              - generic [ref=e224]:
+                - generic [ref=e226]: "12"
+                - img [ref=e229]
+          - generic [ref=e50]:
+            - generic [ref=e51]: 1 – 12 of 37
+            - button [disabled] [ref=e232]:
+              - img [ref=e53]
+            - button [ref=e233] [cursor=pointer]:
+              - img [ref=e58]
+  - generic:
+    - generic [ref=e69]:
+      - generic [ref=e70]: Language has been changed to English
+      - button "Force page reload" [ref=e72]:
+        - generic [ref=e73]: Force page reload
+    - dialog [ref=e79]:
+      - generic [ref=e82]:
+        - heading "Welcome to OWASP Juice Shop!" [level=1] [ref=e83]
+        - generic [ref=e84]:
+          - paragraph [ref=e85]:
+            - text: Being a web application with a vast number of intended security vulnerabilities, the
+            - strong [ref=e86]: OWASP Juice Shop
+            - text: "is supposed to be the opposite of a best practice or template application for web developers: It is an awareness, training, demonstration and exercise tool for security risks in modern web applications. The"
+            - strong [ref=e87]: OWASP Juice Shop
+            - text: is an open-source project hosted by the non-profit
+            - link "Open Worldwide Application Security Project (OWASP)" [active] [ref=e88] [cursor=pointer]:
+              - /url: https://owasp.org
+            - text: and is developed and maintained by volunteers. Check out the link below for more information and documentation on the project.
+          - heading "https://owasp-juice.shop" [level=1] [ref=e89]:
+            - link "https://owasp-juice.shop" [ref=e90] [cursor=pointer]:
+              - /url: https://owasp-juice.shop
+        - generic [ref=e91]:
+          - button "Help getting started" [ref=e92]:
+            - img [ref=e93]: school
+            - generic [ref=e94]: Help getting started
+          - button "Close Welcome Banner" [ref=e97] [cursor=pointer]:
+            - img [ref=e98]: visibility_off
+            - generic [ref=e99]: Dismiss

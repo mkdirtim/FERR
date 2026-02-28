@@ -1,0 +1,58 @@
+- generic:
+  - generic [ref=e9]:
+    - generic [ref=e12]:
+      - button "Open Sidenav" [ref=e235] [cursor=pointer]:
+        - img [ref=e14]: menu
+      - button "Back to homepage" [ref=e236]:
+        - generic [ref=e19]:
+          - img "OWASP Juice Shop" [ref=e237]
+          - generic [ref=e21]: OWASP Juice Shop
+      - generic "Click to search" [ref=e238]:
+        - generic [ref=e25]:
+          - generic:
+            - generic:
+              - generic:
+                - textbox [disabled]
+        - generic:
+          - img [ref=e26]: close
+          - img [ref=e27]: search
+      - button "Show/hide account menu" [active] [ref=e239]:
+        - img [ref=e29]: account_circle
+        - generic [ref=e30]: Account
+      - button "Language selection menu" [ref=e240]:
+        - img [ref=e34]: language
+        - generic [ref=e35]: EN
+    - generic [ref=e282]:
+      - heading "Login" [level=1] [ref=e283]
+      - generic [ref=e284]:
+        - generic [ref=e287]:
+          - generic [ref=e288]:
+            - text: Email
+            - generic [ref=e289]: "*"
+          - textbox "Text field for the login email" [ref=e291]: admin@juice-sh.op
+        - generic [ref=e295]:
+          - generic [ref=e296]:
+            - text: Password
+            - generic [ref=e297]: "*"
+          - textbox "Text field for the login password" [ref=e299]: admin123
+          - button "Button to display the password" [ref=e301] [cursor=pointer]:
+            - img [ref=e314]: eye
+        - link "Forgot your password?" [ref=e305] [cursor=pointer]:
+          - /url: "#/forgot-password"
+        - button "Login" [ref=e316]:
+          - img [ref=e317]: exit_to_app
+          - generic [ref=e318]: Log in
+        - generic [ref=e307]:
+          - generic [ref=e308] [cursor=pointer]:
+            - checkbox "Checkbox to stay logged in or not logged in" [ref=e310]
+            - generic:
+              - img
+          - generic [ref=e311] [cursor=pointer]: Remember me
+        - link "Not yet a customer?" [ref=e313] [cursor=pointer]:
+          - /url: "#/register"
+  - generic [ref=e273]:
+    - menu:
+      - generic:
+        - menuitem "Go to login page":
+          - img: exit_to_app
+          - generic: Login

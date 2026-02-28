@@ -1,0 +1,23 @@
+[   18665ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ http://localhost:3333/api/Users/:0
+[  147161ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/basket/coupon/ORANGE:0
+[  147172ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/basket/coupon/WMNSDY2019:0
+[  147180ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/basket/coupon/WMNSDY2020:0
+[  147188ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/basket/coupon/WMNSDY2021:0
+[  147197ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/basket/coupon/WMNSDY2022:0
+[  147206ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/basket/coupon/CHRISTMAS2023:0
+[  147211ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/basket/coupon/XMAS2023:0
+[  147219ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/basket/coupon/JUICE10:0
+[  147224ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/basket/coupon/SAVE10:0
+[  251484ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/basket/49/coupon/WMNSDY2019:0
+[  251500ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/basket/49/coupon/WMNSDY2020:0
+[  251512ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/basket/49/coupon/WMNSDY2021:0
+[  251523ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/basket/49/coupon/WMNSDY2022:0
+[  251533ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/basket/49/coupon/WMNSDY2023:0
+[  251540ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/basket/49/coupon/WMNSDY2024:0
+[  251547ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/basket/49/coupon/WMNSDY2025:0
+[  251554ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/basket/49/coupon/WMNSDY2026:0
+[  251562ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/basket/49/coupon/ORANGE2020:0
+[  251568ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/basket/49/coupon/ORANGE2021:0
+[  251575ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/basket/49/coupon/SAVEME:0
+[  251582ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/basket/49/coupon/JUICY:0
+[  251588ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/basket/49/coupon/OWASP:0

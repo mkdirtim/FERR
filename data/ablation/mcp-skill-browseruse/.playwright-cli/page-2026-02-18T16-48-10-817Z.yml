@@ -1,0 +1,104 @@
+- generic:
+  - generic [ref=e9]:
+    - generic [ref=e12]:
+      - button "Open Sidenav" [ref=e417] [cursor=pointer]:
+        - img [ref=e14]: menu
+      - button "Back to homepage" [ref=e418]:
+        - generic [ref=e19]:
+          - img "OWASP Juice Shop" [ref=e419]
+          - generic [ref=e21]: OWASP Juice Shop
+      - generic "Click to search" [ref=e420]:
+        - textbox [ref=e269]: Apple Juice
+        - generic:
+          - img [ref=e26]: close
+          - img [ref=e27]: search
+      - button "Show/hide account menu" [ref=e421]:
+        - img [ref=e29]: account_circle
+        - generic [ref=e30]: Account
+      - button "Language selection menu" [ref=e422]:
+        - img [ref=e34]: language
+        - generic [ref=e35]: EN
+    - generic [ref=e630]:
+      - heading "User Registration" [level=1] [ref=e631]
+      - generic [ref=e632]:
+        - generic [ref=e635]:
+          - generic [ref=e636]:
+            - text: Email
+            - generic [ref=e637]: "*"
+          - textbox "Email address field" [ref=e639]: test@example.com
+        - generic [ref=e641]:
+          - generic [ref=e643]:
+            - generic [ref=e644]:
+              - text: Password
+              - generic [ref=e645]: "*"
+            - textbox "Field for the password" [ref=e647]: Test1234!
+          - generic [ref=e649]:
+            - generic [ref=e650]:
+              - img [ref=e651]: exclamation-circle
+              - emphasis [ref=e653]: Password must be 5-40 characters long.
+            - generic [ref=e655]: 9/20
+        - generic [ref=e656]:
+          - generic [ref=e658]:
+            - generic [ref=e659]:
+              - text: Repeat Password
+              - generic [ref=e660]: "*"
+            - textbox "Field to confirm the password" [ref=e662]: Test1234!
+          - generic [ref=e666]: 9/40
+        - generic [ref=e668]:
+          - switch "Show password advice" [ref=e669] [cursor=pointer]:
+            - generic [ref=e675]:
+              - img [ref=e676]
+              - img [ref=e678]
+          - generic [ref=e680] [cursor=pointer]: Show password advice
+        - progressbar [ref=e714]
+        - generic [ref=e681]:
+          - generic [ref=e682]:
+            - generic [ref=e684] [cursor=pointer]:
+              - generic [ref=e685]:
+                - text: Security Question
+                - generic [ref=e686]: "*"
+              - combobox "Selection list for the security question" [expanded] [active] [ref=e688]:
+                - img [ref=e694]
+            - generic [ref=e698]:
+              - img [ref=e699]: exclamation-circle
+              - emphasis [ref=e701]: This cannot be changed later!
+          - generic [ref=e705]:
+            - generic [ref=e706]:
+              - text: Answer
+              - generic [ref=e707]: "*"
+            - textbox "Field for the answer to the security question" [ref=e709]:
+              - /placeholder: Answer to your security question
+        - button "Button to complete the registration" [disabled]:
+          - img: person_add
+          - generic: Register
+        - link "Already a customer?" [ref=e712] [cursor=pointer]:
+          - /url: "#/login"
+  - listbox "Selection list for the security question" [ref=e721]:
+    - option "Your eldest siblings middle name?" [ref=e722] [cursor=pointer]:
+      - generic [ref=e723]: Your eldest siblings middle name?
+    - option "Mother's maiden name?" [ref=e724] [cursor=pointer]:
+      - generic [ref=e725]: Mother's maiden name?
+    - option "Mother's birth date? (MM/DD/YY)" [ref=e726] [cursor=pointer]:
+      - generic [ref=e727]: Mother's birth date? (MM/DD/YY)
+    - option "Father's birth date? (MM/DD/YY)" [ref=e728] [cursor=pointer]:
+      - generic [ref=e729]: Father's birth date? (MM/DD/YY)
+    - option "Maternal grandmother's first name?" [ref=e730] [cursor=pointer]:
+      - generic [ref=e731]: Maternal grandmother's first name?
+    - option "Paternal grandmother's first name?" [ref=e732] [cursor=pointer]:
+      - generic [ref=e733]: Paternal grandmother's first name?
+    - option "Name of your favorite pet?" [ref=e734] [cursor=pointer]:
+      - generic [ref=e735]: Name of your favorite pet?
+    - option "Last name of dentist when you were a teenager? (Do not include 'Dr.')" [ref=e736] [cursor=pointer]:
+      - generic [ref=e737]: Last name of dentist when you were a teenager? (Do not include 'Dr.')
+    - option "Your ZIP/postal code when you were a teenager?" [ref=e738] [cursor=pointer]:
+      - generic [ref=e739]: Your ZIP/postal code when you were a teenager?
+    - option "Company you first work for as an adult?" [ref=e740] [cursor=pointer]:
+      - generic [ref=e741]: Company you first work for as an adult?
+    - option "Your favorite book?" [ref=e742] [cursor=pointer]:
+      - generic [ref=e743]: Your favorite book?
+    - option "Your favorite movie?" [ref=e744] [cursor=pointer]:
+      - generic [ref=e745]: Your favorite movie?
+    - option "Number of one of your customer or ID cards?" [ref=e746] [cursor=pointer]:
+      - generic [ref=e747]: Number of one of your customer or ID cards?
+    - option "What's your favorite place to go hiking?" [ref=e748] [cursor=pointer]:
+      - generic [ref=e749]: What's your favorite place to go hiking?

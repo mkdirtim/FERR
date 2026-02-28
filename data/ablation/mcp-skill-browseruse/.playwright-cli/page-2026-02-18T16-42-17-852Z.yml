@@ -1,0 +1,49 @@
+- generic [ref=e9]:
+  - generic [ref=e12]:
+    - button "Open Sidenav" [ref=e418] [cursor=pointer]:
+      - img [ref=e14]: menu
+    - button "Back to homepage" [ref=e419]:
+      - generic [ref=e19]:
+        - img "OWASP Juice Shop" [ref=e420]
+        - generic [ref=e21]: OWASP Juice Shop
+    - generic "Click to search" [ref=e421]:
+      - textbox [ref=e270]: Apple Juice
+      - generic:
+        - img [ref=e26]: close
+        - img [ref=e27]: search
+    - button "Show/hide account menu" [ref=e422]:
+      - img [ref=e29]: account_circle
+      - generic [ref=e30]: Account
+    - button "Show the shopping cart" [active] [ref=e613] [cursor=pointer]:
+      - img [ref=e614]: shopping_cart
+      - generic [ref=e615]:
+        - text: Your Basket
+        - generic [ref=e616]: "1"
+    - button "Language selection menu" [ref=e423]:
+      - img [ref=e34]: language
+      - generic [ref=e35]: EN
+  - generic [ref=e841]:
+    - generic [ref=e842]:
+      - heading "Your Basket (testuser@juice.sh)" [level=1] [ref=e843]
+      - table [ref=e844]:
+        - row [ref=e845]
+        - row "Apple Juice (1000ml) Apple Juice (1000ml) 1 0.01¤" [ref=e846]:
+          - cell "Apple Juice (1000ml)" [ref=e847]:
+            - img "Apple Juice (1000ml)" [ref=e848]
+          - cell "Apple Juice (1000ml)" [ref=e849]
+          - cell "1" [ref=e850]:
+            - button [ref=e851] [cursor=pointer]:
+              - img [ref=e852]: minus-square
+            - generic [ref=e856]: "1"
+            - button [ref=e857] [cursor=pointer]:
+              - img [ref=e858]: plus-square
+          - cell "0.01¤" [ref=e862]
+          - cell [ref=e863]:
+            - button [ref=e864] [cursor=pointer]:
+              - img [ref=e865]: trash-alt
+      - generic [ref=e869]: "Total Price: 0.01¤"
+    - button "Checkout" [ref=e870]:
+      - generic [ref=e871]:
+        - img [ref=e872]: cart-arrow-down
+        - text: Checkout
+    - generic [ref=e876]: You will gain 0 Bonus Points from this order!

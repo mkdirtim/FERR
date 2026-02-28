@@ -1,0 +1,29 @@
+[   37221ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/rest/wallet/balance:0
+[   37229ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/rest/basket/6:0
+[   53326ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/rest/user/login:0
+[   92867ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3333/rest/wallet/balance:0
+[  109647ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/rest/basket/NaN:0
+[  156763ms] [ERROR] ChunkLoadError: Loading chunk 705 failed.
+(error: http://localhost:3333/705.js)
+    at r.f.j (http://localhost:3333/runtime.js:1:2728)
+    at http://localhost:3333/runtime.js:1:1230
+    at Array.reduce (<anonymous>)
+    at r.e (http://localhost:3333/runtime.js:1:1209)
+    at h.<anonymous> (http://localhost:3333/main.js:1:10321)
+    at I.emit (http://localhost:3333/vendor.js:1:1591626)
+    at h.emitEvent (http://localhost:3333/vendor.js:1:308436)
+    at h.onevent (http://localhost:3333/vendor.js:1:308239)
+    at h.onpacket (http://localhost:3333/vendor.js:1:307831)
+    at I.emit (http://localhost:3333/vendor.js:1:1591626) @ http://localhost:3333/polyfills.js:0
+[  156776ms] [ERROR] ChunkLoadError: Loading chunk 705 failed.
+(error: http://localhost:3333/705.js)
+    at r.f.j (http://localhost:3333/runtime.js:1:2728)
+    at http://localhost:3333/runtime.js:1:1230
+    at Array.reduce (<anonymous>)
+    at r.e (http://localhost:3333/runtime.js:1:1209)
+    at h.<anonymous> (http://localhost:3333/main.js:1:10321)
+    at I.emit (http://localhost:3333/vendor.js:1:1591626)
+    at h.emitEvent (http://localhost:3333/vendor.js:1:308436)
+    at h.onevent (http://localhost:3333/vendor.js:1:308239)
+    at h.onpacket (http://localhost:3333/vendor.js:1:307831)
+    at I.emit (http://localhost:3333/vendor.js:1:1591626) @ http://localhost:3333/polyfills.js:0

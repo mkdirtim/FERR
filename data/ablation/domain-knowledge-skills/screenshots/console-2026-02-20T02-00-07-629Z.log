@@ -1,0 +1,22 @@
+[    6241ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/rest/basket/11/checkout:0
+[   42368ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/rest/user/login:0
+[   50431ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/rest/user/login:0
+[  110449ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/basket/6/checkout:0
+[  110472ms] [ERROR] Failed to load resource: net::ERR_EMPTY_RESPONSE @ http://localhost:3333/705.js:0
+[  110473ms] [ERROR] ChunkLoadError: Loading chunk 705 failed.
+(error: http://localhost:3333/705.js)
+    at r.f.j (http://localhost:3333/runtime.js:1:2728)
+    at http://localhost:3333/runtime.js:1:1230
+    at Array.reduce (<anonymous>)
+    at r.e (http://localhost:3333/runtime.js:1:1209)
+    at h.<anonymous> (http://localhost:3333/main.js:1:10321)
+    at I.emit (http://localhost:3333/vendor.js:1:1591626)
+    at h.emitEvent (http://localhost:3333/vendor.js:1:308436)
+    at h.onevent (http://localhost:3333/vendor.js:1:308239)
+    at h.onpacket (http://localhost:3333/vendor.js:1:307831)
+    at I.emit (http://localhost:3333/vendor.js:1:1591626) @ http://localhost:3333/polyfills.js:0
+[  110476ms] [ERROR] Failed to load resource: net::ERR_EMPTY_RESPONSE @ http://localhost:3333/rest/continue-code:0
+[  111055ms] [ERROR] Failed to load resource: net::ERR_EMPTY_RESPONSE @ http://localhost:3333/socket.io/?EIO=4&transport=polling&t=Pnuo4oN:0
+[  112809ms] [ERROR] Failed to load resource: net::ERR_EMPTY_RESPONSE @ http://localhost:3333/socket.io/?EIO=4&transport=polling&t=Pnuo5Dp:0
+[  124765ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/api/Cards/:0
+[  137904ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/rest/wallet/balance:0

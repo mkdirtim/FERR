@@ -1,0 +1,52 @@
+- generic [active]:
+  - generic [ref=e9]:
+    - generic [ref=e12]:
+      - button "Open Sidenav" [ref=e418] [cursor=pointer]:
+        - img [ref=e14]: menu
+      - button "Back to homepage" [ref=e419]:
+        - generic [ref=e19]:
+          - img "OWASP Juice Shop" [ref=e420]
+          - generic [ref=e21]: OWASP Juice Shop
+      - generic "Click to search" [ref=e421]:
+        - textbox [ref=e270]: Apple Juice
+        - generic:
+          - img [ref=e26]: close
+          - img [ref=e27]: search
+      - button "Show/hide account menu" [ref=e422]:
+        - img [ref=e29]: account_circle
+        - generic [ref=e30]: Account
+      - button "Language selection menu" [ref=e423]:
+        - img [ref=e34]: language
+        - generic [ref=e35]: EN
+    - generic [ref=e561]:
+      - heading "Login" [level=1] [ref=e562]
+      - generic [ref=e563]:
+        - generic [ref=e566]:
+          - generic [ref=e567]:
+            - text: Email
+            - generic [ref=e568]: "*"
+          - textbox "Text field for the login email" [ref=e570]
+        - generic [ref=e574]:
+          - generic [ref=e575]:
+            - text: Password
+            - generic [ref=e576]: "*"
+          - textbox "Text field for the login password" [ref=e578]
+          - button "Button to display the password" [ref=e580] [cursor=pointer]:
+            - img [ref=e581]: eye
+        - link "Forgot your password?" [ref=e586] [cursor=pointer]:
+          - /url: "#/forgot-password"
+        - button "Login" [disabled]:
+          - img: exit_to_app
+          - generic: Log in
+        - generic [ref=e588]:
+          - generic [ref=e589] [cursor=pointer]:
+            - checkbox "Checkbox to stay logged in or not logged in" [ref=e591]
+            - generic:
+              - img
+          - generic [ref=e592] [cursor=pointer]: Remember me
+        - link "Not yet a customer?" [ref=e594] [cursor=pointer]:
+          - /url: "#/register"
+  - generic [ref=e601]:
+    - generic [ref=e602]: Registration completed successfully. You can now log in.
+    - button "X" [ref=e604]:
+      - generic [ref=e605]: X

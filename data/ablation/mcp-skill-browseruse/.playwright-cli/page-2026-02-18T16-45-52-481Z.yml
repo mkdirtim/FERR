@@ -1,0 +1,41 @@
+- generic [ref=e9]:
+  - generic [ref=e12]:
+    - button "Open Sidenav" [ref=e417] [cursor=pointer]:
+      - img [ref=e14]: menu
+    - button "Back to homepage" [ref=e418]:
+      - generic [ref=e19]:
+        - img "OWASP Juice Shop" [ref=e419]
+        - generic [ref=e21]: OWASP Juice Shop
+    - generic "Click to search" [ref=e420]:
+      - textbox [ref=e269]: Apple Juice
+      - generic:
+        - img [ref=e26]: close
+        - img [ref=e27]: search
+    - button "Show/hide account menu" [ref=e421]:
+      - img [ref=e29]: account_circle
+      - generic [ref=e30]: Account
+    - button "Language selection menu" [ref=e422]:
+      - img [ref=e34]: language
+      - generic [ref=e35]: EN
+  - generic [ref=e273]:
+    - generic [ref=e275]: Search Results - Apple Juice
+    - generic "Click for more information about the product" [ref=e423] [cursor=pointer]:
+      - button "Apple Juice (1000ml)" [ref=e424]
+      - generic [ref=e284]:
+        - generic [ref=e285]: Apple Juice (1000ml)
+        - generic [ref=e286]: 0.01¤
+    - separator [ref=e287]
+    - group [ref=e288]:
+      - generic [ref=e290]:
+        - generic [ref=e291]:
+          - generic [ref=e292]: "Items per page:"
+          - combobox "Items per page:" [ref=e425] [cursor=pointer]:
+            - generic [ref=e298]:
+              - generic [ref=e300]: "12"
+              - img [ref=e303]
+        - generic [ref=e306]:
+          - generic [ref=e307]: 1 – 1 of 1
+          - button "Previous page" [disabled] [ref=e426]:
+            - img [ref=e309]
+          - button "Next page" [disabled] [ref=e427]:
+            - img [ref=e314]

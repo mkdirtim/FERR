@@ -1,0 +1,24 @@
+## bkimminich/juice-shop:latest
+id: sha256:2decb22d49c747c6ffcee741cbfec5ffa2b43183c0a7c3f6a09a0671a2f76b28
+repodigest: bkimminich/juice-shop@sha256:e68bd19091f952a0cdf75c5ca318d92e7a06b350ab5a88446f2bf62daf2e88c9
+
+## jvhoof/badstore-docker:latest
+id: sha256:40655aa3c0a7e12bb4535227a747ceb0fb5bcdfce459d648a55e22edc531719c
+repodigest: jvhoof/badstore-docker@sha256:45aa57216284ab41d060ac0c5bbfa71b307158419631739cdbf8ff6bd6911a88
+
+## openhack:latest
+id: sha256:5ba5230b244733b6056cbc78e98dccefdc16e8d095196386e7a79fa46137ebea
+repodigest: (local-only)
+
+## raesene/bwapp:latest
+id: sha256:8be28fba48ec1057ca53408cb0d814b0897369213cb6ad22cc2e4ddc598135cc
+repodigest: raesene/bwapp@sha256:2f41183ea9f9e8fb36678d7a2a0c8a9db9a59f4569cee02fe6664b419b2600ee
+
+## vulnerables/web-dvwa:latest
+id: sha256:ab0d83586b6e8799bb549ab91914402e47e3bcc7eea0c5cdf43755d56150cc6a
+repodigest: vulnerables/web-dvwa@sha256:dae203fe11646a86937bf04db0079adef295f426da68a92b40e3b181f337daa7
+
+## webgoat/webgoat:latest
+id: sha256:13af10adb5887892f249f73480a29e0007e6b87414a1db709ec9d94476297de6
+repodigest: webgoat/webgoat@sha256:3101bd9e7bcfe122d7ef91e690ef3720de36cc4e86b3d06763a1ddf2e2751a4b
+

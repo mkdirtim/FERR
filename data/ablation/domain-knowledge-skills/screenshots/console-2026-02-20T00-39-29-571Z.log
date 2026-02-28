@@ -1,0 +1,22 @@
+[      84ms] [ERROR] ERROR TypeError: Cannot read properties of null (reading 'Products')
+    at Object.next (http://localhost:3333/main.js:1:80754)
+    at R.next (http://localhost:3333/vendor.js:1:1386526)
+    at W._next (http://localhost:3333/vendor.js:1:1386200)
+    at W.next (http://localhost:3333/vendor.js:1:1385886)
+    at o._next (http://localhost:3333/vendor.js:1:1386200)
+    at o.next (http://localhost:3333/vendor.js:1:1385886)
+    at http://localhost:3333/vendor.js:1:1210594
+    at o._next (http://localhost:3333/vendor.js:1:909973)
+    at o.next (http://localhost:3333/vendor.js:1:1385886)
+    at http://localhost:3333/vendor.js:1:1210594 @ http://localhost:3333/vendor.js:0
+[   72344ms] [ERROR] ERROR TypeError: Cannot read properties of null (reading 'Products')
+    at Object.next (http://localhost:3333/main.js:1:80754)
+    at R.next (http://localhost:3333/vendor.js:1:1386526)
+    at W._next (http://localhost:3333/vendor.js:1:1386200)
+    at W.next (http://localhost:3333/vendor.js:1:1385886)
+    at o._next (http://localhost:3333/vendor.js:1:1386200)
+    at o.next (http://localhost:3333/vendor.js:1:1385886)
+    at http://localhost:3333/vendor.js:1:1210594
+    at o._next (http://localhost:3333/vendor.js:1:909973)
+    at o.next (http://localhost:3333/vendor.js:1:1385886)
+    at http://localhost:3333/vendor.js:1:1210594 @ http://localhost:3333/vendor.js:0

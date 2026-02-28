@@ -1,0 +1,49 @@
+- generic:
+  - dialog "cookieconsent" [ref=e1]:
+    - generic [ref=e2]:
+      - text: This website uses fruit cookies to ensure you get the juiciest tracking experience.
+      - button "learn more about cookies" [ref=e3] [cursor=pointer]: But me wait!
+    - button "dismiss cookie message" [ref=e5] [cursor=pointer]: Me want it!
+  - generic [ref=e9]:
+    - generic [ref=e12]:
+      - button "Open Sidenav" [ref=e221] [cursor=pointer]:
+        - img [ref=e14]: menu
+      - button "Back to homepage" [ref=e222]:
+        - generic [ref=e19]:
+          - img "OWASP Juice Shop" [ref=e223]
+          - generic [ref=e21]: OWASP Juice Shop
+      - generic "Click to search" [ref=e224]:
+        - textbox [active] [ref=e257]: <iframe src="javascript:alert('xss')">
+        - generic:
+          - img [ref=e26]: close
+          - img [ref=e27]: search
+      - button "Show/hide account menu" [ref=e225]:
+        - img [ref=e29]: account_circle
+        - generic [ref=e30]: Account
+      - button "Language selection menu" [ref=e226]:
+        - img [ref=e34]: language
+        - generic [ref=e35]: EN
+    - generic [ref=e261]:
+      - generic [ref=e263]:
+        - text: Search Results -
+        - iframe [ref=e265]:
+          
+      - generic [ref=e267]:
+        - img "No results found" [ref=e268]
+        - generic [ref=e270]: No results found
+        - generic [ref=e272]: Try adjusting your search to find what you're looking for.
+      - separator [ref=e273]
+      - group [ref=e274]:
+        - generic [ref=e276]:
+          - generic [ref=e277]:
+            - generic [ref=e278]: "Items per page:"
+            - combobox "Items per page:" [ref=e283] [cursor=pointer]:
+              - generic [ref=e284]:
+                - generic [ref=e286]: "12"
+                - img [ref=e289]
+          - generic [ref=e292]:
+            - generic [ref=e293]: 0 of 0
+            - button "Previous page" [disabled] [ref=e294]:
+              - img [ref=e295]
+            - button "Next page" [disabled] [ref=e299]:
+              - img [ref=e300]

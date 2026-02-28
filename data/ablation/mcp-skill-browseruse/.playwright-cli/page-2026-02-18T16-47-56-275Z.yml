@@ -1,0 +1,73 @@
+- generic [ref=e9]:
+  - generic [ref=e12]:
+    - button "Open Sidenav" [ref=e417] [cursor=pointer]:
+      - img [ref=e14]: menu
+    - button "Back to homepage" [ref=e418]:
+      - generic [ref=e19]:
+        - img "OWASP Juice Shop" [ref=e419]
+        - generic [ref=e21]: OWASP Juice Shop
+    - generic "Click to search" [ref=e420]:
+      - textbox [ref=e269]: Apple Juice
+      - generic:
+        - img [ref=e26]: close
+        - img [ref=e27]: search
+    - button "Show/hide account menu" [ref=e421]:
+      - img [ref=e29]: account_circle
+      - generic [ref=e30]: Account
+    - button "Language selection menu" [ref=e422]:
+      - img [ref=e34]: language
+      - generic [ref=e35]: EN
+  - generic [ref=e630]:
+    - heading "User Registration" [level=1] [ref=e631]
+    - generic [ref=e632]:
+      - generic [ref=e635]:
+        - generic [ref=e636]:
+          - text: Email
+          - generic [ref=e637]: "*"
+        - textbox "Email address field" [ref=e639]
+      - generic [ref=e641]:
+        - generic [ref=e643]:
+          - generic [ref=e644]:
+            - text: Password
+            - generic [ref=e645]: "*"
+          - textbox "Field for the password" [ref=e647]
+        - generic [ref=e649]:
+          - generic [ref=e650]:
+            - img [ref=e651]: exclamation-circle
+            - emphasis [ref=e653]: Password must be 5-40 characters long.
+          - generic [ref=e655]: 0/20
+      - generic [ref=e656]:
+        - generic [ref=e658]:
+          - generic [ref=e659]:
+            - text: Repeat Password
+            - generic [ref=e660]: "*"
+          - textbox "Field to confirm the password" [ref=e662]
+        - generic [ref=e666]: 0/40
+      - generic [ref=e668]:
+        - switch "Show password advice" [ref=e669] [cursor=pointer]:
+          - generic [ref=e675]:
+            - img [ref=e676]
+            - img [ref=e678]
+        - generic [ref=e680] [cursor=pointer]: Show password advice
+      - generic [ref=e681]:
+        - generic [ref=e682]:
+          - generic [ref=e684] [cursor=pointer]:
+            - generic [ref=e685]:
+              - text: Security Question
+              - generic [ref=e686]: "*"
+            - combobox "Selection list for the security question" [ref=e688]:
+              - img [ref=e694]
+          - generic [ref=e698]:
+            - img [ref=e699]: exclamation-circle
+            - emphasis [ref=e701]: This cannot be changed later!
+        - generic [ref=e705]:
+          - generic [ref=e706]:
+            - text: Answer
+            - generic [ref=e707]: "*"
+          - textbox "Field for the answer to the security question" [ref=e709]:
+            - /placeholder: Answer to your security question
+      - button "Button to complete the registration" [disabled]:
+        - img: person_add
+        - generic: Register
+      - link "Already a customer?" [ref=e712] [cursor=pointer]:
+        - /url: "#/login"

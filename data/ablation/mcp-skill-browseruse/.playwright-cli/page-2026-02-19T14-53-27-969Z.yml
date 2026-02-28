@@ -1,0 +1,57 @@
+- generic:
+  - dialog "cookieconsent" [ref=e1]:
+    - generic [ref=e2]:
+      - text: This website uses fruit cookies to ensure you get the juiciest tracking experience.
+      - button "learn more about cookies" [ref=e3] [cursor=pointer]: But me wait!
+    - button "dismiss cookie message" [ref=e5] [cursor=pointer]: Me want it!
+  - generic [ref=e9]:
+    - generic [ref=e12]:
+      - button "Open Sidenav" [ref=e234] [cursor=pointer]:
+        - img [ref=e14]: menu
+      - button "Back to homepage" [ref=e235]:
+        - generic [ref=e19]:
+          - img "OWASP Juice Shop" [ref=e236]
+          - generic [ref=e21]: OWASP Juice Shop
+      - generic "Click to search" [ref=e237]:
+        - generic [ref=e25]:
+          - generic:
+            - generic:
+              - generic:
+                - textbox [disabled]
+        - generic:
+          - img [ref=e26]: close
+          - img [ref=e27]: search
+      - button "Show/hide account menu" [active] [ref=e238]:
+        - img [ref=e29]: account_circle
+        - generic [ref=e30]: Account
+      - button "Language selection menu" [ref=e239]:
+        - img [ref=e34]: language
+        - generic [ref=e35]: EN
+    - generic [ref=e277]:
+      - heading "Login" [level=1] [ref=e278]
+      - generic [ref=e279]:
+        - generic [ref=e282]:
+          - generic [ref=e283]:
+            - text: Email
+            - generic [ref=e284]: "*"
+          - textbox "Text field for the login email" [ref=e286]
+        - generic [ref=e290]:
+          - generic [ref=e291]:
+            - text: Password
+            - generic [ref=e292]: "*"
+          - textbox "Text field for the login password" [ref=e294]
+          - button "Button to display the password" [ref=e296] [cursor=pointer]:
+            - img [ref=e297]: eye
+        - link "Forgot your password?" [ref=e302] [cursor=pointer]:
+          - /url: "#/forgot-password"
+        - button "Login" [disabled]:
+          - img: exit_to_app
+          - generic: Log in
+        - generic [ref=e304]:
+          - generic [ref=e305] [cursor=pointer]:
+            - checkbox "Checkbox to stay logged in or not logged in" [ref=e307]
+            - generic:
+              - img
+          - generic [ref=e308] [cursor=pointer]: Remember me
+        - link "Not yet a customer?" [ref=e310] [cursor=pointer]:
+          - /url: "#/register"

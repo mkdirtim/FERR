@@ -1,0 +1,4 @@
+[   48257ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/api/BasketItems/:0
+[   52647ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/api/BasketItems/:0
+[   57926ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/api/BasketItems/:0
+[   61649ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:3333/api/BasketItems/:0

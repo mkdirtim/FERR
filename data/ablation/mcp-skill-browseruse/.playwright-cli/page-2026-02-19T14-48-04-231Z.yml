@@ -1,0 +1,43 @@
+- generic [ref=e9]:
+  - generic [ref=e12]:
+    - button "Open Sidenav" [ref=e234] [cursor=pointer]:
+      - img [ref=e14]: menu
+    - button "Back to homepage" [ref=e235]:
+      - generic [ref=e19]:
+        - img "OWASP Juice Shop" [ref=e236]
+        - generic [ref=e21]: OWASP Juice Shop
+    - generic "Click to search" [ref=e237]:
+      - textbox [active] [ref=e274]: <iframe src="javascript:alert('xss')">
+      - generic:
+        - img [ref=e26] [cursor=pointer]: close
+        - img [ref=e27] [cursor=pointer]: search
+    - button "Show/hide account menu" [ref=e238]:
+      - img [ref=e29]: account_circle
+      - generic [ref=e30]: Account
+    - button "Language selection menu" [ref=e239]:
+      - img [ref=e34]: language
+      - generic [ref=e35]: EN
+  - generic [ref=e278]:
+    - generic [ref=e280]:
+      - text: Search Results -
+      - iframe [ref=e282]:
+        
+    - generic [ref=e284]:
+      - img "No results found" [ref=e285]
+      - generic [ref=e287]: No results found
+      - generic [ref=e289]: Try adjusting your search to find what you're looking for.
+    - separator [ref=e290]
+    - group [ref=e291]:
+      - generic [ref=e293]:
+        - generic [ref=e294]:
+          - generic [ref=e295]: "Items per page:"
+          - combobox "Items per page:" [ref=e300] [cursor=pointer]:
+            - generic [ref=e301]:
+              - generic [ref=e303]: "12"
+              - img [ref=e306]
+        - generic [ref=e309]:
+          - generic [ref=e310]: 0 of 0
+          - button "Previous page" [disabled] [ref=e311]:
+            - img [ref=e312]
+          - button "Next page" [disabled] [ref=e316]:
+            - img [ref=e317]

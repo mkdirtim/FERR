@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest", "--output-dir", "/Users/mkdirtim/Development/projects/pentest/browseruse/experiment/screenshots"]
+    }
+  }
+}

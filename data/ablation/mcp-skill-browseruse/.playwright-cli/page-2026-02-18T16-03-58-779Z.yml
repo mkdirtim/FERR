@@ -1,0 +1,116 @@
+- generic [active]:
+  - generic [ref=e9]:
+    - generic [ref=e12]:
+      - button "Open Sidenav" [ref=e236] [cursor=pointer]:
+        - img [ref=e14]: menu
+      - button "Back to homepage" [ref=e237]:
+        - generic [ref=e19]:
+          - img "OWASP Juice Shop" [ref=e238]
+          - generic [ref=e21]: OWASP Juice Shop
+      - generic "Click to search" [ref=e239]:
+        - generic [ref=e25]:
+          - generic:
+            - generic:
+              - generic:
+                - textbox [disabled]
+        - generic:
+          - img [ref=e26]: close
+          - img [ref=e27]: search
+      - button "Show/hide account menu" [ref=e240]:
+        - img [ref=e29]: account_circle
+        - generic [ref=e30]: Account
+      - button "Language selection menu" [ref=e241]:
+        - img [ref=e34]: language
+        - generic [ref=e35]: EN
+    - generic [ref=e40]:
+      - generic [ref=e42]: All Products
+      - generic [ref=e109]:
+        - generic:
+          - generic "Click for more information about the product" [ref=e242] [cursor=pointer]:
+            - button "Apple Juice (1000ml)" [ref=e243]
+            - generic [ref=e116]:
+              - generic [ref=e117]: Apple Juice (1000ml)
+              - generic [ref=e118]: 0.01¤
+          - generic "Click for more information about the product" [ref=e244] [cursor=pointer]:
+            - button "Apple Pomace" [ref=e245]
+            - generic [ref=e125]:
+              - generic [ref=e126]: Apple Pomace
+              - generic [ref=e127]: 0.89¤
+          - generic "Click for more information about the product" [ref=e246] [cursor=pointer]:
+            - button "Banana Juice (1000ml)" [ref=e247]
+            - generic [ref=e134]:
+              - generic [ref=e135]: Banana Juice (1000ml)
+              - generic [ref=e136]: 1.99¤
+          - generic [ref=e140]:
+            - generic:
+              - generic: Only 1 left
+            - generic "Click for more information about the product" [ref=e248] [cursor=pointer]:
+              - button "Best Juice Shop Salesman Artwork" [ref=e249]
+              - generic [ref=e143]:
+                - generic [ref=e144]: Best Juice Shop Salesman Artwork
+                - generic [ref=e145]: "-9999¤"
+          - generic "Click for more information about the product" [ref=e250] [cursor=pointer]:
+            - button "Carrot Juice (1000ml)" [ref=e251]
+            - generic [ref=e152]:
+              - generic [ref=e153]: Carrot Juice (1000ml)
+              - generic [ref=e154]: 2.99¤
+          - generic "Click for more information about the product" [ref=e252] [cursor=pointer]:
+            - button "Eggfruit Juice (500ml)" [ref=e253]
+            - generic [ref=e161]:
+              - generic [ref=e162]: Eggfruit Juice (500ml)
+              - generic [ref=e163]: 8.99¤
+          - generic "Click for more information about the product" [ref=e254] [cursor=pointer]:
+            - button "Fruit Press" [ref=e255]
+            - generic [ref=e170]:
+              - generic [ref=e171]: Fruit Press
+              - generic [ref=e172]: 89.99¤
+          - generic "Click for more information about the product" [ref=e256] [cursor=pointer]:
+            - button "Green Smoothie" [ref=e257]
+            - generic [ref=e179]:
+              - generic [ref=e180]: Green Smoothie
+              - generic [ref=e181]: 1.99¤
+          - generic [ref=e185]:
+            - generic:
+              - generic: Only 1 left
+            - generic "Click for more information about the product" [ref=e258] [cursor=pointer]:
+              - button "Juice Shop \"Permafrost\" 2020 Edition" [ref=e259]
+              - generic [ref=e188]:
+                - generic [ref=e189]: Juice Shop "Permafrost" 2020 Edition
+                - generic [ref=e190]: 0¤
+          - generic "Click for more information about the product" [ref=e260] [cursor=pointer]:
+            - button "Lemon Juice (500ml)" [ref=e261]
+            - generic [ref=e197]:
+              - generic [ref=e198]: Lemon Juice (500ml)
+              - generic [ref=e199]: 2.99¤
+          - generic [ref=e203]:
+            - generic:
+              - generic: Only 3 left
+            - generic "Click for more information about the product" [ref=e262] [cursor=pointer]:
+              - button "Melon Bike (Comeback-Product 2018 Edition)" [ref=e263]
+              - generic [ref=e206]:
+                - generic [ref=e207]: Melon Bike (Comeback-Product 2018 Edition)
+                - generic [ref=e208]: 2999¤
+          - generic [ref=e212]:
+            - generic:
+              - generic: Sold Out
+            - generic "Click for more information about the product" [ref=e264] [cursor=pointer]:
+              - button "OWASP Juice Shop \"King of the Hill\" Facemask" [ref=e265]
+              - generic [ref=e215]:
+                - generic [ref=e216]: OWASP Juice Shop "King of the Hill" Facemask
+                - generic [ref=e217]: 13.49¤
+      - separator [ref=e43]
+      - group [ref=e44]:
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]: "Items per page:"
+            - combobox "Items per page:" [ref=e266] [cursor=pointer]:
+              - generic [ref=e223]:
+                - generic [ref=e225]: "12"
+                - img [ref=e228]
+          - generic [ref=e50]:
+            - generic [ref=e51]: 1 – 12 of 37
+            - button "Previous page" [disabled] [ref=e267]:
+              - img [ref=e53]
+            - button "Next page" [ref=e268] [cursor=pointer]:
+              - img [ref=e58]
+  - generic [ref=e272]: Click for more information

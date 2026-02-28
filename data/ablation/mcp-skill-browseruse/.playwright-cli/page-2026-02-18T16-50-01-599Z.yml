@@ -1,0 +1,49 @@
+- generic [ref=e9]:
+  - generic [ref=e12]:
+    - button "Open Sidenav" [ref=e417] [cursor=pointer]:
+      - img [ref=e14]: menu
+    - button "Back to homepage" [ref=e418]:
+      - generic [ref=e19]:
+        - img "OWASP Juice Shop" [ref=e419]
+        - generic [ref=e21]: OWASP Juice Shop
+    - generic "Click to search" [ref=e420]:
+      - textbox [ref=e269]: Apple Juice
+      - generic:
+        - img [ref=e26]: close
+        - img [ref=e27]: search
+    - button "Show/hide account menu" [ref=e421]:
+      - img [ref=e29]: account_circle
+      - generic [ref=e30]: Account
+    - button "Show the shopping cart" [active] [ref=e811] [cursor=pointer]:
+      - img [ref=e812]: shopping_cart
+      - generic [ref=e813]:
+        - text: Your Basket
+        - generic [ref=e814]: "1"
+    - button "Language selection menu" [ref=e422]:
+      - img [ref=e34]: language
+      - generic [ref=e35]: EN
+  - generic [ref=e1038]:
+    - generic [ref=e1039]:
+      - heading "Your Basket (test@example.com)" [level=1] [ref=e1040]
+      - table [ref=e1041]:
+        - row [ref=e1042]
+        - row "Apple Juice (1000ml) Apple Juice (1000ml) 1 0.01¤" [ref=e1043]:
+          - cell "Apple Juice (1000ml)" [ref=e1044]:
+            - img "Apple Juice (1000ml)" [ref=e1045]
+          - cell "Apple Juice (1000ml)" [ref=e1046]
+          - cell "1" [ref=e1047]:
+            - button [ref=e1048] [cursor=pointer]:
+              - img [ref=e1049]: minus-square
+            - generic [ref=e1053]: "1"
+            - button [ref=e1054] [cursor=pointer]:
+              - img [ref=e1055]: plus-square
+          - cell "0.01¤" [ref=e1059]
+          - cell [ref=e1060]:
+            - button [ref=e1061] [cursor=pointer]:
+              - img [ref=e1062]: trash-alt
+      - generic [ref=e1066]: "Total Price: 0.01¤"
+    - button "Checkout" [ref=e1067]:
+      - generic [ref=e1068]:
+        - img [ref=e1069]: cart-arrow-down
+        - text: Checkout
+    - generic [ref=e1073]: You will gain 0 Bonus Points from this order!

@@ -1,0 +1,5 @@
+[   59384ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/order/bba7-3097bd1996c9b5ca:0
+[   63369ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/orders:0
+[   63385ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/api/Orders?UserId=25:0
+[   70213ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/rest/basket/8/checkout:0
+[   86161ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3333/api/Orders:0

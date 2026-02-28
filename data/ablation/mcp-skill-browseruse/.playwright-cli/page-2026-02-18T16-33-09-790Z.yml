@@ -1,0 +1,61 @@
+- generic:
+  - generic [ref=e9]:
+    - generic [ref=e12]:
+      - button [ref=e320] [cursor=pointer]:
+        - img [ref=e14]: menu
+      - button [ref=e321]:
+        - generic [ref=e19]:
+          - img [ref=e322]
+          - generic [ref=e21]: OWASP Juice Shop
+      - generic [ref=e323]:
+        - textbox [ref=e271]: Apple Juice
+        - img [ref=e26]: close
+        - img [ref=e27]: search
+      - button [ref=e324]:
+        - img [ref=e29]: account_circle
+        - generic [ref=e30]: Account
+      - button [ref=e325]:
+        - img [ref=e34]: language
+        - generic [ref=e35]: EN
+    - generic [ref=e275]:
+      - generic [ref=e277]: Search Results - Apple Juice
+      - generic [ref=e326] [cursor=pointer]:
+        - button [ref=e327]
+        - generic [ref=e286]:
+          - generic [ref=e287]: Apple Juice (1000ml)
+          - generic [ref=e288]: 0.01¤
+      - separator [ref=e289]
+      - group [ref=e290]:
+        - generic [ref=e292]:
+          - generic [ref=e293]:
+            - generic [ref=e294]: "Items per page:"
+            - combobox [ref=e328] [cursor=pointer]:
+              - generic [ref=e300]:
+                - generic [ref=e302]: "12"
+                - img [ref=e305]
+          - generic [ref=e308]:
+            - generic [ref=e309]: 1 – 1 of 1
+            - button [disabled] [ref=e329]:
+              - img [ref=e311]
+            - button [disabled] [ref=e330]:
+              - img [ref=e316]
+  - dialog [ref=e334]:
+    - generic [ref=e339]:
+      - generic [ref=e340]:
+        - img "Apple Juice (1000ml)" [ref=e342]
+        - generic [ref=e343]:
+          - heading "Apple Juice (1000ml)" [level=1] [ref=e344]
+          - generic [ref=e345]: The all-time classic.
+          - paragraph [ref=e346]: 0.01¤
+      - separator [ref=e347]
+      - button [active]
+      - generic "Expand for Reviews" [ref=e349]:
+        - button "Reviews (1)" [ref=e350] [cursor=pointer]:
+          - generic [ref=e352]:
+            - generic [ref=e353]: Reviews
+            - generic [ref=e354]: (1)
+      - separator [ref=e356]
+      - text: exclamation-circle
+      - button "Close Dialog" [ref=e358]:
+        - img [ref=e359]: close
+        - generic [ref=e360]: Close

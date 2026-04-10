@@ -4,6 +4,7 @@ import fs from "fs/promises"
 import * as Lsp from "../../src/lsp/index"
 import * as launch from "../../src/lsp/launch"
 import { LSPServer } from "../../src/lsp/server"
+import { Npm } from "../../src/npm"
 import { Instance } from "../../src/project/instance"
 import { tmpdir } from "../fixture/fixture"
 
@@ -63,6 +64,7 @@ describe("lsp.spawn", () => {
     await fs.mkdir(tsdk, { recursive: true })
     await fs.writeFile(path.join(tsdk, "tsserver.js"), "")
 
+    const npmWhichSpy = spyOn(Npm, "which").mockResolvedValue("/fake/bin/typescript-language-server")
     const spawnSpy = spyOn(launch, "spawn").mockImplementation(
       () =>
         ({
@@ -89,6 +91,7 @@ describe("lsp.spawn", () => {
       expect(args).toContain("--tsserver-log-verbosity")
       expect(args).toContain("off")
     } finally {
+      npmWhichSpy.mockRestore()
       spawnSpy.mockRestore()
     }
   })
@@ -103,6 +106,7 @@ describe("lsp.spawn", () => {
 
     // NO tsconfig.json or jsconfig.json created here
 
+    const npmWhichSpy = spyOn(Npm, "which").mockResolvedValue("/fake/bin/typescript-language-server")
     const spawnSpy = spyOn(launch, "spawn").mockImplementation(
       () =>
         ({
@@ -127,6 +131,7 @@ describe("lsp.spawn", () => {
 
       expect(args).toContain("--ignore-node-modules")
     } finally {
+      npmWhichSpy.mockRestore()
       spawnSpy.mockRestore()
     }
   })

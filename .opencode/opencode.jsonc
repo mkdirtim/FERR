@@ -44,6 +44,9 @@
   "permission": {
     "question": "allow",
     "websearch": "allow",
+    "edit": {
+      "packages/opencode/migration/*": "deny",
+    },
   },
   "tools": {
     "github-triage": false,

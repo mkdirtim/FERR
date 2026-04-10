@@ -45,7 +45,7 @@ Policy: only merge upstream release tags into `openhack` (never merge upstream b
 
   bun install
   bun turbo typecheck
-  bun turbo test
+  bun --cwd packages/opencode test
 
 6) Push and open a PR:
 
@@ -67,7 +67,7 @@ Policy: only merge upstream release tags into `openhack` (never merge upstream b
   git push origin --delete upgrade/opencode-${NEW_TAG}
 
 9) Update upgrade docs for next cycle:
-- `upgrading/HOWTO.md`
+- `data/docs/upgrading.md`
   - update `Current prune commit`
   - update `Current fork-fix commit`
   - add upgrade history row
@@ -83,7 +83,7 @@ After merging an upstream tag, cherry-pick the fork-maintenance commits:
   git cherry-pick <FORK_FIX_COMMIT_SHA>
   # resolve any conflicts, then test:
   bun turbo typecheck
-  bun turbo test
+  bun --cwd packages/opencode test
 
 ### Current prune commit
 
@@ -137,3 +137,4 @@ After resolving, update the prune commit SHA in this file.
 | v1.1.64 | v1.2.5 | #2 | 711e18650 | 72 | Prune only touched 2 patch files; share module refactored to config-driven URL |
 | v1.2.5 | v1.2.10 | #3 | 6b88eb639 | 301 | Prune/fork-fix baseline advanced to `aec6239af` / `c8ec2b563`; upstream base tagged as `upstream-opencode-v1.2.10` |
 | v1.2.10 | v1.2.14 | #4 | de6131ca4 | 117 | Prune/fork-fix SHAs unchanged; `skill.test.ts` taken verbatim from upstream (path.join portability + `.opencode/skill/` singular) |
+| v1.2.14 | v1.4.3 | #6 | 8ac8b61a3 | 1280 | Prune-2 skipped (glossary already absent); `skill.ts` deleted upstream (refactored to index); AI SDK major bumps (ai 5→6); Effect 4.0 beta; `@lydell/node-pty` added; bun bumped to 1.3.11 (ran 1.3.12) |
